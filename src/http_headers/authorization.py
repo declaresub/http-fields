@@ -1,46 +1,36 @@
-"""Authorization header class"""
+"""Authorization header class."""
 
-from abnf import ParseError
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.visitors.rfc9110 import (
     AuthorizationVisitor,
     AuthParamCredentials,
-    FieldName,
     TokenCredentials,
 )
 
+__all__ = ["AuthParamCredentials", "Authorization", "TokenCredentials"]
 
+
+@dataclass(frozen=True)
 class Authorization(Header):
-    """Authorization header."""
+    """Authorization header, as defined by RFC 9110."""
 
-    name = FieldName("Authorization")
+    name: ClassVar[str] = "Authorization"
+    rule: ClassVar[Rule] = rfc9110.Rule("Authorization")
+    visitor: ClassVar[AuthorizationVisitor] = AuthorizationVisitor()
 
-    def __init__(
-        self,
-        value: str | None = None,
-        *,
-        credentials: TokenCredentials | AuthParamCredentials | None = None,
-    ):
+    credentials: TokenCredentials | AuthParamCredentials
 
-        if isinstance(value, str):
-            self.value = value
-        else:
-            if not credentials:
-                raise ValueError("Either value or credentials must be supplied.")
-            self.credentials = credentials
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
+    def value(self) -> str:
         return str(self.credentials)
-
-    @value.setter
-    def value(self, val: str):
-        try:
-            node = rfc9110.Rule("Authorization").parse_all(val)
-        except ParseError as exc:
-            raise ValueError(f'Invalid {self.name} value "{val}".') from exc
-        else:
-            visitor = AuthorizationVisitor()
-            self.credentials = visitor.visit(node)

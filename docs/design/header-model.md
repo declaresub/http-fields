@@ -360,7 +360,10 @@ at every step:
    map-driven `parse`/`value` prototype (138 → ~110 lines, `s-maxage=0` preserved). Made
    `CacheDirective` hashable and fixed a latent bug where extension (unknown) directives never
    set `.value` (so `str()` crashed); made `AuthParam` frozen. Both headers now hashable.
-9. Auth (`Authorization`, `WWWAuthenticate`).
+9. ✅ Auth (`Authorization`, `WWWAuthenticate`). `Authorization` wraps a single credentials
+   object; `WWWAuthenticate` a tuple of challenges (varargs init). Frozen-ified the four
+   component types (`TokenCredentials`, `AuthParamCredentials`, `TokenChallenge`,
+   `AuthParamChallenge`; the param ones store a tuple) so both headers hash.
 10. Cookies (`Cookie`, `SetCookie`) — most involved.
 11. Component types → frozen; final sweep.
 

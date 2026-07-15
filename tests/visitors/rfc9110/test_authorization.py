@@ -25,7 +25,7 @@ def test_authparamcredentials():
 
     credentials = AuthParamCredentials("Digest", auth_params)
     assert isinstance(credentials.scheme, AuthScheme)
-    assert credentials.auth_params == auth_params
+    assert credentials.auth_params == tuple(auth_params)
 
 
 def test_authparamcredentials_str():

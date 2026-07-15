@@ -30,7 +30,7 @@ def test_tokenchallenge_eq():
 def test_authparamchallenge():
     challenge = AuthParamChallenge("Basic", [AuthParam("realm", "test")])
     assert isinstance(challenge.scheme, AuthScheme)
-    assert challenge.auth_params == [AuthParam("realm", "test")]
+    assert challenge.auth_params == (AuthParam("realm", "test"),)
 
 
 def test_authparamchallenge_str():

@@ -7,28 +7,28 @@ import http_headers.visitors.rfc9110.token68 as token68
 from http_headers.visitors.rfc9110.authscheme import AuthScheme
 
 
-@dataclass
+@dataclass(frozen=True)
 class AuthParamCredentials:
     scheme: AuthScheme
-    auth_params: list[authparam.AuthParam]
+    auth_params: tuple[authparam.AuthParam, ...]
 
     def __init__(self, scheme: str, auth_params: list[authparam.AuthParam]):
-        self.scheme = AuthScheme(scheme)
-        self.auth_params = list(auth_params)
+        object.__setattr__(self, "scheme", AuthScheme(scheme))
+        object.__setattr__(self, "auth_params", tuple(auth_params))
 
     def __str__(self):
         params = ",".join([str(param) for param in self.auth_params])
         return f"{self.scheme}{' ' + params if params else ''}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class TokenCredentials:
     scheme: AuthScheme
     token: token68.Token68 | None
 
     def __init__(self, scheme: str, token: str | None):
-        self.scheme = AuthScheme(scheme)
-        self.token = token68.Token68(token) if token else None
+        object.__setattr__(self, "scheme", AuthScheme(scheme))
+        object.__setattr__(self, "token", token68.Token68(token) if token else None)
 
     def __str__(self):
         return f"{self.scheme}{' ' + self.token if self.token else ''}"
