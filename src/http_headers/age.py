@@ -12,7 +12,7 @@ from http_headers.parsedobjs import NonNegativeInt
 from http_headers.visitors.rfc9111 import AgeVisitor
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Age(Header):
     """Age header, as defined by RFC 9111."""
 

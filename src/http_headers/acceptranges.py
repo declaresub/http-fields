@@ -11,7 +11,7 @@ from http_headers.header import Header
 from http_headers.visitors.rfc9110 import AcceptRangesVisitor, RangeUnit
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class AcceptRanges(Header):
     """Accept-Ranges header, as defined by RFC 9110."""
 

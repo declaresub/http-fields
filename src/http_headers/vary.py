@@ -11,7 +11,7 @@ from http_headers.header import Header
 from http_headers.visitors.rfc9110 import FieldName, VaryVisitor
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Vary(Header):
     """Vary header, as defined by RFC 9110.
 

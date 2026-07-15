@@ -119,7 +119,7 @@ from abnf.grammars import rfc9111
 from http_headers.parsedobjs import NonNegativeInt
 from http_headers.visitors.rfc9111 import AgeVisitor
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Age(Header):
     name: ClassVar[str] = "age"
     rule: ClassVar = rfc9111.Rule("Age")
@@ -181,9 +181,19 @@ codings: tuple[WeightedCoding, ...]    # Accept-Encoding
   ```
 
   Defining `__init__` in the class body suppresses dataclass's generated one (it keeps `eq`,
-  `__hash__`, `repr`, `slots` from the fields). Headers whose fields are always passed
-  already-typed (via `parse()`) can skip the custom `__init__` and use the generated one. Note
-  `__post_init__` is **not** called when a custom `__init__` is defined.
+  `__hash__`, `repr` from the fields). Headers whose fields are always passed already-typed (via
+  `parse()`) can skip the custom `__init__` and use the generated one. Note `__post_init__` is
+  **not** called when a custom `__init__` is defined.
+
+### 4.6 Do NOT use `@dataclass(slots=True)` on headers
+
+`slots=True` makes the decorator **recreate the class**, which leaves the original,
+pre-slots class lingering in `Header.__subclasses__()` (weakly referenced, GC-timing
+dependent). `create()` walks `__subclasses__()` and can then pick up the **stale** class, so
+`Header.create("host", …)` returns an instance of a *different* class object than direct
+construction — and their strict-type `__eq__` returns `NotImplemented`/False. (Pilot finding in
+step 5.) Slots also buy little here: the `Header` base isn't slotted, so instances keep a
+`__dict__` regardless. All header dataclasses use plain `@dataclass(frozen=True)`.
 
 ### 4.4 Equality and hashing
 
@@ -333,7 +343,11 @@ at every step:
 4. ✅ Token lists (`Connection`, `Allow`, `Vary`, `ContentEncoding`, `AcceptRanges`) — five
    individual dataclasses (varargs `__init__` coercing to `tuple`, `.parse()`, join `value`);
    fields renamed for consistency (`content_coding` → `codings`). See §5 on why no shared base.
-5. Composite-single (`ContentType`, `ETag`, `Host`, `Location`, `ContentDisposition`, `ContentRange`).
+5. ⏳ Composite-single — done: `Location`, `Host`, `ETag`, `ContentRange`, `ContentType`
+   (frozen-ified `MediaType` + `Parameter`; `ContentType.of(...)` builder; `ETag.from_tag(...)`;
+   fixed a falsy-`0` bug in the ContentRange visitor). **Deferred: `ContentDisposition`** — its
+   dict-of-parms + `ExtValue` frozenness + grammar quirk (rule parses the whole header line)
+   warrant folding into the component-types-frozen pass.
 6. Weighted lists (`Accept`, `AcceptEncoding`, `AcceptCharset`).
 7. Entity-tag lists (`IfMatch`, `IfNoneMatch`).
 8. Directive lists (`CacheControl`, `AuthenticationInfo`).

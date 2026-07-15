@@ -19,16 +19,22 @@ from http_headers import ContentRange
             ContentRange(range_unit="bytes", first_pos=42, last_pos=1233),
         ),
         ("bytes */1234", ContentRange(range_unit="bytes", complete_length=1234)),
+        # a first_pos of 0 must not be dropped (falsy-0 regression).
+        (
+            "bytes 0-99/200",
+            ContentRange(
+                range_unit="bytes", first_pos=0, last_pos=99, complete_length=200
+            ),
+        ),
     ],
 )
-def test_contentrange_from_value(value: str, expected: ContentRange):
-    header = ContentRange(value)
-    assert header == expected
+def test_contentrange_parse(value: str, expected: ContentRange):
+    assert ContentRange.parse(value) == expected
 
 
-def test_contentrange_typeerror():
+def test_contentrange_missing_range_unit():
     with pytest.raises(TypeError):
-        ContentRange()
+        ContentRange()  # type: ignore[call-arg]
 
 
 @pytest.mark.parametrize(

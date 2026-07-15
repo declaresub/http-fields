@@ -1,19 +1,17 @@
 from http_headers import EntityTag, ETag
 
 
-def test_etag_from_value():
-    value = 'W/"deadbeef"'
-    etag = ETag(value)
-    assert etag == ETag(tag="deadbeef", weak=True)
+def test_etag_parse():
+    assert ETag.parse('W/"deadbeef"') == ETag.from_tag("deadbeef", weak=True)
 
 
 def test_etag_value():
-    assert ETag(tag="deadbeef", weak=True).value == 'W/"deadbeef"'
+    assert ETag.from_tag("deadbeef", weak=True).value == 'W/"deadbeef"'
 
 
 def test_etag_hash():
-    assert hash(ETag('"test"'))
+    assert hash(ETag.parse('"test"'))
 
 
 def test_etag_matches():
-    assert ETag('"test"').matches(EntityTag("test"))
+    assert ETag.parse('"test"').matches(EntityTag("test"))

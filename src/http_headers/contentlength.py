@@ -12,7 +12,7 @@ from http_headers.parsedobjs import NonNegativeInt
 from http_headers.visitors.rfc9110 import ContentLengthVisitor
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class ContentLength(Header):
     """Content-Length header."""
 

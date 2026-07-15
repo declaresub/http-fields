@@ -1,35 +1,35 @@
-"""Host header class"""
+"""Host header class."""
 
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.visitors.rfc9110 import HostVisitor
 
 
-class Host(Header):  # pylint: disable=too-few-public-methods
-    """
-    Host header.
+@dataclass(frozen=True)
+class Host(Header):
+    """Host header, as defined by RFC 9110.
+
     Host: www.example.com
     """
 
-    name = "host"
-    visitor = HostVisitor()
+    name: ClassVar[str] = "host"
+    rule: ClassVar[Rule] = rfc9110.Rule("Host")
+    visitor: ClassVar[HostVisitor] = HostVisitor()
 
-    def __init__(self, value: str):
-        """
-        :param hostname: a hostname.
-        :param value: raw header value
-        :rvalue: None
-        :raises ValueError:
-        """
+    hostname: str
+    port: int | None = None
 
-        self.value = value
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        hostname, port = cls.visitor.visit(cls._node(value))
+        return cls(hostname, port)
 
     @property
-    def value(self):
+    def value(self) -> str:
         return self.hostname + (f":{self.port}" if self.port else "")
-
-    @value.setter
-    def value(self, val: str):
-        node = rfc9110.Rule("Host").parse_all(val)
-        self.hostname, self.port = self.visitor.visit(node)

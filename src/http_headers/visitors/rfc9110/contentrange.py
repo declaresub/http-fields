@@ -31,7 +31,7 @@ class ContentRangeVisitor(NodeVisitor):
         return NonNegativeInt(node.value)
 
     def visit_unsatisfied_range(self, node: Node) -> UnsatisfiedRange:
-        item = next(filter(None, map(self.visit, node.children)))
+        item = next(x for x in map(self.visit, node.children) if x is not None)
         return UnsatisfiedRange(item if isinstance(item, NonNegativeInt) else None)
 
     @staticmethod
@@ -45,13 +45,17 @@ class ContentRangeVisitor(NodeVisitor):
     def visit_incl_range(self, node: Node):
         first_pos: NonNegativeInt
         last_pos: NonNegativeInt
-        first_pos, last_pos = filter(None, map(self.visit, node.children))
+        first_pos, last_pos = (
+            x for x in map(self.visit, node.children) if x is not None
+        )
         return (first_pos, last_pos)
 
     def visit_range_resp(self, node: Node):
         incl_range: tuple[NonNegativeInt, NonNegativeInt]
         complete_length: NonNegativeInt | Literal["*"]
-        incl_range, complete_length = filter(None, map(self.visit, node.children))
+        incl_range, complete_length = (
+            x for x in map(self.visit, node.children) if x is not None
+        )
         return RangeResp(
             *incl_range,
             complete_length=complete_length
@@ -62,5 +66,5 @@ class ContentRangeVisitor(NodeVisitor):
     def visit_content_range(self, node: Node):
         range_unit: RangeUnit
         range: RangeResp | UnsatisfiedRange
-        range_unit, range = filter(None, map(self.visit, node.children))
+        range_unit, range = (x for x in map(self.visit, node.children) if x is not None)
         return range_unit, range

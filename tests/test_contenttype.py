@@ -9,27 +9,25 @@ from http_headers.visitors.rfc9110 import Parameter
     [
         (
             "text/html; charset=UTF-8",
-            ContentType(type="text", subtype="html", charset="utf-8"),
+            ContentType.of(type="text", subtype="html", charset="utf-8"),
         ),
         (
             "multipart/form-data; boundary=something",
-            ContentType(type="multipart", subtype="form-data", boundary="something"),
+            ContentType.of(type="multipart", subtype="form-data", boundary="something"),
         ),
     ],
 )
-def test_contenttype_from_value(value: str, expected: ContentType):
-    print(ContentType(value))
-    print(expected)
-    assert ContentType(value) == expected
+def test_contenttype_parse(value: str, expected: ContentType):
+    assert ContentType.parse(value) == expected
 
 
 def test_contenttype_params():
-    header = ContentType(type="test", subtype="test", params=[("foo", "bar")])
+    header = ContentType.of(type="test", subtype="test", params=[("foo", "bar")])
     assert header.params == [Parameter("foo", "bar")]
 
 
-def test_content_type_type():
-    header = ContentType(type="test", subtype="test")
+def test_contenttype_type_subtype():
+    header = ContentType.of(type="test", subtype="test")
     assert header.type == "test"
     assert header.subtype == "test"
 
@@ -37,10 +35,10 @@ def test_content_type_type():
 @pytest.mark.parametrize(
     "header, expected",
     [
-        (ContentType(type="text", subtype="html", charset="utf-8"), "utf-8"),
-        (ContentType(type="text", subtype="html"), None),
+        (ContentType.of(type="text", subtype="html", charset="utf-8"), "utf-8"),
+        (ContentType.of(type="text", subtype="html"), None),
         (
-            ContentType(
+            ContentType.of(
                 type="text",
                 subtype="html",
                 charset="utf-7",
@@ -50,16 +48,19 @@ def test_content_type_type():
         ),
     ],
 )
-def test_content_type_charset(header: ContentType, expected: str | None):
+def test_contenttype_charset(header: ContentType, expected: str | None):
     assert header.charset == expected
 
 
 @pytest.mark.parametrize(
     "header, expected",
     [
-        (ContentType(type="multipart", subtype="form-data", boundary="test"), "test"),
         (
-            ContentType(
+            ContentType.of(type="multipart", subtype="form-data", boundary="test"),
+            "test",
+        ),
+        (
+            ContentType.of(
                 type="multipart",
                 subtype="form-data",
                 boundary="test",
@@ -67,7 +68,7 @@ def test_content_type_charset(header: ContentType, expected: str | None):
             ),
             "test",
         ),
-        (ContentType(type="text", subtype="html"), None),
+        (ContentType.of(type="text", subtype="html"), None),
     ],
 )
 def test_contenttype_boundary(header: ContentType, expected: str | None):
@@ -76,22 +77,22 @@ def test_contenttype_boundary(header: ContentType, expected: str | None):
 
 def test_contenttype_value():
     assert (
-        ContentType(type="text", subtype="html", charset="utf-8").value
+        ContentType.of(type="text", subtype="html", charset="utf-8").value
         == "text/html;charset=utf-8"
     )
 
 
-def test_content_type_missing_type():
+def test_contenttype_missing_type():
     with pytest.raises(TypeError):
-        ContentType()
+        ContentType.of()  # type: ignore[call-arg]
 
 
-def test_content_type_missing_subtype():
+def test_contenttype_missing_subtype():
     with pytest.raises(TypeError):
-        ContentType(type="text")
+        ContentType.of(type="text")  # type: ignore[call-arg]
 
 
 def test_contenttype_eq():
-    assert ContentType(type="text", subtype="html", charset="utf-8") == ContentType(
+    assert ContentType.of(
         type="text", subtype="html", charset="utf-8"
-    )
+    ) == ContentType.of(type="text", subtype="html", charset="utf-8")

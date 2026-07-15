@@ -21,7 +21,7 @@ class ContentEncodingVisitor(NodeVisitor):
         return node.value
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class ContentEncoding(Header):
     """Content-Encoding header, as defined by RFC 9110."""
 

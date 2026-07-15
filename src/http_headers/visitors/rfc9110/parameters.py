@@ -14,17 +14,17 @@ QuotedString = quotedstring.QuotedString
 QuotedStringVisitor = quotedstring.QuotedStringVisitor
 
 
-@dataclass
+@dataclass(frozen=True)
 class Parameter:
     name: Token
     value: Token | QuotedString
 
     def __init__(self, name: str, value: str):
-        self.name = Token(name)
+        object.__setattr__(self, "name", Token(name))
         try:
-            self.value = Token(value)
+            object.__setattr__(self, "value", Token(value))
         except ValueError:
-            self.value = QuotedString(value)
+            object.__setattr__(self, "value", QuotedString(value))
 
     def __str__(self):
         return f"{self.name}={self.value}"

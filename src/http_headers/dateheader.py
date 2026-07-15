@@ -11,7 +11,7 @@ from http_headers.header import Header
 from http_headers.visitors.rfc9110 import imf_fixdate
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DateHeader(Header):
     """Base for headers whose value is a single HTTP-date (RFC 9110 section 5.6.7).
 

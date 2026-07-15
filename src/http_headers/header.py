@@ -83,7 +83,7 @@ class Header(ABC):
             yield from subcls.subclass_tree()
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class CustomHeader(Header):
     """A header with an arbitrary field name, e.g. ``X-Request-Id``.
 

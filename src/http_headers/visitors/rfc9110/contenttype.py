@@ -7,21 +7,21 @@ import http_headers.visitors.rfc9110.token as token
 import http_headers.visitors.rfc9110.type as type
 
 
-@dataclass
+@dataclass(frozen=True)
 class MediaType:
     type: token.Token
     subtype: token.Token
-    params: list[parameters.Parameter]
+    params: tuple[parameters.Parameter, ...]
 
     def __init__(
         self,
         type: str,
         subtype: str,
-        params: list[parameters.Parameter] | None = None,
+        params: "list[parameters.Parameter] | tuple[parameters.Parameter, ...] | None" = None,
     ):
-        self.type = token.Token(type)
-        self.subtype = token.Token(subtype)
-        self.params = list(params) if params else []
+        object.__setattr__(self, "type", token.Token(type))
+        object.__setattr__(self, "subtype", token.Token(subtype))
+        object.__setattr__(self, "params", tuple(params) if params else ())
 
     def __str__(self) -> str:
         return f"{self.type}/{self.subtype}" + (

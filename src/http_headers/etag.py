@@ -1,53 +1,44 @@
-"""ETag header class, and visitors."""
+"""ETag header class."""
 
-from __future__ import annotations
+from dataclasses import dataclass
+from typing import ClassVar
 
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import EntityTag, ETagVisitor, FieldName
+from http_headers.visitors.rfc9110 import EntityTag, ETagVisitor
 
 
+@dataclass(frozen=True)
 class ETag(Header):
-    """Represents an ETag header."""
+    """ETag header, as defined by RFC 9110."""
 
-    name = FieldName("ETag")
-    visitor = ETagVisitor()
+    name: ClassVar[str] = "ETag"
+    rule: ClassVar[Rule] = rfc9110.Rule("ETag")
+    visitor: ClassVar[ETagVisitor] = ETagVisitor()
 
-    def __init__(self, value: str | None = None, *, tag: str = "", weak: bool = False):
-        """
-        Pass either a tag and optional weak flag, or a value.
+    entity_tag: EntityTag
 
-        :param tag: a str containing the tag value, not double-quoted.
-        :param weak: a bool representing whether or not the ETag is weak.
-        :param value: a str containing a header value.
-        """
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(cls.visitor.visit(cls._node(value)))
 
-        if isinstance(value, str):
-            self.value = value
-        else:
-            self.entity_tag = EntityTag(tag, weak=weak)
+    @classmethod
+    def from_tag(cls, tag: str, weak: bool = False) -> Self:
+        """Build an ETag from an opaque tag and optional weak flag."""
+        return cls(EntityTag(tag, weak=weak))
 
     @property
-    def value(self):
-        """Returns the ETag header value."""
+    def value(self) -> str:
         return str(self.entity_tag)
 
-    @value.setter
-    def value(self, val: str):
-        node = rfc9110.Rule("ETag").parse_all(val)
-        self.entity_tag: EntityTag = self.visitor.visit(node)
+    def matches(self, entity_tag: EntityTag | None, weak: bool = False) -> bool:
+        """Return True if this ETag matches ``entity_tag`` per RFC 9110 comparison.
 
-    def __eq__(self, __o: object) -> bool:
-        return isinstance(__o, self.__class__) and self.entity_tag == __o.entity_tag
-
-    def __hash__(self):
-        return hash(self.entity_tag)
-
-    def matches(self, entity_tag: EntityTag | None, weak: bool = False):
-        """Compare etag to an entity tag generated for resource.  Returns True if match succeeds, False if not. Comparison
-        to Nane is supported."""
-
+        Comparison against None is supported and returns False.
+        """
         return (
             self.entity_tag.compare(entity_tag, weak=weak)
             if isinstance(entity_tag, EntityTag)
