@@ -415,6 +415,20 @@ Four more RFC 9110 headers, each its own dataclass (no new shared base needed):
   transfer-parameter rather than a weight, so the visitor pulls a trailing `q` param out as the
   weight.
 
+## 11. Coverage expansion (batch 3)
+
+Four more RFC 9110 headers, each with a new small value type:
+
+- **`Range`** — `range_unit` + a tuple of `IntRange` (`0-499`, `500-`) / `SuffixRange` (`-500`).
+- **`Upgrade`** — a tuple of `Protocol` (name + optional version).
+- **`Via`** — a tuple of `ViaElement` (received-protocol, received-by, optional comment); the
+  visitor groups the flat node sequence on `received-protocol` boundaries.
+- **`From`** — a single validated mailbox string (like `UriHeader`; no visitor needed).
+
+This completes the RFC 9110 / 9111 / 6265 / 6266 header set: 48 named header classes plus
+`CustomHeader`. Headers defined outside these RFCs (CORS/Fetch, HSTS, CSP, `Forwarded`, `Link`,
+`Alt-Svc`, …) are out of scope — each needs a different grammar.
+
 ## 9. Open questions / risks
 
 - ~~**`Self` typing**~~ **Decided:** add `typing_extensions` as a runtime dependency and use

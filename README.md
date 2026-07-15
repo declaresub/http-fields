@@ -97,11 +97,12 @@ ContentType.parse("nope")     # ValueError: Invalid ContentType value "nope".
 `Accept`, `AcceptCharset`, `AcceptEncoding`, `AcceptLanguage`, `AcceptRanges`, `Age`, `Allow`,
 `AuthenticationInfo`, `Authorization`, `CacheControl`, `Connection`, `ContentDisposition`,
 `ContentEncoding`, `ContentLanguage`, `ContentLength`, `ContentLocation`, `ContentRange`,
-`ContentType`, `Cookie`, `Date`, `ETag`, `Expect`, `Expires`, `Host`, `IfMatch`,
+`ContentType`, `Cookie`, `Date`, `ETag`, `Expect`, `Expires`, `From`, `Host`, `IfMatch`,
 `IfModifiedSince`, `IfNoneMatch`, `IfRange`, `IfUnmodifiedSince`, `LastModified`, `Location`,
-`MaxForwards`, `ProxyAuthenticate`, `ProxyAuthenticationInfo`, `ProxyAuthorization`, `Referer`,
-`RetryAfter`, `Server`, `SetCookie`, `TE`, `Trailer`, `UserAgent`, `Vary`, `WWWAuthenticate`,
-plus `CustomHeader` for anything else.
+`MaxForwards`, `ProxyAuthenticate`, `ProxyAuthenticationInfo`, `ProxyAuthorization`, `Range`,
+`Referer`, `RetryAfter`, `Server`, `SetCookie`, `TE`, `Trailer`, `Upgrade`, `UserAgent`, `Vary`,
+`Via`, `WWWAuthenticate`, plus `CustomHeader` for anything else — essentially the complete
+RFC 9110 / 9111 / 6265 / 6266 header set.
 
 ## Development
 
