@@ -94,15 +94,21 @@ ContentType.parse("nope")     # ValueError: Invalid ContentType value "nope".
 
 ## Supported headers
 
-`Accept`, `AcceptCharset`, `AcceptEncoding`, `AcceptLanguage`, `AcceptRanges`, `Age`, `Allow`,
-`AuthenticationInfo`, `Authorization`, `CacheControl`, `Connection`, `ContentDisposition`,
-`ContentEncoding`, `ContentLanguage`, `ContentLength`, `ContentLocation`, `ContentRange`,
-`ContentType`, `Cookie`, `Date`, `ETag`, `Expect`, `Expires`, `From`, `Host`, `IfMatch`,
-`IfModifiedSince`, `IfNoneMatch`, `IfRange`, `IfUnmodifiedSince`, `LastModified`, `Location`,
-`MaxForwards`, `ProxyAuthenticate`, `ProxyAuthenticationInfo`, `ProxyAuthorization`, `Range`,
-`Referer`, `RetryAfter`, `Server`, `SetCookie`, `TE`, `Trailer`, `Upgrade`, `UserAgent`, `Vary`,
-`Via`, `WWWAuthenticate`, plus `CustomHeader` for anything else — essentially the complete
-RFC 9110 / 9111 / 6265 / 6266 header set.
+The core HTTP RFCs (9110 / 9111 / 6265 / 6266): `Accept`, `AcceptCharset`, `AcceptEncoding`,
+`AcceptLanguage`, `AcceptRanges`, `Age`, `Allow`, `AuthenticationInfo`, `Authorization`,
+`CacheControl`, `Connection`, `ContentDisposition`, `ContentEncoding`, `ContentLanguage`,
+`ContentLength`, `ContentLocation`, `ContentRange`, `ContentType`, `Cookie`, `Date`, `ETag`,
+`Expect`, `Expires`, `From`, `Host`, `IfMatch`, `IfModifiedSince`, `IfNoneMatch`, `IfRange`,
+`IfUnmodifiedSince`, `LastModified`, `Location`, `MaxForwards`, `ProxyAuthenticate`,
+`ProxyAuthenticationInfo`, `ProxyAuthorization`, `Range`, `Referer`, `RetryAfter`, `Server`,
+`SetCookie`, `TE`, `Trailer`, `Upgrade`, `UserAgent`, `Vary`, `WWWAuthenticate`.
+
+Widely-deployed extensions: `Forwarded` (RFC 7239), `Origin` and the CORS headers
+(`AccessControlAllowCredentials`, `AccessControlAllowHeaders`, `AccessControlAllowMethods`,
+`AccessControlAllowOrigin`, `AccessControlExposeHeaders`, `AccessControlMaxAge`,
+`AccessControlRequestHeaders`, `AccessControlRequestMethod`).
+
+Plus `CustomHeader` for anything else.
 
 ## Development
 

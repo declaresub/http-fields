@@ -426,8 +426,28 @@ Four more RFC 9110 headers, each with a new small value type:
 - **`From`** — a single validated mailbox string (like `UriHeader`; no visitor needed).
 
 This completes the RFC 9110 / 9111 / 6265 / 6266 header set: 48 named header classes plus
-`CustomHeader`. Headers defined outside these RFCs (CORS/Fetch, HSTS, CSP, `Forwarded`, `Link`,
-`Alt-Svc`, …) are out of scope — each needs a different grammar.
+`CustomHeader`.
+
+## 12. Widely-deployed extensions (batch 4)
+
+Ten headers from outside the core RFCs, using grammars abnf already ships (`rfc7239`, `cors`):
+
+- **`Forwarded`** (RFC 7239) — a list of `ForwardedElement` (each an ordered set of
+  `(param, value)` pairs).
+- **`Origin`** (RFC 6454 / Fetch) — a single validated origin string.
+- **8 CORS headers** — the four list headers (`Access-Control-Allow-Methods`,
+  `-Allow-Headers`, `-Expose-Headers`, `-Request-Headers`) share a `_CorsList` base;
+  the rest are single-string / scalar / constant-`true` shapes.
+
+The header machinery (base class, `.parse()`/`value`, hashing, `create()` registry) works
+unchanged with a non-`rfc9110` grammar rule — a header costs the same whether its grammar is
+core or an extension, *provided abnf has the grammar*.
+
+**Known gap:** abnf's `cors` `Origin` rule matches only serialized origins, not the literal
+`null` that the Fetch spec permits for the request header — so `Origin.parse("null")` currently
+raises. Headers whose grammars abnf does not ship at all (Structured Fields / RFC 8941, `Link` /
+RFC 8288, HSTS / RFC 6797, `Alt-Svc` / RFC 7838, `Prefer` / RFC 7240) are tracked as abnf
+feature requests.
 
 ## 9. Open questions / risks
 

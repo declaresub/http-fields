@@ -6,6 +6,14 @@ __all__ = [
     "AcceptLanguage",
     "AcceptEncoding",
     "AcceptRanges",
+    "AccessControlAllowCredentials",
+    "AccessControlAllowHeaders",
+    "AccessControlAllowMethods",
+    "AccessControlAllowOrigin",
+    "AccessControlExposeHeaders",
+    "AccessControlMaxAge",
+    "AccessControlRequestHeaders",
+    "AccessControlRequestMethod",
     "Age",
     "Allow",
     "AuthenticationInfo",
@@ -28,6 +36,7 @@ __all__ = [
     "ETag",
     "Expect",
     "Expires",
+    "Forwarded",
     "From",
     "Header",
     "Host",
@@ -41,6 +50,7 @@ __all__ = [
     "Location",
     "MaxForwards",
     "MediaType",
+    "Origin",
     "RangeUnit",
     "NonNegativeInt",
     "Protocol",
@@ -62,6 +72,7 @@ __all__ = [
     "WWWAuthenticate",
     "ExtValue",
     "CookiePair",
+    "ForwardedElement",
     "IntRange",
     "SuffixRange",
     "ViaElement",
@@ -74,6 +85,16 @@ from http_headers.acceptcharset import AcceptCharset
 from http_headers.acceptencoding import AcceptEncoding, WeightedCoding
 from http_headers.acceptlanguage import AcceptLanguage
 from http_headers.acceptranges import AcceptRanges
+from http_headers.accesscontrol import (
+    AccessControlAllowCredentials,
+    AccessControlAllowHeaders,
+    AccessControlAllowMethods,
+    AccessControlAllowOrigin,
+    AccessControlExposeHeaders,
+    AccessControlMaxAge,
+    AccessControlRequestHeaders,
+    AccessControlRequestMethod,
+)
 from http_headers.age import Age
 from http_headers.allow import Allow
 from http_headers.authenticationinfo import AuthenticationInfo
@@ -92,6 +113,7 @@ from http_headers.date import Date
 from http_headers.etag import ETag
 from http_headers.expect import Expect
 from http_headers.expires import Expires
+from http_headers.forwarded import Forwarded
 from http_headers.fromheader import From
 from http_headers.header import CustomHeader, Header
 from http_headers.host import Host
@@ -103,6 +125,7 @@ from http_headers.ifunmodifiedsince import IfUnmodifiedSince
 from http_headers.lastmodified import LastModified
 from http_headers.location import Location
 from http_headers.maxforwards import MaxForwards
+from http_headers.origin import Origin
 from http_headers.parsedobjs import NonNegativeInt
 from http_headers.proxyauthenticate import ProxyAuthenticate
 from http_headers.proxyauthenticationinfo import ProxyAuthenticationInfo
@@ -118,6 +141,7 @@ from http_headers.upgrade import Upgrade
 from http_headers.useragent import UserAgent
 from http_headers.vary import Vary
 from http_headers.via import Via
+from http_headers.visitors.rfc7239 import ForwardedElement
 from http_headers.visitors.rfc9110 import (
     AuthParam,
     EntityTag,
