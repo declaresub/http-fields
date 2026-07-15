@@ -1,25 +1,19 @@
-import pytest
-
 from http_headers import Cookie
+from http_headers.visitors.rfc6265 import CookiePair
 
 
-@pytest.mark.parametrize(
-    "value, expected",
-    [
-        ("a=b; c=d", Cookie([("a", "b"), ("c", "d")])),
-    ],
-)
-def test_cookie_from_value(value: str, expected: Cookie):
-    cookie = Cookie(value)
-    assert cookie.pairs == expected.pairs
+def test_cookie_parse():
+    cookie = Cookie.parse("a=b; c=d")
+    assert cookie.pairs == (CookiePair("a", "b"), CookiePair("c", "d"))
 
 
 def test_cookie_value():
-    value = "foo=bar"
-    cookie = Cookie(value)
-    assert cookie.value == value
+    assert Cookie.parse("foo=bar").value == "foo=bar"
 
 
-def test_cookie_bad_args():
-    with pytest.raises(TypeError):
-        Cookie(("foo", "bar"))  # type: ignore
+def test_cookie_trailing_semicolon():
+    assert Cookie.parse("foo=bar;").value == "foo=bar"
+
+
+def test_cookie_from_pairs():
+    assert Cookie(("a", "b"), ("c", "d")).value == "a=b; c=d"

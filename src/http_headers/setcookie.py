@@ -1,15 +1,17 @@
 """SetCookie header class."""
 
+from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
 from logging import Logger, getLogger
-from typing import Any, Literal, cast
+from typing import Any, ClassVar, Literal, cast
 
 from abnf.grammars import rfc6265
 from abnf.grammars.misc import load_grammar_rules
 from abnf.parser import Node, NodeVisitor, ParseError, Rule
+from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import FieldName, imf_fixdate
+from http_headers.visitors.rfc9110 import imf_fixdate
 
 _LOGGER = getLogger(__name__)
 
@@ -167,17 +169,33 @@ def parse_cookie_date(src: str) -> datetime:
     return visitor.visit(node)
 
 
+@dataclass(frozen=True, kw_only=True)
 class SetCookie(Header):
-    """Set-Cookie header."""
+    """Set-Cookie header, as defined by RFC 6265.
 
-    name = FieldName("Set-Cookie")
+    Use :meth:`build` to construct (and validate) from pieces, or :meth:`parse` to parse a
+    raw header value with the lenient RFC 6265 section 5 algorithm.
+    """
 
-    def __init__(
-        self,
-        value: str | None = None,
+    name: ClassVar[str] = "Set-Cookie"
+
+    cookie_name: str
+    cookie_value: str
+    domain: str | None = None
+    path: str | None = None
+    expires: datetime | None = None
+    max_age: int | None = None
+    secure: bool = False
+    http_only: bool = False
+    samesite: str = "Lax"
+    extension: tuple[str, ...] = ()
+
+    @classmethod
+    def build(
+        cls,
+        cookie_name: str,
+        cookie_value: str,
         *,
-        cookie_name: str | None = None,
-        cookie_value: str | None = None,
         domain: str | None = None,
         path: str | None = None,
         expires: datetime | None = None,
@@ -186,62 +204,60 @@ class SetCookie(Header):
         http_only: bool = False,
         samesite: Literal["Strict", "Lax", "None"] = "Lax",
         extension: list[str] | None = None,
-    ):
-        if value is not None:
-            self.domain = None
-            self.path = None
-            self.expires = None
-            self.max_age = None
-            self.secure = False
-            self.http_only = False
-            self.samesite = "Lax"
-            self.extension = None
-            self.value = value
-        else:
-            if not isinstance(cookie_name, str):
-                raise TypeError("cookie_name must be str.")
-            if not isinstance(cookie_value, str):
-                raise TypeError("cookie_value must be str.")
+    ) -> Self:
+        """Build a validated Set-Cookie from its pieces."""
+        if not isinstance(cookie_name, str):
+            raise TypeError("cookie_name must be str.")
+        if not isinstance(cookie_value, str):
+            raise TypeError("cookie_value must be str.")
+        try:
+            cookie_name = rfc6265.Rule("cookie-name").parse_all(cookie_name).value
+            cookie_value = rfc6265.Rule("cookie-value").parse_all(cookie_value).value
+        except ParseError as exc:
+            raise ValueError("Invalid argument value.") from exc
+        if domain is not None:
             try:
-                self.cookie_name = (
-                    rfc6265.Rule("cookie-name").parse_all(cookie_name).value
-                )
-                self.cookie_value = (
-                    rfc6265.Rule("cookie-value").parse_all(cookie_value).value
-                )
-            except ParseError as e:
-                raise ValueError("Invalid argument value.") from e
-            if domain is not None:
-                try:
-                    rfc6265.Rule("domain-value").parse_all(domain)
-                except ParseError as exc:
-                    raise ValueError("Invalid domain value.") from exc
-            self.domain = domain
-            if path is not None:
-                try:
-                    rfc6265.Rule("path-value").parse_all(path)
-                except ParseError as exc:
-                    raise ValueError("Invalid path value.") from exc
-            self.path = path
+                rfc6265.Rule("domain-value").parse_all(domain)
+            except ParseError as exc:
+                raise ValueError("Invalid domain value.") from exc
+        if path is not None:
+            try:
+                rfc6265.Rule("path-value").parse_all(path)
+            except ParseError as exc:
+                raise ValueError("Invalid path value.") from exc
+        if expires is not None and expires.year < 1601:
+            raise ValueError("Expires year must be at least 1601.")
+        # the RFC 6265 grammar requires max-age to be positive; this is almost universally
+        # ignored, so we go with the crowd and clamp negatives to 0.
+        normalized_max_age = 0 if max_age and max_age < 0 else max_age
+        ext = (
+            tuple(rfc6265.Rule("extension-av").parse_all(x).value for x in extension)
+            if extension
+            else ()
+        )
+        return cls(
+            cookie_name=cookie_name,
+            cookie_value=cookie_value,
+            domain=domain,
+            path=path,
+            expires=expires,
+            max_age=normalized_max_age,
+            secure=secure,
+            http_only=http_only,
+            samesite=samesite,
+            extension=ext,
+        )
 
-            if expires is not None:
-                if expires.year < 1601:
-                    raise ValueError("Expires year must be at least 1601.")
-            self.expires = expires
-            # in fact, the RFC 6265 grammar requires the value of max-age to be positive, but this is almost
-            # universally ignored. In this case, we go with the crowd.
-            self.max_age = 0 if max_age and max_age < 0 else max_age
-            self.secure = secure
-            self.http_only = http_only
-            self.samesite = samesite
-            self.extension = (
-                [rfc6265.Rule("extension-av").parse_all(x).value for x in extension]
-                if extension
-                else []
-            )
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        """Parse a Set-Cookie value using the lenient RFC 6265 section 5 algorithm, which
+        is more forgiving than the section 4 grammar for interoperability."""
+        attrs = cls._parse_value(value)
+        attrs["extension"] = tuple(attrs["extension"])
+        return cls(**attrs)
 
     @property
-    def value(self):
+    def value(self) -> str:
         header_value = [f"{self.cookie_name}={self.cookie_value}"]
         if self.domain is not None:
             header_value.append(f"Domain={self.domain}")
@@ -260,16 +276,6 @@ class SetCookie(Header):
             header_value.append("; ".join(self.extension))
 
         return "; ".join(header_value)
-
-    @value.setter
-    def value(self, val: str):
-        """RFC 6265 section 5 specifies an algorithm for parsing a Set-Cookie header
-        that is less strict than in grammar given in section 4.  The reason is to improve
-        interoperability with servers that don't quite follow the set-cookie grammar."""
-
-        cookie_attrs = self._parse_value(val)
-        for name, value in cookie_attrs.items():
-            setattr(self, name, value)
 
     @staticmethod
     def default_path(request_path: str):
@@ -297,7 +303,8 @@ class SetCookie(Header):
         else:
             return None
 
-    def _parse_value(self, src: str, *, log: Logger = _LOGGER) -> dict[str, Any]:
+    @staticmethod
+    def _parse_value(src: str, *, log: Logger = _LOGGER) -> dict[str, Any]:
         cookie_attrs: dict[str, Any] = {}
 
         ctl_chars = {

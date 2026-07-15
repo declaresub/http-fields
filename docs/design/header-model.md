@@ -364,7 +364,11 @@ at every step:
    object; `WWWAuthenticate` a tuple of challenges (varargs init). Frozen-ified the four
    component types (`TokenCredentials`, `AuthParamCredentials`, `TokenChallenge`,
    `AuthParamChallenge`; the param ones store a tuple) so both headers hash.
-10. Cookies (`Cookie`, `SetCookie`) — most involved.
+10. ✅ Cookies (`Cookie`, `SetCookie`). `Cookie` is a tuple of `CookiePair` (already hashable).
+    `SetCookie` splits its two old constructor modes cleanly: `.build(...)` validates piece-wise
+    input (strict grammar), `.parse()` runs the lenient RFC 6265 section 5 algorithm; the
+    dataclass `__init__` is the trusted internal constructor. `extension` is now a tuple, so the
+    header hashes.
 11. Component types → frozen; final sweep.
 
 Each numbered step is a self-contained commit.
