@@ -16,6 +16,7 @@ __all__ = [
     "Connection",
     "ContentDisposition",
     "ContentEncoding",
+    "ContentLanguage",
     "ContentLength",
     "ContentLocation",
     "ContentRange",
@@ -25,13 +26,16 @@ __all__ = [
     "Date",
     "EntityTag",
     "ETag",
+    "Expect",
     "Expires",
     "Header",
     "Host",
     "IfMatch",
     "IfModifiedSince",
     "IfNoneMatch",
+    "IfRange",
     "IfUnmodifiedSince",
+    "LanguageTag",
     "LastModified",
     "Location",
     "MaxForwards",
@@ -45,6 +49,8 @@ __all__ = [
     "RetryAfter",
     "Server",
     "SetCookie",
+    "TCoding",
+    "TE",
     "Trailer",
     "UserAgent",
     "Vary",
@@ -68,6 +74,7 @@ from http_headers.cachecontrol import CacheControl, CacheDirective
 from http_headers.connection import Connection
 from http_headers.contentdisposition import ContentDisposition, ExtValue
 from http_headers.contentencoding import ContentEncoding
+from http_headers.contentlanguage import ContentLanguage
 from http_headers.contentlength import ContentLength
 from http_headers.contentlocation import ContentLocation
 from http_headers.contentrange import ContentRange
@@ -75,12 +82,14 @@ from http_headers.contenttype import ContentType
 from http_headers.cookie import Cookie, CookiePair
 from http_headers.date import Date
 from http_headers.etag import ETag
+from http_headers.expect import Expect
 from http_headers.expires import Expires
 from http_headers.header import CustomHeader, Header
 from http_headers.host import Host
 from http_headers.ifmatch import IfMatch
 from http_headers.ifmodifiedsince import IfModifiedSince
 from http_headers.ifnonematch import IfNoneMatch
+from http_headers.ifrange import IfRange
 from http_headers.ifunmodifiedsince import IfUnmodifiedSince
 from http_headers.lastmodified import LastModified
 from http_headers.location import Location
@@ -93,6 +102,7 @@ from http_headers.referer import Referer
 from http_headers.retryafter import RetryAfter
 from http_headers.server import Server
 from http_headers.setcookie import SetCookie
+from http_headers.te import TE
 from http_headers.trailer import Trailer
 from http_headers.useragent import UserAgent
 from http_headers.vary import Vary
@@ -103,4 +113,6 @@ from http_headers.visitors.rfc9110 import (
     RangeUnit,
     WeightedLanguageRange,
 )
+from http_headers.visitors.rfc9110.contentlanguage import LanguageTag
+from http_headers.visitors.rfc9110.te import TCoding
 from http_headers.wwwauthenticate import WWWAuthenticate

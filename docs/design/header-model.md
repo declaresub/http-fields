@@ -402,6 +402,19 @@ New per-header visitors (`ServerVisitor`, `ProxyAuthenticate/Authorization/Authe
 Visitor`) are thin — they reuse the existing sub-visitors and differ only in the top-level
 `visit_<rule>` method (abnf dispatches on the node name).
 
+## 10. Coverage expansion (batch 2)
+
+Four more RFC 9110 headers, each its own dataclass (no new shared base needed):
+
+- **`ContentLanguage`** — a list of `LanguageTag` (new `CaselessMixin`/`ParsedStr` type).
+- **`Expect`** — a list of expectation strings (in practice `100-continue`).
+- **`IfRange`** — a union `EntityTag | datetime`, like `RetryAfter`; its visitor reuses
+  `EntityTagVisitor` + `HttpDateVisitor`.
+- **`TE`** — a list of `TCoding` (transfer-coding + optional weight + parameters, plus the
+  special `trailers` token). Like `Accept`'s media-type, the parser captures `q=…` as a
+  transfer-parameter rather than a weight, so the visitor pulls a trailing `q` param out as the
+  weight.
+
 ## 9. Open questions / risks
 
 - ~~**`Self` typing**~~ **Decided:** add `typing_extensions` as a runtime dependency and use

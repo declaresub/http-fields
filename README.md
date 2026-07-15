@@ -96,11 +96,12 @@ ContentType.parse("nope")     # ValueError: Invalid ContentType value "nope".
 
 `Accept`, `AcceptCharset`, `AcceptEncoding`, `AcceptLanguage`, `AcceptRanges`, `Age`, `Allow`,
 `AuthenticationInfo`, `Authorization`, `CacheControl`, `Connection`, `ContentDisposition`,
-`ContentEncoding`, `ContentLength`, `ContentLocation`, `ContentRange`, `ContentType`, `Cookie`,
-`Date`, `ETag`, `Expires`, `Host`, `IfMatch`, `IfModifiedSince`, `IfNoneMatch`,
-`IfUnmodifiedSince`, `LastModified`, `Location`, `MaxForwards`, `ProxyAuthenticate`,
-`ProxyAuthenticationInfo`, `ProxyAuthorization`, `Referer`, `RetryAfter`, `Server`, `SetCookie`,
-`Trailer`, `UserAgent`, `Vary`, `WWWAuthenticate`, plus `CustomHeader` for anything else.
+`ContentEncoding`, `ContentLanguage`, `ContentLength`, `ContentLocation`, `ContentRange`,
+`ContentType`, `Cookie`, `Date`, `ETag`, `Expect`, `Expires`, `Host`, `IfMatch`,
+`IfModifiedSince`, `IfNoneMatch`, `IfRange`, `IfUnmodifiedSince`, `LastModified`, `Location`,
+`MaxForwards`, `ProxyAuthenticate`, `ProxyAuthenticationInfo`, `ProxyAuthorization`, `Referer`,
+`RetryAfter`, `Server`, `SetCookie`, `TE`, `Trailer`, `UserAgent`, `Vary`, `WWWAuthenticate`,
+plus `CustomHeader` for anything else.
 
 ## Development
 
