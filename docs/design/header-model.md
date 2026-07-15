@@ -445,9 +445,10 @@ core or an extension, *provided abnf has the grammar*.
 
 **Known gap:** abnf's `cors` `Origin` rule matches only serialized origins, not the literal
 `null` that the Fetch spec permits for the request header — so `Origin.parse("null")` currently
-raises. Headers whose grammars abnf does not ship at all (Structured Fields / RFC 8941, `Link` /
-RFC 8288, HSTS / RFC 6797, `Alt-Svc` / RFC 7838, `Prefer` / RFC 7240) are tracked as abnf
-feature requests.
+raises. Headers whose grammars abnf does not ship at all — Structured Fields (RFC 9651, which
+obsoletes RFC 8941 and underpins `Priority`, `Cache-Status`, `Proxy-Status`, `Content-Digest`,
+…), `Link` (RFC 8288), HSTS (RFC 6797), `Alt-Svc` (RFC 7838), `Prefer` (RFC 7240) — are filed as
+abnf feature requests (declaresub/abnf #130–#134).
 
 ## 9. Open questions / risks
 
