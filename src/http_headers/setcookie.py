@@ -8,9 +8,8 @@ from abnf.grammars import rfc6265
 from abnf.grammars.misc import load_grammar_rules
 from abnf.parser import Node, NodeVisitor, ParseError, Rule
 
-from http_headers.date import imf_fixdate
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import FieldName
+from http_headers.visitors.rfc9110 import FieldName, imf_fixdate
 
 _LOGGER = getLogger(__name__)
 

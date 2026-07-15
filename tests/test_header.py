@@ -1,80 +1,57 @@
 import pytest
 
-from http_headers import Header, Host
+from http_headers import CustomHeader, Header, Host
 
 
-def test_header_init():
-    name = "X-Test"
-    value = "example.com"
-    header = Header(name, value=value)
-    assert header.name == name
-    assert header.value == value
+def test_customheader_fields():
+    header = CustomHeader("X-Test", "example.com")
+    assert header.name == "X-Test"
+    assert header.value == "example.com"
 
 
-def test_header_init_bad_name():
-    with pytest.raises(AssertionError):
-        Header(6, value="")  # type: ignore
-
-
-def test_header_init_bad_value():
-    with pytest.raises(AssertionError):
-        Header("X-Test", value=6)  # type: ignore
-
-
-def test_header_init_invalid_name():
-    name = "X-Header abcd"
-    value = "test"
+def test_customheader_invalid_name():
     with pytest.raises(ValueError):
-        Header(name, value=value)
+        CustomHeader("X-Header abcd", "test")
 
 
-def test_header_init_invalid_value():
-    name = "X-Header"
-    value = "test\rfail"
+def test_customheader_invalid_value():
     with pytest.raises(ValueError):
-        Header(name, value=value)
+        CustomHeader("X-Header", "test\rfail")
 
 
-def test_header_bytes():
-    header = Header("Foo", "bar")
-    assert bytes(header) == b"Foo: bar"
+def test_customheader_str():
+    assert str(CustomHeader("Foo", "bar")) == "Foo: bar"
 
 
-def test_header_asgi_value():
-    header = Header("Foo", "bar")
-    assert header.asgi_value == (b"Foo", b"bar")
+def test_customheader_bytes():
+    assert bytes(CustomHeader("Foo", "bar")) == b"Foo: bar"
 
 
-def test_header_create():
+def test_customheader_asgi_value():
+    assert CustomHeader("Foo", "bar").asgi_value == (b"Foo", b"bar")
+
+
+def test_customheader_hash():
+    assert isinstance(hash(CustomHeader("Foo", "bar")), int)
+
+
+def test_header_create_custom():
     header = Header.create("Foo", "bar")
+    assert isinstance(header, CustomHeader)
     assert header.name == "Foo"
     assert header.value == "bar"
-
-
-class XFoo(Header):
-    name = "X-Foo"
-
-    def __init__(self, value: str):
-        self.value = value
 
 
 @pytest.mark.parametrize(
     "name, value, expected",
     [
-        ("x-header", "test", Header("x-header", "test")),
+        ("x-header", "test", CustomHeader("x-header", "test")),
         ("host", "www.example.com", Host("www.example.com")),
     ],
 )
 def test_header_create_subclass(name: str, value: str, expected: Header):
-    header = Header.create(name, value)
-    assert header == expected
+    assert Header.create(name, value) == expected
 
 
-def test_eq_not():
-    h1 = Header("Foo", "bar")
-    h2 = XFoo("bar")
-    assert h1 != h2
-
-
-def test_hash():
-    assert isinstance(hash(Header("Foo", "bar")), int)
+def test_header_eq_distinct_types():
+    assert CustomHeader("Foo", "bar") != Host("www.example.com")

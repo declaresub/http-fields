@@ -22,21 +22,19 @@ from http_headers import Date
         ),  # ANSI C asctime() format
     ],
 )
-def test_date_from_str(value: str, date: datetime):
-    expected_value = "Sun, 06 Nov 1994 08:49:37 GMT"
-    header = Date(value)
+def test_date_parse(value: str, date: datetime):
+    header = Date.parse(value)
     assert header.date == date
-    assert header.value == expected_value
+    assert header.value == "Sun, 06 Nov 1994 08:49:37 GMT"
 
 
-def test_date_from_date():
-    value = "Wed, 21 Oct 2015 07:28:00 GMT"
-    date = datetime(2015, 10, 21, 7, 28, 00, tzinfo=timezone.utc)
+def test_date_from_datetime():
+    date = datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc)
     header = Date(date)
     assert header.date == date
-    assert header.value == value
+    assert header.value == "Wed, 21 Oct 2015 07:28:00 GMT"
 
 
-def test_datetime_bad_type():
-    with pytest.raises(TypeError):
-        Date(None)  # type: ignore
+def test_date_str():
+    date = datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc)
+    assert str(Date(date)) == "date: Wed, 21 Oct 2015 07:28:00 GMT"

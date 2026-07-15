@@ -19,6 +19,7 @@ __all__ = [
     "ContentRange",
     "ContentType",
     "Cookie",
+    "CustomHeader",
     "Date",
     "EntityTag",
     "ETag",
@@ -63,7 +64,7 @@ from http_headers.cookie import Cookie, CookiePair
 from http_headers.date import Date
 from http_headers.etag import ETag
 from http_headers.expires import Expires
-from http_headers.header import Header
+from http_headers.header import CustomHeader, Header
 from http_headers.host import Host
 from http_headers.ifmatch import IfMatch
 from http_headers.ifmodifiedsince import IfModifiedSince

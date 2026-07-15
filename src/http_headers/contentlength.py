@@ -1,31 +1,34 @@
-"""ContentLength header class"""
+"""ContentLength header class."""
 
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.parsedobjs import NonNegativeInt
-from http_headers.visitors.rfc9110 import ContentLengthVisitor, FieldName
+from http_headers.visitors.rfc9110 import ContentLengthVisitor
 
 
+@dataclass(frozen=True, slots=True)
 class ContentLength(Header):
     """Content-Length header."""
 
-    name = FieldName("content-length")
-    visitor = ContentLengthVisitor()
+    name: ClassVar[str] = "content-length"
+    rule: ClassVar[Rule] = rfc9110.Rule("Content-Length")
+    visitor: ClassVar[ContentLengthVisitor] = ContentLengthVisitor()
 
-    def __init__(self, value: str | int):
-        if isinstance(value, str):
-            self.value = value
-        elif isinstance(value, int):  # type: ignore
-            self.length = NonNegativeInt(value)
-        else:
-            raise TypeError("value must either be str or int.")
+    length: NonNegativeInt
+
+    def __init__(self, length: int) -> None:
+        object.__setattr__(self, "length", NonNegativeInt(length))
+
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
+    def value(self) -> str:
         return str(self.length)
-
-    @value.setter
-    def value(self, val: str):
-        node = rfc9110.Rule("Content-Length").parse_all(val)
-        self.length = self.visitor.visit(node)

@@ -26,6 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "abnf>=2.5.1",
+    "typing_extensions>=4.0",
 ]
 dynamic = ["version"]
 

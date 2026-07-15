@@ -156,6 +156,7 @@ name = "http-headers"
 source = { editable = "." }
 dependencies = [
     { name = "abnf" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -167,7 +168,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "abnf", specifier = ">=2.5.1" }]
+requires-dist = [
+    { name = "abnf", specifier = ">=2.5.1" },
+    { name = "typing-extensions", specifier = ">=4.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [

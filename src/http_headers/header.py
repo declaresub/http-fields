@@ -1,50 +1,39 @@
-"""HTTP header base class."""
+"""HTTP header abstract base class and the generic custom-header class."""
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Protocol, cast
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
+from typing import ClassVar, cast
 
-from abnf import Rule
+from abnf import Node, ParseError, Rule
 from abnf.grammars import rfc9110
 
 from http_headers.visitors.rfc9110 import FieldName, FieldValue
 
 
-class HeaderSubclass(Protocol):
-    def __init__(self, value: str): ...  # pragma: no cover
+class Header(ABC):
+    """Abstract base for HTTP headers.
 
-
-class Header:
-    """Class for custom headers (e.g. X-Request-Id). Header name and value are checked
-    for RFC 7230 compliance.
-
-    Explain assumptions about subclass interface -- name attribute, __init__ should have a value parameter
-
+    Known headers are frozen dataclasses whose fields are the structured components of the
+    header value. Each sets ``name`` (and usually ``rule``/``visitor``) as a ClassVar,
+    implements a ``parse(value)`` classmethod, and exposes a derived ``value`` property.
+    Arbitrary headers (e.g. ``X-Request-Id``) are represented by :class:`CustomHeader`.
     """
 
-    encoding: str = "ISO-8859-1"
-    # override this in subclasses as appropriate
-    value_rule: Rule = rfc9110.Rule("field-value")
+    encoding: ClassVar[str] = "ISO-8859-1"
+    rule: ClassVar[Rule]  # abnf rule for the header value; provided by subclasses
+    name: ClassVar[str]  # field name; a class constant on known headers,
+    # overridden by a per-instance property on CustomHeader.
 
-    def __init__(self, name: str, value: str):
-        assert isinstance(name, str), "name must be a str."
-        assert isinstance(value, str), "value must be a str."
-        self.name = FieldName(name)
-        self.value = FieldValue(value)
-
-    def __eq__(self, __o: object) -> bool:
-        return (
-            (self.name, self.value) == (__o.name, __o.value)
-            if isinstance(__o, self.__class__) and isinstance(self, __o.__class__)
-            else NotImplemented
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.name, self.value))
+    @property
+    @abstractmethod
+    def value(self) -> str:
+        """The serialized header field value (without the name)."""
 
     def __str__(self) -> str:
-        """Returns the header field."""
+        """Return the full ``Name: value`` header field."""
         return f"{self.name}: {self.value}"
 
     def __bytes__(self) -> bytes:
@@ -52,28 +41,72 @@ class Header:
 
     @property
     def asgi_value(self) -> tuple[bytes, bytes]:
-        """Returns a 2-tuple (name, value) suitable for use in asgi send dict."""
+        """Return a ``(name, value)`` pair of ASCII bytes for an ASGI send dict."""
         return (self.name.encode("ascii"), self.value.encode("ascii"))
+
+    def __eq__(self, other: object, /) -> bool:
+        if isinstance(other, Header) and type(other) is type(self):
+            return (self.name, self.value) == (other.name, other.value)
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.value))
+
+    @classmethod
+    def _node(cls, value: str) -> Node:
+        """Parse ``value`` against ``cls.rule``, translating a ParseError to a ValueError."""
+        try:
+            return cls.rule.parse_all(value)
+        except ParseError as exc:
+            raise ValueError(f'Invalid {cls.__name__} value "{value}".') from exc
 
     @classmethod
     def create(cls, name: str, value: str) -> Header:
-        """
-        Creates a Header object as follows:  first name is used to find a corresponding
-        Header subclass.  If no match, then Header is used.  Then the header value is parsed.
-        If parsing succeeds, a Header object is returned.  If parsing fails, a ValueError
-        is raised.
-        """
-
+        """Return a header for ``(name, value)``: a matching known subclass if one is
+        registered for ``name``, otherwise a :class:`CustomHeader`."""
         lname = name.lower()
         for subcls in cls.subclass_tree():
-            if getattr(subcls, "name", "").lower() == lname:
-                return cast(Header, subcls(value))
-        else:
-            return cls(name, value)
+            cls_name = getattr(subcls, "name", None)
+            if isinstance(cls_name, str) and cls_name.lower() == lname:
+                parse = getattr(subcls, "parse", None)
+                if callable(parse):
+                    return cast("Callable[[str], Header]", parse)(value)
+                # legacy header (pre-dataclass); remove once migration completes.
+                return cast("Callable[[str], Header]", subcls)(value)
+        return CustomHeader(name, value)
 
     @classmethod
-    def subclass_tree(cls) -> Iterable[type[HeaderSubclass]]:
-        """Generates subclass tree for cls."""
+    def subclass_tree(cls) -> Iterable[type[Header]]:
+        """Yield all Header subclasses, depth-first."""
         for subcls in cls.__subclasses__():
-            yield cast(type[HeaderSubclass], subcls)
+            yield subcls
             yield from subcls.subclass_tree()
+
+
+@dataclass(frozen=True, slots=True)
+class CustomHeader(Header):
+    """A header with an arbitrary field name, e.g. ``X-Request-Id``.
+
+    Both name and value are validated against RFC 9110 (``field-name`` / ``field-value``).
+    """
+
+    rule: ClassVar[Rule] = rfc9110.Rule("field-value")
+
+    field_name: FieldName
+    field_value: FieldValue
+
+    def __init__(self, name: str, value: str) -> None:
+        object.__setattr__(self, "field_name", FieldName(name))
+        object.__setattr__(self, "field_value", FieldValue(value))
+
+    @classmethod
+    def parse(cls, name: str, value: str) -> CustomHeader:
+        return cls(name, value)
+
+    @property
+    def name(self) -> str:  # pyright: ignore[reportIncompatibleVariableOverride]
+        return self.field_name
+
+    @property
+    def value(self) -> str:
+        return self.field_value
