@@ -356,7 +356,10 @@ at every step:
    (`entitytaglist.py`) holding `entity_tags: tuple[EntityTag, ...]` + a `wildcard` bool for
    `*`, with `parse()`/`value`; each subclass adds only name/rule/visitor and its own
    `matches()`. Second use of the category-base pattern (after `DateHeader`).
-8. Directive lists (`CacheControl`, `AuthenticationInfo`).
+8. ✅ Directive lists (`CacheControl`, `AuthenticationInfo`). `CacheControl` lands the
+   map-driven `parse`/`value` prototype (138 → ~110 lines, `s-maxage=0` preserved). Made
+   `CacheDirective` hashable and fixed a latent bug where extension (unknown) directives never
+   set `.value` (so `str()` crashed); made `AuthParam` frozen. Both headers now hashable.
 9. Auth (`Authorization`, `WWWAuthenticate`).
 10. Cookies (`Cookie`, `SetCookie`) — most involved.
 11. Component types → frozen; final sweep.

@@ -43,6 +43,15 @@ class CacheDirective:
                 self.value = QuotedString(value)
             else:
                 self.value = True
+        else:
+            # extension (non-standard) directive: keep any value it carries.
+            if isinstance(value, str):
+                try:
+                    self.value = Token(value)
+                except ValueError:
+                    self.value = QuotedString(value)
+            else:
+                self.value = True
 
     def __eq__(self, __o: object) -> bool:
         return (
@@ -50,6 +59,9 @@ class CacheDirective:
             if isinstance(__o, self.__class__)
             else NotImplemented
         )
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.value))
 
     def __str__(self):
         return str(self.name) if self.value is True else f"{self.name}={self.value}"
