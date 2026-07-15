@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test / type-check caches
+.coverage
+.pytest_cache/
+.mypy_cache/
+
+# Environments
+.venv/
+
+# Editor / OS
+.vscode/
+*.code-workspace
+.DS_Store

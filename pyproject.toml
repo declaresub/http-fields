@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "http-headers"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [
+    { name = "Charles Yeomans", email = "charles@declaresub.com" },
+]
+keywords = ["http", "headers", "abnf", "parser", "generator"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "abnf>=2.5.1",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/declaresub/http-headers"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "basedpyright",
+    "ruff",
+]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# The formatter owns code line length (88 cols); E501 only fires on strings,
+# comments, and docstrings it can't split, so it's disabled per Ruff guidance.
+ignore = ["E501"]
+
+[tool.pyright]
+include = ["src", "tests"]
+extraPaths = ["src"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.10"
+typeCheckingMode = "standard"
