@@ -381,9 +381,26 @@ at every step:
 
 Each numbered step is a self-contained commit.
 
-**Not migrated:** `visitors/rfc9110/acceptlanguage.py` is an orphan — a complete
-Accept-Language visitor with no header wrapping it. Left as-is; wrapping it in an
-`AcceptLanguage` header (weighted-list shape) is a natural future addition.
+## 9. Coverage expansion (batch 1)
+
+After the migration, nine more RFC 9110 header fields were added, all near-clones of existing
+headers. Shared bases were extracted where a family had two-plus members with identical shape:
+
+- **`UriHeader`** (`uriheader.py`): `Location`, `ContentLocation`, `Referer` — a single validated
+  URI string; no visitor needed (parse validates via the rule and stores `node.value`).
+- **`ProductListHeader`** (`productlistheader.py`): `UserAgent`, `Server` — a whitespace-separated
+  `Product`/`Comment` list.
+- **`ChallengeListHeader`** / **`CredentialsHeader`** / **`AuthParamsHeader`** (`authbases.py`):
+  pair each request/response auth header with its proxy counterpart — `WWWAuthenticate` /
+  `ProxyAuthenticate`, `Authorization` / `ProxyAuthorization`, `AuthenticationInfo` /
+  `ProxyAuthenticationInfo`. The existing headers were refactored onto these bases.
+- **Standalone**: `MaxForwards` (scalar, like `Age`), `Trailer` (field-name list, like `Vary`),
+  `AcceptLanguage` (weighted list — the previously-orphan visitor now has a header;
+  `WeightedLanguageRange` was frozen-ified and given the falsy-`0` fix).
+
+New per-header visitors (`ServerVisitor`, `ProxyAuthenticate/Authorization/AuthenticationInfo
+Visitor`) are thin — they reuse the existing sub-visitors and differ only in the top-level
+`visit_<rule>` method (abnf dispatches on the node name).
 
 ## 9. Open questions / risks
 

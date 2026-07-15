@@ -66,3 +66,12 @@ class AuthorizationVisitor(NodeVisitor):
 
     def visit_authorization(self, node: Node):
         return next(filter(None, map(self.visit, node.children)))
+
+
+class ProxyAuthorizationVisitor(NodeVisitor):
+    """NodeVisitor subclass for the Proxy-Authorization header value."""
+
+    visit_credentials = CredentialsVisitor()
+
+    def visit_proxy_authorization(self, node: Node):
+        return next(filter(None, map(self.visit, node.children)))

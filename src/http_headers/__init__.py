@@ -3,6 +3,7 @@
 __all__ = [
     "Accept",
     "AcceptCharset",
+    "AcceptLanguage",
     "AcceptEncoding",
     "AcceptRanges",
     "Age",
@@ -16,6 +17,7 @@ __all__ = [
     "ContentDisposition",
     "ContentEncoding",
     "ContentLength",
+    "ContentLocation",
     "ContentRange",
     "ContentType",
     "Cookie",
@@ -32,22 +34,31 @@ __all__ = [
     "IfUnmodifiedSince",
     "LastModified",
     "Location",
+    "MaxForwards",
     "MediaType",
     "RangeUnit",
     "NonNegativeInt",
+    "ProxyAuthenticate",
+    "ProxyAuthenticationInfo",
+    "ProxyAuthorization",
+    "Referer",
     "RetryAfter",
+    "Server",
     "SetCookie",
+    "Trailer",
     "UserAgent",
     "Vary",
     "WWWAuthenticate",
     "ExtValue",
     "CookiePair",
     "WeightedCoding",
+    "WeightedLanguageRange",
 ]
 
 from http_headers.accept import Accept
 from http_headers.acceptcharset import AcceptCharset
 from http_headers.acceptencoding import AcceptEncoding, WeightedCoding
+from http_headers.acceptlanguage import AcceptLanguage
 from http_headers.acceptranges import AcceptRanges
 from http_headers.age import Age
 from http_headers.allow import Allow
@@ -58,6 +69,7 @@ from http_headers.connection import Connection
 from http_headers.contentdisposition import ContentDisposition, ExtValue
 from http_headers.contentencoding import ContentEncoding
 from http_headers.contentlength import ContentLength
+from http_headers.contentlocation import ContentLocation
 from http_headers.contentrange import ContentRange
 from http_headers.contenttype import ContentType
 from http_headers.cookie import Cookie, CookiePair
@@ -72,10 +84,23 @@ from http_headers.ifnonematch import IfNoneMatch
 from http_headers.ifunmodifiedsince import IfUnmodifiedSince
 from http_headers.lastmodified import LastModified
 from http_headers.location import Location
+from http_headers.maxforwards import MaxForwards
 from http_headers.parsedobjs import NonNegativeInt
+from http_headers.proxyauthenticate import ProxyAuthenticate
+from http_headers.proxyauthenticationinfo import ProxyAuthenticationInfo
+from http_headers.proxyauthorization import ProxyAuthorization
+from http_headers.referer import Referer
 from http_headers.retryafter import RetryAfter
+from http_headers.server import Server
 from http_headers.setcookie import SetCookie
+from http_headers.trailer import Trailer
 from http_headers.useragent import UserAgent
 from http_headers.vary import Vary
-from http_headers.visitors.rfc9110 import AuthParam, EntityTag, MediaType, RangeUnit
+from http_headers.visitors.rfc9110 import (
+    AuthParam,
+    EntityTag,
+    MediaType,
+    RangeUnit,
+    WeightedLanguageRange,
+)
 from http_headers.wwwauthenticate import WWWAuthenticate

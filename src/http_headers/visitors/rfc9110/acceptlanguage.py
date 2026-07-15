@@ -21,20 +21,23 @@ class LanguageRange(ParsedStr):
     parser = rfc9110.Rule("language-range")
 
 
-@dataclass
+@dataclass(frozen=True)
 class WeightedLanguageRange:
     language_range: LanguageRange
     weight: Weight | None
 
     def __init__(self, language_range: str, weight: float | Weight | None = None):
-        self.language_range = LanguageRange(language_range)
-        self.weight = (
-            weight
-            if isinstance(weight, Weight)
-            else Weight(weight)
-            if isinstance(weight, float)
-            else None
-        )
+        object.__setattr__(self, "language_range", LanguageRange(language_range))
+        if isinstance(weight, Weight):
+            object.__setattr__(self, "weight", weight)
+        elif isinstance(weight, (int, float)) and not isinstance(weight, bool):
+            # a numeric 0 is a valid weight ("not acceptable"); only None means unset.
+            object.__setattr__(self, "weight", Weight(float(weight)))
+        else:
+            object.__setattr__(self, "weight", None)
+
+    def __str__(self) -> str:
+        return str(self.language_range) + (f";{self.weight}" if self.weight else "")
 
 
 class AcceptLanguageVisitor(NodeVisitor):

@@ -94,12 +94,13 @@ ContentType.parse("nope")     # ValueError: Invalid ContentType value "nope".
 
 ## Supported headers
 
-`Accept`, `AcceptCharset`, `AcceptEncoding`, `AcceptRanges`, `Age`, `Allow`,
+`Accept`, `AcceptCharset`, `AcceptEncoding`, `AcceptLanguage`, `AcceptRanges`, `Age`, `Allow`,
 `AuthenticationInfo`, `Authorization`, `CacheControl`, `Connection`, `ContentDisposition`,
-`ContentEncoding`, `ContentLength`, `ContentRange`, `ContentType`, `Cookie`, `Date`, `ETag`,
-`Expires`, `Host`, `IfMatch`, `IfModifiedSince`, `IfNoneMatch`, `IfUnmodifiedSince`,
-`LastModified`, `Location`, `RetryAfter`, `SetCookie`, `UserAgent`, `Vary`, `WWWAuthenticate`,
-plus `CustomHeader` for anything else.
+`ContentEncoding`, `ContentLength`, `ContentLocation`, `ContentRange`, `ContentType`, `Cookie`,
+`Date`, `ETag`, `Expires`, `Host`, `IfMatch`, `IfModifiedSince`, `IfNoneMatch`,
+`IfUnmodifiedSince`, `LastModified`, `Location`, `MaxForwards`, `ProxyAuthenticate`,
+`ProxyAuthenticationInfo`, `ProxyAuthorization`, `Referer`, `RetryAfter`, `Server`, `SetCookie`,
+`Trailer`, `UserAgent`, `Vary`, `WWWAuthenticate`, plus `CustomHeader` for anything else.
 
 ## Development
 

@@ -10,12 +10,20 @@ from http_headers.visitors.rfc9110.acceptencoding import (
     AcceptEncodingVisitor,
     WeightedCoding,
 )
+from http_headers.visitors.rfc9110.acceptlanguage import (
+    AcceptLanguageVisitor,
+    WeightedLanguageRange,
+)
 from http_headers.visitors.rfc9110.acceptranges import AcceptRangesVisitor
 from http_headers.visitors.rfc9110.allow import AllowVisitor
-from http_headers.visitors.rfc9110.authenticationinfo import AuthenticationInfoVisitor
+from http_headers.visitors.rfc9110.authenticationinfo import (
+    AuthenticationInfoVisitor,
+    ProxyAuthenticationInfoVisitor,
+)
 from http_headers.visitors.rfc9110.authorization import (
     AuthorizationVisitor,
     AuthParamCredentials,
+    ProxyAuthorizationVisitor,
     TokenCredentials,
 )
 from http_headers.visitors.rfc9110.authparam import AuthParam
@@ -42,16 +50,21 @@ from http_headers.visitors.rfc9110.product import Product
 from http_headers.visitors.rfc9110.quotedstring import QuotedString, QuotedStringVisitor
 from http_headers.visitors.rfc9110.rangeunit import RangeUnit
 from http_headers.visitors.rfc9110.retryafter import RetryAfterVisitor
+from http_headers.visitors.rfc9110.server import ServerVisitor
 from http_headers.visitors.rfc9110.token import Token, TokenVisitor
 from http_headers.visitors.rfc9110.useragent import UserAgentVisitor
 from http_headers.visitors.rfc9110.vary import VaryVisitor
 from http_headers.visitors.rfc9110.weight import Weight
-from http_headers.visitors.rfc9110.wwwauthenticate import WWWAuthenticateVisitor
+from http_headers.visitors.rfc9110.wwwauthenticate import (
+    ProxyAuthenticateVisitor,
+    WWWAuthenticateVisitor,
+)
 
 __all__ = [
     "imf_fixdate",
     "AcceptCharsetVisitor",
     "AcceptEncodingVisitor",
+    "AcceptLanguageVisitor",
     "AcceptRangesVisitor",
     "AcceptType",
     "AcceptVisitor",
@@ -82,10 +95,14 @@ __all__ = [
     "MediaType",
     "Parameter",
     "Product",
+    "ProxyAuthenticateVisitor",
+    "ProxyAuthenticationInfoVisitor",
+    "ProxyAuthorizationVisitor",
     "QuotedString",
     "QuotedStringVisitor",
     "RangeUnit",
     "RetryAfterVisitor",
+    "ServerVisitor",
     "Token",
     "TokenChallenge",
     "TokenCredentials",
@@ -94,5 +111,6 @@ __all__ = [
     "VaryVisitor",
     "Weight",
     "WeightedCoding",
+    "WeightedLanguageRange",
     "WWWAuthenticateVisitor",
 ]

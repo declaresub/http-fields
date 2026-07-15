@@ -9,3 +9,11 @@ class AuthenticationInfoVisitor(NodeVisitor):
     def visit_authentication_info(self, node: Node) -> list[AuthParam]:
         items = filter(None, map(self.visit, node.children))
         return list(items)
+
+
+class ProxyAuthenticationInfoVisitor(NodeVisitor):
+    visit_auth_param = AuthParamVisitor()
+
+    def visit_proxy_authentication_info(self, node: Node) -> list[AuthParam]:
+        items = filter(None, map(self.visit, node.children))
+        return list(items)

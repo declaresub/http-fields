@@ -10,3 +10,12 @@ class WWWAuthenticateVisitor(NodeVisitor):
         self, node: Node
     ) -> list[challenge.TokenChallenge | challenge.AuthParamChallenge]:
         return list(filter(None, map(self.visit, node.children)))
+
+
+class ProxyAuthenticateVisitor(NodeVisitor):
+    visit_challenge = challenge.ChallengeVisitor()
+
+    def visit_proxy_authenticate(
+        self, node: Node
+    ) -> list[challenge.TokenChallenge | challenge.AuthParamChallenge]:
+        return list(filter(None, map(self.visit, node.children)))
