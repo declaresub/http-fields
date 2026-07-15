@@ -352,7 +352,10 @@ at every step:
    tuple field + varargs `__init__`. Frozen-ified `WeightedCoding` and made `AcceptType`
    hashable (`params` → tuple, added `__hash__`). Fixed an `AcceptCharset` serialization bug
    that dropped charsets carrying no weight.
-7. Entity-tag lists (`IfMatch`, `IfNoneMatch`).
+7. ✅ Entity-tag lists (`IfMatch`, `IfNoneMatch`) — shared `EntityTagListHeader` base
+   (`entitytaglist.py`) holding `entity_tags: tuple[EntityTag, ...]` + a `wildcard` bool for
+   `*`, with `parse()`/`value`; each subclass adds only name/rule/visitor and its own
+   `matches()`. Second use of the category-base pattern (after `DateHeader`).
 8. Directive lists (`CacheControl`, `AuthenticationInfo`).
 9. Auth (`Authorization`, `WWWAuthenticate`).
 10. Cookies (`Cookie`, `SetCookie`) — most involved.
