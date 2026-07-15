@@ -19,16 +19,16 @@ Weight = weight.Weight
 WeightVisitor = weight.WeightVisitor
 
 
-@dataclass
+@dataclass(frozen=True)
 class MediaRange:
     type: Token
     subtype: Token
-    params: list[Parameter]
+    params: tuple[Parameter, ...]
 
     def __init__(self, type: str, subtype: str, params: list[Parameter] | None = None):
-        self.type = Token(type)
-        self.subtype = Token(subtype)
-        self.params = list(params) if params else []
+        object.__setattr__(self, "type", Token(type))
+        object.__setattr__(self, "subtype", Token(subtype))
+        object.__setattr__(self, "params", tuple(params) if params else ())
 
     def __str__(self) -> str:
         return f"{self.type}/{self.subtype}" + (

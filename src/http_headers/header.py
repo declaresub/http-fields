@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import ClassVar, cast
+from typing import ClassVar
 
 from abnf import Node, ParseError, Rule
 from abnf.grammars import rfc9110
@@ -61,6 +61,12 @@ class Header(ABC):
             raise ValueError(f'Invalid {cls.__name__} value "{value}".') from exc
 
     @classmethod
+    def parse(cls, value: str) -> Header:
+        """Parse a header value into an instance. Every concrete known header overrides this
+        (CustomHeader carries an arbitrary name and is built via its constructor instead)."""
+        raise NotImplementedError
+
+    @classmethod
     def create(cls, name: str, value: str) -> Header:
         """Return a header for ``(name, value)``: a matching known subclass if one is
         registered for ``name``, otherwise a :class:`CustomHeader`."""
@@ -68,11 +74,7 @@ class Header(ABC):
         for subcls in cls.subclass_tree():
             cls_name = getattr(subcls, "name", None)
             if isinstance(cls_name, str) and cls_name.lower() == lname:
-                parse = getattr(subcls, "parse", None)
-                if callable(parse):
-                    return cast("Callable[[str], Header]", parse)(value)
-                # legacy header (pre-dataclass); remove once migration completes.
-                return cast("Callable[[str], Header]", subcls)(value)
+                return subcls.parse(value)
         return CustomHeader(name, value)
 
     @classmethod
@@ -98,10 +100,6 @@ class CustomHeader(Header):
     def __init__(self, name: str, value: str) -> None:
         object.__setattr__(self, "field_name", FieldName(name))
         object.__setattr__(self, "field_value", FieldValue(value))
-
-    @classmethod
-    def parse(cls, name: str, value: str) -> CustomHeader:
-        return cls(name, value)
 
     @property
     def name(self) -> str:  # pyright: ignore[reportIncompatibleVariableOverride]

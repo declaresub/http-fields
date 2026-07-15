@@ -371,9 +371,19 @@ at every step:
     input (strict grammar), `.parse()` runs the lenient RFC 6265 section 5 algorithm; the
     dataclass `__init__` is the trusted internal constructor. `extension` is now a tuple, so the
     header hashes.
-11. Component types → frozen; final sweep.
+11. ✅ Final sweep. Caught two headers missed by the earlier steps — `RetryAfter`
+    (`delay: NonNegativeInt | datetime`) and `UserAgent` (tuple of `Product`/`Comment`) — and
+    migrated them (frozen-ified `Product`, fixing a falsy `__str__` bug that dropped a
+    version-less product). Removed the now-dead legacy branch in `Header.create()` and declared
+    a base `parse()` so `create()` is `subcls.parse(value)`; dropped the unused
+    `CustomHeader.parse`. Frozen-ified the remaining active components (`MediaRange`,
+    `RangeResp`, `UnsatisfiedRange`). Every header is a frozen dataclass and hashes.
 
 Each numbered step is a self-contained commit.
+
+**Not migrated:** `visitors/rfc9110/acceptlanguage.py` is an orphan — a complete
+Accept-Language visitor with no header wrapping it. Left as-is; wrapping it in an
+`AcceptLanguage` header (weighted-list shape) is a natural future addition.
 
 ## 9. Open questions / risks
 

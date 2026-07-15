@@ -13,6 +13,15 @@ from http_headers import RetryAfter
             datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc),
         ),
         ("7", 7),
+    ],
+)
+def test_retryafter_parse(value: str, expected: int | datetime):
+    assert RetryAfter.parse(value).delay == expected
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
         (1, 1),
         (
             datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc),
@@ -20,20 +29,13 @@ from http_headers import RetryAfter
         ),
     ],
 )
-def test_retryafter_from_value(value: str, expected: int | datetime):
-    header = RetryAfter(value)
-    assert header.delay == expected
-
-
-def test_retryafter_from_value_2():
-    value = "7"
-    header = RetryAfter(value)
-    assert header.delay == 7
+def test_retryafter_from_value(value: int | datetime, expected: int | datetime):
+    assert RetryAfter(value).delay == expected
 
 
 def test_retry_after_type_error():
     with pytest.raises(TypeError):
-        RetryAfter(object())  # type: ignore
+        RetryAfter(object())  # type: ignore[arg-type]
 
 
 def test_retry_after_negative_delay():
@@ -52,5 +54,4 @@ def test_retry_after_negative_delay():
     ],
 )
 def test_retry_after_value(value: int | datetime, expected: str):
-    header = RetryAfter(value)
-    assert header.value == expected
+    assert RetryAfter(value).value == expected

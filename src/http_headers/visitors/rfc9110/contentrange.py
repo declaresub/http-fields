@@ -7,14 +7,14 @@ from http_headers.parsedobjs import NonNegativeInt
 from http_headers.visitors.rfc9110.rangeunit import RangeUnit, RangeUnitVisitor
 
 
-@dataclass
+@dataclass(frozen=True)
 class RangeResp:
     first_pos: NonNegativeInt
     last_pos: NonNegativeInt
     complete_length: NonNegativeInt | None
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnsatisfiedRange:
     complete_length: NonNegativeInt | None
 

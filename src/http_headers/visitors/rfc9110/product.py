@@ -12,17 +12,17 @@ TokenVisitor = token.TokenVisitor
 __all__ = ["Product", "ProductVisitor"]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Product:
     name: Token
     version: Token | None
 
     def __init__(self, name: str, version: str | None = None):
-        self.name = Token(name)
-        self.version = Token(version) if version else None
+        object.__setattr__(self, "name", Token(name))
+        object.__setattr__(self, "version", Token(version) if version else None)
 
     def __str__(self):
-        return str(self.name) + f"/{self.version}" if self.version else ""
+        return str(self.name) + (f"/{self.version}" if self.version else "")
 
 
 class ProductVisitor(NodeVisitor):

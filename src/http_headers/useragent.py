@@ -1,41 +1,36 @@
 """User-Agent header class."""
 
-from abnf import ParseError
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import Comment, FieldName, Product, UserAgentVisitor
+from http_headers.visitors.rfc9110 import Comment, Product, UserAgentVisitor
 
 
+@dataclass(frozen=True)
 class UserAgent(Header):
-    """User-Agent header.
-    items attribute is a list of Product or Comment items.  Product
-    has two attributes, product and product version."""
+    """User-Agent header, as defined by RFC 9110. ``items`` is a sequence of Product or
+    Comment values."""
 
-    name = FieldName("User-Agent")
-    parse = rfc9110.Rule("User-Agent").parse_all
-    visit = UserAgentVisitor().visit
+    name: ClassVar[str] = "User-Agent"
+    rule: ClassVar[Rule] = rfc9110.Rule("User-Agent")
+    visitor: ClassVar[UserAgentVisitor] = UserAgentVisitor()
 
-    def __init__(self, value: str):
-        """Intializes a User-Agent header.
+    items: tuple[Product | Comment, ...]
 
-        :param value: user-agent string.
-        """
+    def __init__(self, *items: Product | Comment) -> None:
+        object.__setattr__(self, "items", tuple(items))
 
-        self.value = value
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
-        """Returns header value."""
-        # the grammar rule specifies at least one SP | TAB between itens.  Thus a
-        # source string containing multiple spaces between items would not be reassembled
-        # the same way.
+    def value(self) -> str:
+        # the grammar requires at least one SP/TAB between items, so a source with multiple
+        # spaces between items is not reassembled identically.
         return " ".join(str(item) for item in self.items)
-
-    @value.setter
-    def value(self, val: str):
-        try:
-            node = self.parse(val)
-        except ParseError as exc:
-            raise ValueError(f"Invalid {self.name} value.") from exc
-        self.items: list[Product | Comment] = self.visit(node)
