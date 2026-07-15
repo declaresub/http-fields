@@ -1,32 +1,35 @@
-from abnf import ParseError
+"""AcceptRanges header class."""
+
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import AcceptRangesVisitor, FieldName, RangeUnit
+from http_headers.visitors.rfc9110 import AcceptRangesVisitor, RangeUnit
 
 
+@dataclass(frozen=True, slots=True)
 class AcceptRanges(Header):
-    name = FieldName("accept-ranges")
-    parse = rfc9110.Rule("accept-ranges").parse_all
-    visit = AcceptRangesVisitor().visit
+    """Accept-Ranges header, as defined by RFC 9110."""
 
-    def __init__(self, *value: str):
-        """Most of the time, value will be a single item 'bytes'. Less often, value will be 'None'.
-        The grammar allows multiple values, though."""
-        if len(value) == 1:
-            self.value = value[0]
-        else:
-            self.range_units = [RangeUnit(v) for v in value]
+    name: ClassVar[str] = "accept-ranges"
+    rule: ClassVar[Rule] = rfc9110.Rule("accept-ranges")
+    visitor: ClassVar[AcceptRangesVisitor] = AcceptRangesVisitor()
+
+    range_units: tuple[RangeUnit, ...]
+
+    def __init__(self, *range_units: str) -> None:
+        object.__setattr__(
+            self, "range_units", tuple(RangeUnit(r) for r in range_units)
+        )
+
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
-        """Returns header value."""
-        return ",".join(str(item) for item in self.range_units)
-
-    @value.setter
-    def value(self, val: str):
-        try:
-            node = self.parse(val)
-        except ParseError as exc:
-            raise ValueError(f"Invalid {self.name} value.") from exc
-        self.range_units: list[RangeUnit] = self.visit(node)
+    def value(self) -> str:
+        return ",".join(self.range_units)

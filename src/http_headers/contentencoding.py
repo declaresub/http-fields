@@ -1,9 +1,15 @@
-"""ContentEncoding header class"""
+"""ContentEncoding header class."""
 
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
 from abnf.parser import Node, NodeVisitor
+from typing_extensions import Self
 
 from http_headers.header import Header
+from http_headers.visitors.rfc9110 import Token
 
 
 class ContentEncodingVisitor(NodeVisitor):
@@ -15,34 +21,23 @@ class ContentEncodingVisitor(NodeVisitor):
         return node.value
 
 
+@dataclass(frozen=True, slots=True)
 class ContentEncoding(Header):
-    """Content-Encoding header.
-    Usage:
-        header = ContentEncoding('deflate, gzip')
-        header = ContentEncoding(['deflate', 'gzip'])
+    """Content-Encoding header, as defined by RFC 9110."""
 
-        In the second case, list items are parsed to ensure that they are valid.
-    """
+    name: ClassVar[str] = "content-encoding"
+    rule: ClassVar[Rule] = rfc9110.Rule("Content-Encoding")
+    visitor: ClassVar[ContentEncodingVisitor] = ContentEncodingVisitor()
 
-    name = "content-encoding"
-    visitor = ContentEncodingVisitor()
+    codings: tuple[Token, ...]
 
-    def __init__(self, value: str | list[str]):
+    def __init__(self, *codings: str) -> None:
+        object.__setattr__(self, "codings", tuple(Token(c) for c in codings))
 
-        if isinstance(value, str):
-            self.value = value
-
-        elif isinstance(value, list):  # type: ignore
-            self.value = ",".join(value)
-        else:
-            raise TypeError("value must be str or list[str].")
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
-        return ", ".join(self.content_coding)
-
-    @value.setter
-    def value(self, val: str):
-        rule = rfc9110.Rule("Content-Encoding")
-        node = rule.parse_all(val)
-        self.content_coding: list[str] = self.visitor.visit(node)
+    def value(self) -> str:
+        return ", ".join(self.codings)

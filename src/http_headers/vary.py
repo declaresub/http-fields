@@ -1,42 +1,40 @@
 """Vary header class."""
 
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc7231
-from abnf.parser import ParseError
+from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import VaryVisitor
+from http_headers.visitors.rfc9110 import FieldName, VaryVisitor
 
 
+@dataclass(frozen=True, slots=True)
 class Vary(Header):
-    """Vary header.
+    """Vary header, as defined by RFC 9110.
+
+    An empty ``field_names`` serializes as ``*`` (vary by anything).
 
     Vary: accept-encoding, accept-language
     """
 
-    name = "Vary"
+    name: ClassVar[str] = "Vary"
+    rule: ClassVar[Rule] = rfc7231.Rule("Vary")
+    visitor: ClassVar[VaryVisitor] = VaryVisitor()
 
-    def __init__(
-        self, value: str | None = None, *, field_names: list[str] | None = None
-    ):
-        if value is None:
-            for field_name in field_names if field_names else []:
-                try:
-                    rfc7231.Rule("Vary").parse_all(field_name)
-                except ParseError as exc:
-                    raise ValueError(f"Invalid field name {field_name}.") from exc
-            self.field_names = list(field_names) if field_names else []
-        else:
-            self.value = value
+    field_names: tuple[FieldName, ...]
+
+    def __init__(self, *field_names: str) -> None:
+        object.__setattr__(
+            self, "field_names", tuple(FieldName(f) for f in field_names)
+        )
+
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
+    def value(self) -> str:
         return ", ".join(self.field_names) if self.field_names else "*"
-
-    @value.setter
-    def value(self, val: str):
-        try:
-            node = rfc7231.Rule("Vary").parse_all(val)
-        except ParseError as exc:
-            raise ValueError(f"Invalid Vary value {val}.") from exc
-        visitor = VaryVisitor()
-        self.field_names = visitor.visit(node)

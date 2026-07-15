@@ -1,41 +1,36 @@
-"""Allow header class"""
+"""Allow header class."""
 
-from abnf import ParseError
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.visitors.rfc9110 import AllowVisitor, Token
 
 
+@dataclass(frozen=True, slots=True)
 class Allow(Header):
-    """
-    Allow header.
+    """Allow header, as defined by RFC 9110.
+
     Allow: GET, POST, OPTIONS
     """
 
-    name = "Allow"
-    visitor = AllowVisitor()
+    name: ClassVar[str] = "Allow"
+    rule: ClassVar[Rule] = rfc9110.Rule("Allow")
+    visitor: ClassVar[AllowVisitor] = AllowVisitor()
 
-    def __init__(self, value: str | None = None, *, methods: list[str] | None = None):
-        """
-        :param methods: a list of method names.
-        :rvalue: None
-        """
-        if isinstance(value, str):
-            self.value = value
-        else:
-            self.methods = [Token(m) for m in methods] if methods else []
+    methods: tuple[Token, ...]
+
+    def __init__(self, *methods: str) -> None:
+        object.__setattr__(self, "methods", tuple(Token(m) for m in methods))
+
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
-        """Returns header value."""
+    def value(self) -> str:
         return ",".join(self.methods)
-
-    @value.setter
-    def value(self, val: str):
-        try:
-            node = rfc9110.Rule("Allow").parse_all(val)
-        except ParseError as exc:
-            raise ValueError(f'Invalid Allow header value "{val}".') from exc
-
-        self.methods: list[Token] = self.visitor.visit(node)

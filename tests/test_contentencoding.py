@@ -1,16 +1,18 @@
-import pytest
-
 from http_headers import ContentEncoding
+from http_headers.visitors.rfc9110 import Token
 
 
-def test_contenteocoding_from_value():
-    content_encoding = ContentEncoding("deflate, gzip")
-    print(content_encoding)
-    expected = ContentEncoding(["deflate", "gzip"])
-    print(expected)
-    assert content_encoding.content_coding == expected.content_coding
+def test_contentencoding_parse():
+    header = ContentEncoding.parse("deflate, gzip")
+    assert header.codings == (Token("deflate"), Token("gzip"))
 
 
-def test_content_encoding_typeerror():
-    with pytest.raises(TypeError):
-        ContentEncoding(1)  # type: ignore
+def test_contentencoding_from_codings():
+    assert ContentEncoding("deflate", "gzip").value == "deflate, gzip"
+
+
+def test_contentencoding_parse_matches_direct():
+    assert (
+        ContentEncoding.parse("deflate, gzip").codings
+        == ContentEncoding("deflate", "gzip").codings
+    )

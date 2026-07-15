@@ -1,32 +1,33 @@
-from abnf import ParseError
+"""Connection header class."""
+
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.visitors.rfc9110 import ConnectionVisitor, Token
 
 
+@dataclass(frozen=True, slots=True)
 class Connection(Header):
-    name = "connection"
-    visitor = ConnectionVisitor()
+    """Connection header, as defined by RFC 9110."""
 
-    def __init__(self, *value: str):
-        """Pass connection directives as a single header value string, or a list of string."""
+    name: ClassVar[str] = "connection"
+    rule: ClassVar[Rule] = rfc9110.Rule("Connection")
+    visitor: ClassVar[ConnectionVisitor] = ConnectionVisitor()
 
-        assert isinstance(value, tuple)
-        if len(value) == 1:
-            self.value = value[0]
-        else:
-            self.directives = [Token(v) for v in value]
+    directives: tuple[Token, ...]
+
+    def __init__(self, *directives: str) -> None:
+        object.__setattr__(self, "directives", tuple(Token(d) for d in directives))
+
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
+    def value(self) -> str:
         return ",".join(self.directives)
-
-    @value.setter
-    def value(self, val: str):
-        try:
-            node = rfc9110.Rule("Connection").parse_all(val)
-        except ParseError as exc:
-            raise ValueError(f'Invalid {self.name} header value "{val}".') from exc
-        else:
-            self.directives: list[Token] = self.visitor.visit(node)

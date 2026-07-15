@@ -236,11 +236,19 @@ class CustomHeader(Header):
 | Auth | `Authorization`, `WWWAuthenticate` | credentials/challenge dataclass(es) |
 | Cookie | `Cookie`, `SetCookie` | pair tuple / many attribute fields |
 
-**Category bases.** Where a whole family shares one shape, factor a frozen-dataclass
-intermediate base that holds the field(s), `parse()`, and `value`, so each concrete header is
-just `name`/`rule`/`visitor` ClassVars (no `@dataclass` decorator needed — it inherits the
-base's). `DateHeader` (step 3) is the model; the token-list family (`Connection`, `Allow`,
-`Vary`, `ContentEncoding`, `AcceptRanges`) and entity-tag lists are the next candidates.
+**Category bases — use only for *identical* shapes.** Where a whole family shares one shape,
+factor a frozen-dataclass intermediate base holding the field(s), `parse()`, and `value`, so
+each concrete header is just `name`/`rule`/`visitor` ClassVars (no `@dataclass` decorator needed
+— it inherits the base's). `DateHeader` (step 3) is the model.
+
+Do **not** force a shared base when the family only *rhymes*. The token-list family
+(`Connection`, `Allow`, `Vary`, `ContentEncoding`, `AcceptRanges`, step 4) was left as five
+individual dataclasses because they vary in element type (`Token`/`RangeUnit`/`FieldName`),
+separator (`","` vs `", "`), and special-casing (`Vary` serializes empty as `*`). A generic
+`ListHeader[T]` base also hits a hard limit: **a `ClassVar` cannot reference the class's
+`TypeVar`**, so an `element` factory ClassVar typed with `T` doesn't type-check. Individual
+~20-line dataclasses kept the semantic field names (`.methods`, `.directives`, …) and read
+clearer than a parametrized base.
 
 ### 5.1 Common patterns
 
@@ -322,7 +330,9 @@ at every step:
 3. ✅ Date family — shared `DateHeader` base (`dateheader.py`); each of `Date`, `Expires`,
    `LastModified`, `IfModifiedSince`, `IfUnmodifiedSince` is now pure ClassVar config
    (name/rule/visitor). `Expires`'s field standardized `expire_date` → `date`.
-4. Token lists (`Connection`, `Allow`, `Vary`, `ContentEncoding`, `AcceptRanges`).
+4. ✅ Token lists (`Connection`, `Allow`, `Vary`, `ContentEncoding`, `AcceptRanges`) — five
+   individual dataclasses (varargs `__init__` coercing to `tuple`, `.parse()`, join `value`);
+   fields renamed for consistency (`content_coding` → `codings`). See §5 on why no shared base.
 5. Composite-single (`ContentType`, `ETag`, `Host`, `Location`, `ContentDisposition`, `ContentRange`).
 6. Weighted lists (`Accept`, `AcceptEncoding`, `AcceptCharset`).
 7. Entity-tag lists (`IfMatch`, `IfNoneMatch`).
