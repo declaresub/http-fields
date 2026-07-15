@@ -348,7 +348,10 @@ at every step:
    fixed a falsy-`0` bug in the ContentRange visitor). **Deferred: `ContentDisposition`** — its
    dict-of-parms + `ExtValue` frozenness + grammar quirk (rule parses the whole header line)
    warrant folding into the component-types-frozen pass.
-6. Weighted lists (`Accept`, `AcceptEncoding`, `AcceptCharset`).
+6. ✅ Weighted lists (`Accept`, `AcceptEncoding`, `AcceptCharset`) — frozen dataclasses with a
+   tuple field + varargs `__init__`. Frozen-ified `WeightedCoding` and made `AcceptType`
+   hashable (`params` → tuple, added `__hash__`). Fixed an `AcceptCharset` serialization bug
+   that dropped charsets carrying no weight.
 7. Entity-tag lists (`IfMatch`, `IfNoneMatch`).
 8. Directive lists (`CacheControl`, `AuthenticationInfo`).
 9. Auth (`Authorization`, `WWWAuthenticate`).

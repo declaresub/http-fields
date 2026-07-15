@@ -77,7 +77,7 @@ class AcceptType:
         )
         if isinstance(weight, (float, Weight)):
             self.weight = Weight(qvalue=weight) if isinstance(weight, float) else weight
-            self.params = _params
+            self.params: tuple[Parameter, ...] = tuple(_params)
         else:
             # sometimes, weight was captured by parser as a parameter because abnf backtracking is
             # somewhat arbitrary.  So we check the last item of parameters to see if it is a weight and,
@@ -85,19 +85,22 @@ class AcceptType:
             try:
                 w = _params[-1]
             except IndexError:
-                self.params = _params
+                self.params = tuple(_params)
                 self.weight = None
             else:
                 if w.name == "q":
                     qvalue = max(min(float(w.value), 1.0), 0.0)
                     self.weight = Weight(qvalue=qvalue)
-                    self.params = _params[0:-1]
+                    self.params = tuple(_params[:-1])
                 else:
-                    self.params = _params
+                    self.params = tuple(_params)
                     self.weight = None
 
     def __eq__(self, __o: object) -> bool:
         return isinstance(__o, self.__class__) and self.__dict__ == __o.__dict__
+
+    def __hash__(self) -> int:
+        return hash((self.type, self.subtype, self.params, self.weight))
 
     def __str__(self):
         return (

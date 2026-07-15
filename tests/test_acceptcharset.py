@@ -1,19 +1,14 @@
-import pytest
-
 from http_headers import AcceptCharset
 
 
-@pytest.mark.parametrize(
-    "value, expected",
-    [
-        ("*; q=0.5", AcceptCharset(charsets=[("*", 0.5)])),
-    ],
-)
-def test_acceptcharset_from_value(value: str, expected: AcceptCharset):
-    accept_charset = AcceptCharset(value)
-    assert accept_charset == expected
+def test_acceptcharset_parse():
+    assert AcceptCharset.parse("*; q=0.5") == AcceptCharset(("*", 0.5))
 
 
-def test_acceptcharset():
-    accept_charset = AcceptCharset(charsets=[("*", 0.5)])
-    assert accept_charset.value == "*;q=0.5"
+def test_acceptcharset_value():
+    assert AcceptCharset(("*", 0.5)).value == "*;q=0.5"
+
+
+def test_acceptcharset_no_weight():
+    # a charset with no weight must still be serialized (falsy-weight regression).
+    assert AcceptCharset(("utf-8", None)).value == "utf-8"

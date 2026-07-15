@@ -31,21 +31,21 @@ class Coding(ParsedStr):
     parser = rfc9110.Rule("codings")
 
 
-@dataclass
+@dataclass(frozen=True)
 class WeightedCoding:
     coding: Coding
     weight: Weight | None
 
     def __init__(self, coding: str, weight: float | (Weight | None) = None):
-        self.coding = Coding(coding)
+        object.__setattr__(self, "coding", Coding(coding))
         if isinstance(weight, Weight):
-            self.weight = weight
+            object.__setattr__(self, "weight", weight)
         elif isinstance(weight, (int, float)) and not isinstance(weight, bool):
             # Accept any real number, including 0 ("not acceptable"); a bare
             # None means no weight was specified.
-            self.weight = Weight(float(weight))
+            object.__setattr__(self, "weight", Weight(float(weight)))
         else:
-            self.weight = None
+            object.__setattr__(self, "weight", None)
 
     def __str__(self):
         return str(self.coding) + (f";{str(self.weight)}" if self.weight else "")

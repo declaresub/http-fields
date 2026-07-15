@@ -34,18 +34,18 @@ def test_mediarangevisitor_visit(src: str, expected: MediaRange):
     [
         (
             AcceptType("text", "plain"),
-            dict(type="text", subtype="plain", params=[], weight=None),
+            dict(type="text", subtype="plain", params=(), weight=None),
         ),
         (
             AcceptType("text", "plain", weight=0.5),
-            dict(type="text", subtype="plain", params=[], weight=Weight(0.5)),
+            dict(type="text", subtype="plain", params=(), weight=Weight(0.5)),
         ),
         (
             AcceptType("text", "plain", params=[("foo", "bar")]),
             dict(
                 type="text",
                 subtype="plain",
-                params=[Parameter("foo", "bar")],
+                params=(Parameter("foo", "bar"),),
                 weight=None,
             ),
         ),
@@ -54,7 +54,7 @@ def test_mediarangevisitor_visit(src: str, expected: MediaRange):
             dict(
                 type="text",
                 subtype="plain",
-                params=[Parameter("foo", "bar")],
+                params=(Parameter("foo", "bar"),),
                 weight=Weight(0.3),
             ),
         ),

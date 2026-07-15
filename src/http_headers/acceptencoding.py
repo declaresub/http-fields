@@ -1,40 +1,42 @@
-"""Accept header class."""
+"""Accept-Encoding header class."""
 
-from abnf import ParseError
+from dataclasses import dataclass
+from typing import ClassVar
+
+from abnf import Rule
 from abnf.grammars import rfc9110
+from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.visitors.rfc9110 import AcceptEncodingVisitor, Weight, WeightedCoding
 
 
+@dataclass(frozen=True)
 class AcceptEncoding(Header):
     """Accept-Encoding header, as defined by RFC 9110."""
 
-    name = "accept-encoding"
-    visitor = AcceptEncodingVisitor()
+    name: ClassVar[str] = "accept-encoding"
+    rule: ClassVar[Rule] = rfc9110.Rule("Accept-Encoding")
+    visitor: ClassVar[AcceptEncodingVisitor] = AcceptEncodingVisitor()
+
+    codings: tuple[WeightedCoding, ...]
 
     def __init__(
-        self,
-        value: str | None = None,
-        *,
-        codings: list[tuple[str, float | Weight | None]] | None = None,
-    ):
-        if isinstance(value, str):
-            self.value = value
-        else:
-            self.codings = [WeightedCoding(c, w) for c, w in codings] if codings else []
+        self, *codings: WeightedCoding | tuple[str, float | Weight | None]
+    ) -> None:
+        object.__setattr__(
+            self,
+            "codings",
+            tuple(
+                c if isinstance(c, WeightedCoding) else WeightedCoding(*c)
+                for c in codings
+            ),
+        )
+
+    @classmethod
+    def parse(cls, value: str) -> Self:
+        return cls(*cls.visitor.visit(cls._node(value)))
 
     @property
-    def value(self):
-        """Returns header value."""
-
+    def value(self) -> str:
         return ", ".join(str(coding) for coding in self.codings)
-
-    @value.setter
-    def value(self, val: str):
-        rule = rfc9110.Rule("Accept-Encoding")
-        try:
-            node = rule.parse_all(val)
-        except ParseError as exc:
-            raise ValueError(f"Invalid {self.name} value.") from exc
-        self.codings: list[WeightedCoding] = self.visitor.visit(node)
