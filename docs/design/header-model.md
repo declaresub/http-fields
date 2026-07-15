@@ -343,11 +343,13 @@ at every step:
 4. ✅ Token lists (`Connection`, `Allow`, `Vary`, `ContentEncoding`, `AcceptRanges`) — five
    individual dataclasses (varargs `__init__` coercing to `tuple`, `.parse()`, join `value`);
    fields renamed for consistency (`content_coding` → `codings`). See §5 on why no shared base.
-5. ⏳ Composite-single — done: `Location`, `Host`, `ETag`, `ContentRange`, `ContentType`
+5. ✅ Composite-single — `Location`, `Host`, `ETag`, `ContentRange`, `ContentType`
    (frozen-ified `MediaType` + `Parameter`; `ContentType.of(...)` builder; `ETag.from_tag(...)`;
-   fixed a falsy-`0` bug in the ContentRange visitor). **Deferred: `ContentDisposition`** — its
-   dict-of-parms + `ExtValue` frozenness + grammar quirk (rule parses the whole header line)
-   warrant folding into the component-types-frozen pass.
+   fixed a falsy-`0` bug in the ContentRange visitor), plus `ContentDisposition` (done later):
+   `.build(type, parms)` / `.parse()`, params stored as a tuple of `FilenameParm`/`DispExtParm`;
+   frozen-ified `ExtValue`/`FilenameParm`/`DispExtParm`. Aligned `build`'s filename detection
+   with the parser (case-insensitive) — the old set-membership check silently misrouted
+   uppercase `FILENAME` to a `DispExtParm`.
 6. ✅ Weighted lists (`Accept`, `AcceptEncoding`, `AcceptCharset`) — frozen dataclasses with a
    tuple field + varargs `__init__`. Frozen-ified `WeightedCoding` and made `AcceptType`
    hashable (`params` → tuple, added `__hash__`). Fixed an `AcceptCharset` serialization bug

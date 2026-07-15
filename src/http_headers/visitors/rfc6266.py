@@ -36,7 +36,7 @@ def NotNone(x: Any) -> bool:
     return x is not None
 
 
-@dataclass(kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class ExtValue:
     charset: str = "utf-8"
     language: str = ""
@@ -105,23 +105,27 @@ class Filename(CaselessMixin, str):
         return f"{self.__class__.__name__}({str.__repr__(str(self))})"
 
 
-@dataclass
+@dataclass(frozen=True)
 class FilenameParm:
     name: Filename
     value: Token | QuotedString | ExtValue
 
     def __init__(self, name: str, value: str | ExtValue):
-        self.name = Filename(name)
+        object.__setattr__(self, "name", Filename(name))
         if name[-1] == "*":
-            self.value = value if isinstance(value, ExtValue) else ExtValue(value=value)
+            object.__setattr__(
+                self,
+                "value",
+                value if isinstance(value, ExtValue) else ExtValue(value=value),
+            )
         else:
             if not isinstance(value, str):
                 raise TypeError('value associated to "filename" must be a str.')
             try:
-                self.value = Token(value)
+                object.__setattr__(self, "value", Token(value))
             except ValueError:
                 try:
-                    self.value = QuotedString(value)
+                    object.__setattr__(self, "value", QuotedString(value))
                 except ValueError as exc:
                     raise ValueError(
                         f"Value {value} could not be parsed as a Token or QuotedString."
@@ -150,33 +154,33 @@ class FilenameParmNodeVisitor(NodeVisitor):
         return FilenameParm(filename, value)
 
 
-@dataclass
+@dataclass(frozen=True)
 class DispExtParm:
     name: Token
     value: Token | QuotedString | ExtValue
 
     def __init__(self, name: str, value: str | ExtValue):
+        object.__setattr__(self, "name", Token(name))
         if name[-1] == "*":
-            self.name = Token(name)
             if isinstance(value, ExtValue):
-                self.value = value
+                object.__setattr__(self, "value", value)
             else:
-                self.value = ExtValue(value=value)
+                object.__setattr__(self, "value", ExtValue(value=value))
         else:
-            self.name = Token(name)
             if isinstance(value, str):
                 try:
-                    self.value = Token(value)
+                    object.__setattr__(self, "value", Token(value))
                 except ValueError:
                     try:
-                        self.value = QuotedString(value)
+                        object.__setattr__(self, "value", QuotedString(value))
                     except ValueError as exc:
                         raise ValueError(
                             f'Unable to parse "{value}" as a Token or QuotedString.'
                         ) from exc
             else:
                 raise TypeError(
-                    "Value for name {self.name} must be a string that parses as a Token or QuotedString."
+                    f"Value for name {name} must be a string that parses as a "
+                    "Token or QuotedString."
                 )
 
 
