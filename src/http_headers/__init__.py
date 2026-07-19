@@ -16,6 +16,8 @@ __all__ = [
     "AccessControlRequestMethod",
     "Age",
     "Allow",
+    "AltSvc",
+    "AltUsed",
     "AuthenticationInfo",
     "Authorization",
     "AuthParam",
@@ -47,10 +49,13 @@ __all__ = [
     "IfUnmodifiedSince",
     "LanguageTag",
     "LastModified",
+    "Link",
     "Location",
     "MaxForwards",
     "MediaType",
     "Origin",
+    "Prefer",
+    "PreferenceApplied",
     "RangeUnit",
     "NonNegativeInt",
     "Protocol",
@@ -62,6 +67,7 @@ __all__ = [
     "RetryAfter",
     "Server",
     "SetCookie",
+    "StrictTransportSecurity",
     "TCoding",
     "TE",
     "Trailer",
@@ -72,8 +78,11 @@ __all__ = [
     "WWWAuthenticate",
     "ExtValue",
     "CookiePair",
+    "AltValue",
     "ForwardedElement",
     "IntRange",
+    "LinkValue",
+    "Preference",
     "SuffixRange",
     "ViaElement",
     "WeightedCoding",
@@ -97,6 +106,7 @@ from http_headers.accesscontrol import (
 )
 from http_headers.age import Age
 from http_headers.allow import Allow
+from http_headers.altsvc import AltSvc, AltUsed
 from http_headers.authenticationinfo import AuthenticationInfo
 from http_headers.authorization import Authorization
 from http_headers.cachecontrol import CacheControl, CacheDirective
@@ -123,10 +133,12 @@ from http_headers.ifnonematch import IfNoneMatch
 from http_headers.ifrange import IfRange
 from http_headers.ifunmodifiedsince import IfUnmodifiedSince
 from http_headers.lastmodified import LastModified
+from http_headers.link import Link
 from http_headers.location import Location
 from http_headers.maxforwards import MaxForwards
 from http_headers.origin import Origin
 from http_headers.parsedobjs import NonNegativeInt
+from http_headers.prefer import Prefer, PreferenceApplied
 from http_headers.proxyauthenticate import ProxyAuthenticate
 from http_headers.proxyauthenticationinfo import ProxyAuthenticationInfo
 from http_headers.proxyauthorization import ProxyAuthorization
@@ -135,6 +147,7 @@ from http_headers.referer import Referer
 from http_headers.retryafter import RetryAfter
 from http_headers.server import Server
 from http_headers.setcookie import SetCookie
+from http_headers.stricttransportsecurity import StrictTransportSecurity
 from http_headers.te import TE
 from http_headers.trailer import Trailer
 from http_headers.upgrade import Upgrade
@@ -142,6 +155,9 @@ from http_headers.useragent import UserAgent
 from http_headers.vary import Vary
 from http_headers.via import Via
 from http_headers.visitors.rfc7239 import ForwardedElement
+from http_headers.visitors.rfc7240 import Preference
+from http_headers.visitors.rfc7838 import AltValue
+from http_headers.visitors.rfc8288 import LinkValue
 from http_headers.visitors.rfc9110 import (
     AuthParam,
     EntityTag,

@@ -452,7 +452,25 @@ now closed:
   (declaresub/abnf #130–#134): Structured Field Values (RFC 9651, which obsoletes RFC 8941 and
   underpins `Priority`, `Cache-Status`, `Proxy-Status`, `Content-Digest`, …), `Link` (RFC 8288),
   HSTS (RFC 6797), `Alt-Svc` (RFC 7838), and `Prefer` (RFC 7240). These are now implementable
-  here (a prospective "batch 5"); the dependency floor is `abnf>=2.6.0`.
+  here; the dependency floor is `abnf>=2.6.0`.
+
+## 13. Extension headers (batch 5, tier A)
+
+The non-Structured-Fields headers unblocked by abnf 2.6.0:
+
+- **`Link`** (RFC 8288) — a tuple of `LinkValue` (target URI + link-params).
+- **`StrictTransportSecurity`** (RFC 6797) — `max_age` + `include_subdomains`/`preload` flags.
+- **`AltSvc`** / **`AltUsed`** (RFC 7838) — a tuple of `AltValue` (with a `clear=True` variant),
+  and a single authority string.
+- **`Prefer`** / **`PreferenceApplied`** (RFC 7240) — a tuple of `Preference` (name + optional
+  value + params).
+
+Three of these (`StrictTransportSecurity`, `Prefer`, `PreferenceApplied`) use grammar rules that
+match the whole header line, so `Header._prefixed_node()` prepends `"<name>: "` before parsing
+(the same trick `ContentDisposition` already used).
+
+**Tier B (deferred):** the Structured Fields value model (RFC 9651) and its headers — `Priority`
+(9218), `Cache-Status` (9211), `Proxy-Status` (9209), `Content-Digest` / `Repr-Digest` (9530).
 
 ## 9. Open questions / risks
 

@@ -106,7 +106,9 @@ The core HTTP RFCs (9110 / 9111 / 6265 / 6266): `Accept`, `AcceptCharset`, `Acce
 Widely-deployed extensions: `Forwarded` (RFC 7239), `Origin` and the CORS headers
 (`AccessControlAllowCredentials`, `AccessControlAllowHeaders`, `AccessControlAllowMethods`,
 `AccessControlAllowOrigin`, `AccessControlExposeHeaders`, `AccessControlMaxAge`,
-`AccessControlRequestHeaders`, `AccessControlRequestMethod`).
+`AccessControlRequestHeaders`, `AccessControlRequestMethod`), `Link` (RFC 8288),
+`StrictTransportSecurity` (RFC 6797), `AltSvc` / `AltUsed` (RFC 7838), and `Prefer` /
+`PreferenceApplied` (RFC 7240).
 
 Plus `CustomHeader` for anything else.
 

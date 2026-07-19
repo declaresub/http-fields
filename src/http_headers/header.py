@@ -61,6 +61,15 @@ class Header(ABC):
             raise ValueError(f'Invalid {cls.__name__} value "{value}".') from exc
 
     @classmethod
+    def _prefixed_node(cls, value: str) -> Node:
+        """Like :meth:`_node`, but for grammar rules that match the whole header line (name
+        included); prepend ``"<name>: "`` before parsing."""
+        try:
+            return cls.rule.parse_all(f"{cls.name}: {value}")
+        except ParseError as exc:
+            raise ValueError(f'Invalid {cls.__name__} value "{value}".') from exc
+
+    @classmethod
     def parse(cls, value: str) -> Header:
         """Parse a header value into an instance. Every concrete known header overrides this
         (CustomHeader carries an arbitrary name and is built via its constructor instead)."""
