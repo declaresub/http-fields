@@ -110,6 +110,11 @@ Widely-deployed extensions: `Forwarded` (RFC 7239), `Origin` and the CORS header
 `StrictTransportSecurity` (RFC 6797), `AltSvc` / `AltUsed` (RFC 7838), and `Prefer` /
 `PreferenceApplied` (RFC 7240).
 
+Structured-Fields headers (RFC 9651): `Priority` (RFC 9218), `CacheStatus` (RFC 9211),
+`ProxyStatus` (RFC 9209), and `ContentDigest` / `ReprDigest` (RFC 9530). The Structured Fields
+value model itself is available as `http_headers.structuredfields` (`Item`, `InnerList`,
+`Token`, `DisplayString`, and `parse_*` / `serialize_*` functions).
+
 Plus `CustomHeader` for anything else.
 
 ## Development

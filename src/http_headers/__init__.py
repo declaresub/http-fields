@@ -23,7 +23,9 @@ __all__ = [
     "AuthParam",
     "CacheControl",
     "CacheDirective",
+    "CacheStatus",
     "Connection",
+    "ContentDigest",
     "ContentDisposition",
     "ContentEncoding",
     "ContentLanguage",
@@ -56,14 +58,17 @@ __all__ = [
     "Origin",
     "Prefer",
     "PreferenceApplied",
+    "Priority",
     "RangeUnit",
     "NonNegativeInt",
     "Protocol",
     "ProxyAuthenticate",
     "ProxyAuthenticationInfo",
     "ProxyAuthorization",
+    "ProxyStatus",
     "Range",
     "Referer",
+    "ReprDigest",
     "RetryAfter",
     "Server",
     "SetCookie",
@@ -110,7 +115,9 @@ from http_headers.altsvc import AltSvc, AltUsed
 from http_headers.authenticationinfo import AuthenticationInfo
 from http_headers.authorization import Authorization
 from http_headers.cachecontrol import CacheControl, CacheDirective
+from http_headers.cachestatus import CacheStatus
 from http_headers.connection import Connection
+from http_headers.contentdigest import ContentDigest, ReprDigest
 from http_headers.contentdisposition import ContentDisposition, ExtValue
 from http_headers.contentencoding import ContentEncoding
 from http_headers.contentlanguage import ContentLanguage
@@ -139,9 +146,11 @@ from http_headers.maxforwards import MaxForwards
 from http_headers.origin import Origin
 from http_headers.parsedobjs import NonNegativeInt
 from http_headers.prefer import Prefer, PreferenceApplied
+from http_headers.priority import Priority
 from http_headers.proxyauthenticate import ProxyAuthenticate
 from http_headers.proxyauthenticationinfo import ProxyAuthenticationInfo
 from http_headers.proxyauthorization import ProxyAuthorization
+from http_headers.proxystatus import ProxyStatus
 from http_headers.range import Range
 from http_headers.referer import Referer
 from http_headers.retryafter import RetryAfter

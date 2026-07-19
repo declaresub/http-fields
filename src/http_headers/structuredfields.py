@@ -231,7 +231,7 @@ def parse_item(value: str) -> Item:
     return _VISITOR.visit(rfc9651.Rule("sf-item").parse_all(value))
 
 
-def parse_list(value: str) -> tuple[object, ...]:
+def parse_list(value: str) -> tuple[Item | InnerList, ...]:
     """Parse a Structured Fields List into a tuple of Item / InnerList. An empty string is an
     empty list."""
     if not value.strip():
@@ -239,7 +239,7 @@ def parse_list(value: str) -> tuple[object, ...]:
     return _VISITOR.visit(rfc9651.Rule("sf-list").parse_all(value))
 
 
-def parse_dictionary(value: str) -> tuple[tuple[str, object], ...]:
+def parse_dictionary(value: str) -> tuple[tuple[str, Item | InnerList], ...]:
     """Parse a Structured Fields Dictionary into a tuple of (key, Item / InnerList) pairs
     (ordered). An empty string is an empty dictionary."""
     if not value.strip():

@@ -469,8 +469,33 @@ Three of these (`StrictTransportSecurity`, `Prefer`, `PreferenceApplied`) use gr
 match the whole header line, so `Header._prefixed_node()` prepends `"<name>: "` before parsing
 (the same trick `ContentDisposition` already used).
 
-**Tier B (deferred):** the Structured Fields value model (RFC 9651) and its headers — `Priority`
-(9218), `Cache-Status` (9211), `Proxy-Status` (9209), `Content-Digest` / `Repr-Digest` (9530).
+## 14. Structured Fields headers (batch 5, tier B)
+
+RFC 9651 Structured Field Values is a small, well-defined type system that underpins every new
+HTTP header since ~2021. It is implemented once, then the headers are thin.
+
+**The value model** (`structuredfields.py`) is a self-contained sub-library: `Item`,
+`InnerList`, `Token`, `DisplayString`, and `parse_item`/`parse_list`/`parse_dictionary` +
+`serialize_*`. Bare items map to native Python types (Integer→int, Decimal→Decimal, String→str,
+Token→Token, Boolean→bool, Byte Sequence→bytes, Date→datetime, Display String→DisplayString);
+`Token`/`DisplayString` are `str` subclasses so they serialize distinctly from a plain String.
+It is kept namespaced (not re-exported at the top level) to avoid a `Token` clash with the
+RFC 9110 token, and round-trips exactly (escaping, percent-encoding, base64, dates).
+
+**The headers** ride on it:
+
+- **`Priority`** (RFC 9218) — a semantic wrapper over the Dictionary: `urgency` (0-7, default 3)
+  and `incremental`; defaults are omitted from the serialized value.
+- **`CacheStatus`** / **`ProxyStatus`** (RFC 9211 / 9209) — Structured Fields Lists; share a
+  `StructuredListHeader` base and expose the parsed `members` (tuple of `Item`).
+- **`ContentDigest`** / **`ReprDigest`** (RFC 9530) — Structured Fields Dictionaries of
+  algorithm→byte-sequence; share a `DigestHeader` base exposing `digests` as `(str, bytes)` pairs.
+
+The header grammars *are* the SF grammar (`rfc9651.Rule("sf-list")` / `"sf-dictionary"`); the
+RFCs that define these headers just say "the value is an sf-list/sf-dictionary", so no
+per-header grammar is needed.
+
+This brings coverage to 69 named header classes plus `CustomHeader`.
 
 ## 9. Open questions / risks
 
