@@ -443,12 +443,16 @@ The header machinery (base class, `.parse()`/`value`, hashing, `create()` regist
 unchanged with a non-`rfc9110` grammar rule — a header costs the same whether its grammar is
 core or an extension, *provided abnf has the grammar*.
 
-**Known gap:** abnf's `cors` `Origin` rule matches only serialized origins, not the literal
-`null` that the Fetch spec permits for the request header — so `Origin.parse("null")` currently
-raises. Headers whose grammars abnf does not ship at all — Structured Fields (RFC 9651, which
-obsoletes RFC 8941 and underpins `Priority`, `Cache-Status`, `Proxy-Status`, `Content-Digest`,
-…), `Link` (RFC 8288), HSTS (RFC 6797), `Alt-Svc` (RFC 7838), `Prefer` (RFC 7240) — are filed as
-abnf feature requests (declaresub/abnf #130–#134).
+**Grammar gaps — resolved in abnf 2.6.0.** Earlier work surfaced two kinds of abnf gap, both
+now closed:
+
+- The `cors` `Origin` rule rejected the literal `null` (a valid opaque-origin serialization);
+  fixed in abnf 2.6.0 (declaresub/abnf #135), so `Origin.parse("null")` now works.
+- abnf shipped no grammar for several extension specs; 2.6.0 adds all of them
+  (declaresub/abnf #130–#134): Structured Field Values (RFC 9651, which obsoletes RFC 8941 and
+  underpins `Priority`, `Cache-Status`, `Proxy-Status`, `Content-Digest`, …), `Link` (RFC 8288),
+  HSTS (RFC 6797), `Alt-Svc` (RFC 7838), and `Prefer` (RFC 7240). These are now implementable
+  here (a prospective "batch 5"); the dependency floor is `abnf>=2.6.0`.
 
 ## 9. Open questions / risks
 
