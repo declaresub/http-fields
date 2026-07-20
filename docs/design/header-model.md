@@ -497,7 +497,7 @@ per-header grammar is needed.
 
 This brings coverage to 69 named header classes plus `CustomHeader`.
 
-## 9. Open questions / risks
+## 15. Design questions (resolved)
 
 - ~~**`Self` typing**~~ **Decided:** add `typing_extensions` as a runtime dependency and use
   `typing_extensions.Self` for `parse()` return types (3.10 has no `typing.Self`).
@@ -505,8 +505,29 @@ This brings coverage to 69 named header classes plus `CustomHeader`.
   `ClassVar` overriding an abstract property, so `name` is a `ClassVar[str]` on the base and
   `CustomHeader` overrides it with a property carrying one `reportIncompatibleVariableOverride`
   ignore. See §3.1.
-- **`RetryAfter` union field** (`NonNegativeInt | datetime`) and **`Host`/`ContentRange`**
-  multi-field serialization need per-header `value` logic — no shared shortcut.
-- **`SetCookie`** is large (many optional attributes + cookie-date parsing); it may warrant its
-  own sub-design when we reach step 10.
-```
+- ~~**`RetryAfter` union field** and **`Host`/`ContentRange`** multi-field serialization~~
+  **Resolved:** each keeps its own `value` logic (a shared shortcut wasn't warranted).
+- ~~**`SetCookie`** sub-design~~ **Resolved (step 10):** split into `.build()` (validated,
+  strict grammar) and `.parse()` (lenient RFC 6265 §5); the dataclass `__init__` is the trusted
+  internal constructor.
+
+## 16. Future work
+
+### RFC 9421 — HTTP Message Signatures
+
+Tempting, but deliberately deferred: it is a larger, security-sensitive effort, not a header
+wrapper. The two halves differ greatly in size:
+
+- **The headers are nearly free.** `Signature-Input` (a Structured Fields Dictionary of Inner
+  Lists with parameters — `keyid`, `alg`, `created`, `expires`, `nonce`, `tag`) and `Signature`
+  (a Dictionary of byte-sequences) ride directly on the RFC 9651 SF library (§14), so they are
+  ~2 thin wrappers like `ContentDigest`.
+- **The engine is the real project.** Signing/verification is a different kind of work from
+  value parsing: constructing the *signature base* from covered components — derived components
+  (`@method`, `@target-uri`, `@authority`, `@path`, `@query`, `@status`, …) and header fields
+  with their canonicalization rules (`sf`/`bs`/`tr` parameters, multi-value fields) — plus the
+  actual cryptography (RSA-PSS / RSA-v1.5, ECDSA P-256/P-384, Ed25519, HMAC). That pulls in a
+  real crypto dependency (`cryptography`) and a security surface where verification bugs are the
+  dangerous kind.
+- **Shape when picked up:** its own module (not the header layer), with a test-vector suite from
+  RFC 9421 Appendix B.
