@@ -256,11 +256,16 @@ class SetCookie(Header):
         # the RFC 6265 grammar requires max-age to be positive; this is almost universally
         # ignored, so we go with the crowd and clamp negatives to 0.
         normalized_max_age = 0 if max_age and max_age < 0 else max_age
-        ext = (
-            tuple(rfc6265.Rule("extension-av").parse_all(x).value for x in extension)
-            if extension
-            else ()
-        )
+        try:
+            ext = (
+                tuple(
+                    rfc6265.Rule("extension-av").parse_all(x).value for x in extension
+                )
+                if extension
+                else ()
+            )
+        except ParseError as exc:
+            raise ValueError("Invalid extension value.") from exc
         return cls(
             cookie_name=cookie_name,
             cookie_value=cookie_value,

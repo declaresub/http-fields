@@ -280,3 +280,11 @@ def test_setcookie_samesite_none_keeps_explicit_secure():
     cookie = SetCookie.parse("a=b; SameSite=None; Secure")
     assert cookie.secure is True
     assert SetCookie.parse(cookie.value) == cookie
+
+
+@pytest.mark.parametrize("bad_extension", [["bad\r\nx"], ["a=b=c;d"], ["", "ok"]])
+def test_setcookie_build_bad_extension_raises_valueerror(bad_extension: list[str]):
+    # build() must raise ValueError (its documented failure mode), not the raw
+    # abnf ParseError, for an invalid extension-av (round 2, bug 3 / security low).
+    with pytest.raises(ValueError):
+        SetCookie.build(cookie_name="n", cookie_value="v", extension=bad_extension)
