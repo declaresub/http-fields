@@ -52,6 +52,9 @@ class NonNegativeInt(int):
         if isinstance(value, cls):
             return value
         else:
+            if isinstance(value, float) and not value.is_integer():
+                # int(3.7) would silently truncate; reject non-integral input.
+                raise ValueError("Value must be a whole number.")
             val = super().__new__(cls, value)
             if val >= 0:
                 return val

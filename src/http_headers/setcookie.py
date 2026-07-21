@@ -194,7 +194,8 @@ class SetCookie(Header):
     max_age: int | None = None
     secure: bool = False
     http_only: bool = False
-    samesite: str = "Lax"
+    # None means the origin did not set a SameSite attribute; it is not serialized.
+    samesite: str | None = None
     extension: tuple[str, ...] = ()
 
     @classmethod
@@ -209,7 +210,7 @@ class SetCookie(Header):
         max_age: int | None = None,
         secure: bool = False,
         http_only: bool = False,
-        samesite: Literal["Strict", "Lax", "None"] = "Lax",
+        samesite: Literal["Strict", "Lax", "None"] | None = None,
         extension: list[str] | None = None,
     ) -> Self:
         """Build a validated Set-Cookie from its pieces."""
@@ -274,7 +275,8 @@ class SetCookie(Header):
             header_value.append(f"Expires={imf_fixdate(self.expires)}")
         if self.max_age is not None:
             header_value.append(f"Max-Age={self.max_age}")
-        header_value.append(f"SameSite={self.samesite}")
+        if self.samesite is not None:
+            header_value.append(f"SameSite={self.samesite}")
         if self.secure or self.samesite == "None":
             header_value.append("Secure")
         if self.http_only:
@@ -408,11 +410,13 @@ class SetCookie(Header):
             elif matchname == "httponly":
                 cookie_attrs["http_only"] = True
             elif matchname == "samesite":
-                cookie_attrs["samesite"] = (
-                    attr_value
-                    if attr_value.lower() in ["strict", "lax", "none"]
-                    else "Default"
-                )
+                # Store the canonical spelling; an unrecognized value is treated
+                # as absent (None) so it is never serialized as "SameSite=Default".
+                cookie_attrs["samesite"] = {
+                    "strict": "Strict",
+                    "lax": "Lax",
+                    "none": "None",
+                }.get(attr_value.lower())
             else:
                 # extension-av
                 # RFC 6256 Section 5 explicitly ignores extension-av in its loose parsing algorithm.

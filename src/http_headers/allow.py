@@ -8,7 +8,15 @@ from abnf.grammars import rfc9110
 from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.visitors.rfc9110 import AllowVisitor, Token
+from http_headers.parsedobjs import ParsedStr
+from http_headers.visitors.rfc9110 import AllowVisitor
+
+
+class Method(ParsedStr):
+    """An HTTP method (a token). Methods are case-sensitive (RFC 9110 section 9.1),
+    unlike the caseless :class:`Token`."""
+
+    parser = rfc9110.Rule("token")
 
 
 @dataclass(frozen=True)
@@ -22,10 +30,10 @@ class Allow(Header):
     rule: ClassVar[Rule] = rfc9110.Rule("Allow")
     visitor: ClassVar[AllowVisitor] = AllowVisitor()
 
-    methods: tuple[Token, ...]
+    methods: tuple[Method, ...]
 
     def __init__(self, *methods: str) -> None:
-        object.__setattr__(self, "methods", tuple(Token(m) for m in methods))
+        object.__setattr__(self, "methods", tuple(Method(m) for m in methods))
 
     @classmethod
     def parse(cls, value: str) -> Self:

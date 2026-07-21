@@ -11,6 +11,24 @@ from http_headers.header import Header
 from http_headers.parsedobjs import NonNegativeInt
 
 
+def _unquote(value: str) -> str:
+    """Strip a surrounding quoted-string (RFC 6797 directive-value), unescaping
+    quoted-pairs; a bare token is returned unchanged."""
+    if len(value) >= 2 and value.startswith('"') and value.endswith('"'):
+        inner = value[1:-1]
+        out: list[str] = []
+        i = 0
+        while i < len(inner):
+            if inner[i] == "\\" and i + 1 < len(inner):
+                out.append(inner[i + 1])
+                i += 2
+            else:
+                out.append(inner[i])
+                i += 1
+        return "".join(out)
+    return value
+
+
 @dataclass(frozen=True)
 class StrictTransportSecurity(Header):
     """Strict-Transport-Security (HSTS) header, as defined by RFC 6797."""
@@ -34,6 +52,7 @@ class StrictTransportSecurity(Header):
         # the grammar rule matches the whole header line, so prepend the field name.
         node = cls._prefixed_node(value)
         max_age = 0
+        max_age_seen = False
         include_subdomains = False
         preload = False
         for directive in (c for c in node.children if c.name == "directive"):
@@ -47,13 +66,21 @@ class StrictTransportSecurity(Header):
                         for c in directive.children
                         if c.name == "directive-value"
                     ),
-                    "0",
+                    "",
                 )
-                max_age = int(dvalue)
+                # RFC 6797 section 6.1: directive-value = token / quoted-string.
+                max_age = int(_unquote(dvalue))
+                max_age_seen = True
             elif dname == "includesubdomains":
                 include_subdomains = True
             elif dname == "preload":
                 preload = True
+        if not max_age_seen:
+            # RFC 6797 section 6.1.1: an STS header field without max-age is
+            # ignored; surface that as an error rather than a spurious max-age=0.
+            raise ValueError(
+                "Strict-Transport-Security requires a max-age directive."
+            )
         return cls(max_age, include_subdomains, preload)
 
     @property

@@ -5,7 +5,7 @@ from abnf import Node, NodeVisitor
 from http_headers.visitors.rfc9110.parameters import Parameter
 from http_headers.visitors.rfc9110.quotedstring import QuotedStringVisitor
 from http_headers.visitors.rfc9110.token import Token, TokenVisitor
-from http_headers.visitors.rfc9110.weight import Weight, WeightVisitor
+from http_headers.visitors.rfc9110.weight import Weight, WeightVisitor, as_qvalue
 
 __all__ = ["TCoding", "TEVisitor"]
 
@@ -59,9 +59,12 @@ class TEVisitor(NodeVisitor):
             elif isinstance(result, Weight):
                 weight = result
         # the parser usually captures "q=..." as a transfer-parameter rather than a weight.
+        # Only treat it as a weight if it is an unquoted, in-range qvalue.
         if weight is None and params and str(params[-1].name).lower() == "q":
-            weight = Weight(qvalue=max(min(float(params[-1].value), 1.0), 0.0))
-            params = params[:-1]
+            qvalue = as_qvalue(params[-1].value)
+            if qvalue is not None:
+                weight = Weight(qvalue=qvalue)
+                params = params[:-1]
         return TCoding(coding, weight, tuple(params))
 
     def visit_te(self, node: Node) -> list[TCoding]:

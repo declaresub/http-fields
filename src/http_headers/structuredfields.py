@@ -9,6 +9,7 @@ Boolean -> bool, Byte Sequence -> bytes, Date -> datetime, Display String -> Dis
 from __future__ import annotations
 
 import base64
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -175,7 +176,14 @@ class _StructuredFieldsVisitor(NodeVisitor):
         return (key, value)
 
     def visit_parameters(self, node: Node) -> tuple[tuple[str, object], ...]:
-        return tuple(self.visit(c) for c in node.children if c.name == "parameter")
+        # RFC 9651 section 4.2.3.2: parameters are an ordered map; a duplicate key
+        # keeps the last value at the first occurrence's position.
+        params: dict[str, object] = {}
+        for c in node.children:
+            if c.name == "parameter":
+                key, value = self.visit(c)
+                params[key] = value
+        return tuple(params.items())
 
     def visit_sf_item(self, node: Node) -> Item:
         value: object = None
@@ -220,7 +228,14 @@ class _StructuredFieldsVisitor(NodeVisitor):
         return (key, member)
 
     def visit_sf_dictionary(self, node: Node) -> tuple[tuple[str, object], ...]:
-        return tuple(self.visit(c) for c in node.children if c.name == "dict-member")
+        # RFC 9651 section 4.2.2: a duplicate key keeps the last value at the
+        # first occurrence's position.
+        members: dict[str, object] = {}
+        for c in node.children:
+            if c.name == "dict-member":
+                key, member = self.visit(c)
+                members[key] = member
+        return tuple(members.items())
 
 
 _VISITOR = _StructuredFieldsVisitor()
@@ -249,24 +264,51 @@ def parse_dictionary(value: str) -> tuple[tuple[str, Item | InnerList], ...]:
 
 # --- serializing ----------------------------------------------------------------------------
 
+# RFC 9651 section 4.1 requires serializers to fail on values that cannot be
+# represented, rather than emit output that will not round-trip.
+_INTEGER_MAX = 10**15 - 1  # section 4.1.4
+_DECIMAL_INT_MAX = Decimal(10) ** 12  # section 4.1.5: integer part <= 12 digits
+_TOKEN_RE = re.compile(r"^[A-Za-z*][A-Za-z0-9!#$%&'*+\-.^_`|~:/]*$")  # section 4.1.7
+_KEY_RE = re.compile(r"^[a-z*][a-z0-9_.*-]*$")  # section 3.1.2 key
+
+
+def _validate_key(key: object) -> str:
+    if not isinstance(key, str) or not _KEY_RE.match(key):
+        raise ValueError(f"Invalid Structured Fields key: {key!r}.")
+    return key
+
 
 def serialize_bare(value: object) -> str:
     """Serialize a bare item to its Structured Fields text form."""
     if isinstance(value, bool):
         return "?1" if value else "?0"
     if isinstance(value, int):
+        if not -_INTEGER_MAX <= value <= _INTEGER_MAX:
+            raise ValueError(f"Integer {value} is out of range for Structured Fields.")
         return str(value)
     if isinstance(value, Decimal):
+        if abs(value) >= _DECIMAL_INT_MAX:
+            raise ValueError(f"Decimal {value} integer part exceeds 12 digits.")
         return _serialize_decimal(value)
     if isinstance(value, DisplayString):
         return _encode_displaystring(value)
     if isinstance(value, Token):
+        if not _TOKEN_RE.match(value):
+            raise ValueError(f"Invalid Structured Fields Token: {value!r}.")
         return str(value)
     if isinstance(value, str):
+        if any(ord(c) < 0x20 or ord(c) > 0x7E for c in value):
+            raise ValueError(
+                f"String {value!r} contains characters outside %x20-7E."
+            )
         return '"' + _escape_string(value) + '"'
     if isinstance(value, bytes):
         return ":" + base64.b64encode(value).decode("ascii") + ":"
     if isinstance(value, datetime):
+        # A naive datetime is interpreted as UTC so output does not depend on the
+        # machine's local timezone.
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
         return "@" + str(int(value.timestamp()))
     raise TypeError(f"Cannot serialize {value!r} as a Structured Fields bare item.")
 
@@ -274,6 +316,7 @@ def serialize_bare(value: object) -> str:
 def _serialize_params(params: tuple[tuple[str, object], ...]) -> str:
     out: list[str] = []
     for key, value in params:
+        _validate_key(key)
         out.append(f";{key}" if value is True else f";{key}={serialize_bare(value)}")
     return "".join(out)
 
@@ -304,6 +347,7 @@ def serialize_dictionary(members: tuple[tuple[str, object], ...]) -> str:
     """Serialize a Dictionary of (key, Item / InnerList) members."""
     parts: list[str] = []
     for key, member in members:
+        _validate_key(key)
         if isinstance(member, Item) and member.value is True:
             parts.append(key + _serialize_params(member.parameters))
         else:

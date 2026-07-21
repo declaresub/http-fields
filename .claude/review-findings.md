@@ -42,35 +42,35 @@ Status legend: ⬜ open · ✅ fixed (test added first, then fix).
 
 ### 🟡 Medium
 
-- ⬜ **11. `Host.parse(":80")` / `""` / `"host:"` break.** `visitors/rfc9110/host.py:5`;
+- ✅ **11. `Host.parse(":80")` / `""` / `"host:"` break.** `visitors/rfc9110/host.py:5`;
   `host.py:33`. Fix: match children by node name; keep empty host `""`, empty port `None`.
-- ⬜ **12. SF serializer does no validation** — emits unparseable output (non-ASCII strings,
+- ✅ **12. SF serializer does no validation** — emits unparseable output (non-ASCII strings,
   invalid tokens/keys, 16-digit ints). `structuredfields.py:253`. Fix: validate per RFC 9651 §4.1.
-- ⬜ **13. `DigestHeader.parse` silently drops** non-binary members and parameters.
+- ✅ **13. `DigestHeader.parse` silently drops** non-binary members and parameters.
   `structuredheaders.py:57`. Fix: raise on non-binary, or preserve.
-- ⬜ **14. `Range.parse` drops `other-range`** and can serialize invalid `bytes=`.
+- ✅ **14. `Range.parse` drops `other-range`** and can serialize invalid `bytes=`.
   `visitors/rfc9110/range.py:70`; `range.py:36`. Fix: carry other-range as string or reject.
-- ⬜ **15. `Accept.parse('…;q="0.5"')` crashes**; out-of-range `q=5` silently clamped.
+- ✅ **15. `Accept.parse('…;q="0.5"')` crashes**; out-of-range `q=5` silently clamped.
   `visitors/rfc9110/accept.py:92` (also `te.py:62`). Fix: strip quotes / catch; validate range.
-- ⬜ **16. HSTS crashes on quoted `max-age`**; missing `max-age` wrongly parses as `0`.
+- ✅ **16. HSTS crashes on quoted `max-age`**; missing `max-age` wrongly parses as `0`.
   `stricttransportsecurity.py:44`. Fix: strip DQUOTEs; raise if no `max-age`.
-- ⬜ **17. `asgi_value` uses ASCII but class encoding is latin-1.** `header.py:42`. obs-text
+- ✅ **17. `asgi_value` uses ASCII but class encoding is latin-1.** `header.py:42`. obs-text
   crashes only on ASGI path. Fix: encode with `self.encoding`.
-- ⬜ **18. `SetCookie` round-trip invents `SameSite=Lax`** / emits invalid `SameSite=Default`.
+- ✅ **18. `SetCookie` round-trip invents `SameSite=Lax`** / emits invalid `SameSite=Default`.
   `setcookie.py:270,397`. Fix: track SameSite-absent as `None`; never serialize `Default`.
-- ⬜ **19. Cookie quoted values lose their `"`** on round-trip. `visitors/rfc6265.py:44`.
+- ✅ **19. Cookie quoted values lose their `"`** on round-trip. `visitors/rfc6265.py:44`.
   Fix: preserve raw cookie-value node text.
-- ⬜ **20. Cookie names compare case-insensitively** (RFC 6265 is case-sensitive).
+- ✅ **20. Cookie names compare case-insensitively** (RFC 6265 is case-sensitive).
   `visitors/rfc6265.py:7` (`CaselessMixin`). Fix: drop `CaselessMixin`.
-- ⬜ **21. `Host` equality case-sensitive** (host names aren't). `host.py:25`. Fix: casefold hostname.
-- ⬜ **22. SF keeps duplicate keys** (RFC requires last-wins). `structuredfields.py:177,222`.
+- ✅ **21. `Host` equality case-sensitive** (host names aren't). `host.py:25`. Fix: casefold hostname.
+- ✅ **22. SF keeps duplicate keys** (RFC requires last-wins). `structuredfields.py:177,222`.
   Fix: de-dup keeping last occurrence.
-- ⬜ **23. ext-value doesn't percent-encode `/`** → unparseable Content-Disposition.
+- ✅ **23. ext-value doesn't percent-encode `/`** → unparseable Content-Disposition.
   `visitors/rfc6266.py:45`. Fix: `quote(..., safe="")`.
 
 ### ⚪ Low
 
-- ⬜ **24. `NonNegativeInt` truncates floats** — `Age(3.7)` → `"3"`. `parsedobjs.py:48`.
+- ✅ **24. `NonNegativeInt` truncates floats** — `Age(3.7)` → `"3"`. `parsedobjs.py:48`.
   Fix: reject non-integral. Also: `Allow("GET")==Allow("get")` (methods case-sensitive);
   `Host(host, 0)` drops port 0; SF unpadded base64 raises raw `binascii.Error`; naive-datetime
   SF uses local tz; `IntRange(500, 100)` accepted (last-pos < first-pos).
@@ -95,5 +95,3 @@ Status legend: ⬜ open · ✅ fixed (test added first, then fix).
 2. **Serializers trust their inputs** — `.value`/`__str__` never re-escape/re-validate, so
    `parse(x).value` can be unparseable (#4, #6, #12, #14, #18, #23). A property test
    `parse(h.value) == h` across all headers would catch most of these.
-</content>
-</invoke>

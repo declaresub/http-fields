@@ -43,9 +43,10 @@ class ExtValue:
     value: str
 
     def parm_value(self) -> str:
-        return (
-            f"{self.charset}'{self.language}'{quote(self.value, encoding=self.charset)}"
-        )
+        # quote() defaults to safe="/", but "/" is not an RFC 5987 attr-char and
+        # must be percent-encoded; pass safe="" so nothing is left unencoded.
+        encoded = quote(self.value, safe="", encoding=self.charset)
+        return f"{self.charset}'{self.language}'{encoded}"
 
     def __str__(self):
         return self.parm_value()

@@ -55,3 +55,12 @@ def test_header_create_subclass(name: str, value: str, expected: Header):
 
 def test_header_eq_distinct_types():
     assert CustomHeader("Foo", "bar") != Host("www.example.com")
+
+
+def test_asgi_value_uses_latin1():
+    # asgi_value must use the class encoding (latin-1), matching __bytes__, not
+    # ASCII, so obs-text values don't crash (regression: bug 17).
+    header = CustomHeader("X-A", "café")
+    name, value = header.asgi_value
+    assert name == b"X-A"
+    assert value == "café".encode("latin-1")

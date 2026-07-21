@@ -37,3 +37,9 @@ def test_age_eq_and_hash():
     assert Age(111) == Age(111)
     assert hash(Age(111)) == hash(Age(111))
     assert Age(111) != Age(112)
+
+
+def test_age_rejects_non_integral_float():
+    # A non-integral float must be rejected, not silently truncated (bug 24).
+    with pytest.raises(ValueError):
+        Age(3.7)  # type: ignore[arg-type]

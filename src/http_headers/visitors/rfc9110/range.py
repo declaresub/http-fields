@@ -16,10 +16,13 @@ class IntRange:
     last_pos: NonNegativeInt | None = None
 
     def __init__(self, first_pos: int, last_pos: int | None = None) -> None:
-        object.__setattr__(self, "first_pos", NonNegativeInt(first_pos))
-        object.__setattr__(
-            self, "last_pos", None if last_pos is None else NonNegativeInt(last_pos)
-        )
+        first = NonNegativeInt(first_pos)
+        last = None if last_pos is None else NonNegativeInt(last_pos)
+        if last is not None and last < first:
+            # RFC 9110 section 14.1.2: an int-range with last-pos < first-pos is invalid.
+            raise ValueError("last-pos must not be less than first-pos.")
+        object.__setattr__(self, "first_pos", first)
+        object.__setattr__(self, "last_pos", last)
 
     def __str__(self) -> str:
         last = "" if self.last_pos is None else str(self.last_pos)
@@ -65,7 +68,13 @@ class RangeVisitor(NodeVisitor):
         return SuffixRange(items[0])
 
     def visit_range_spec(self, node: Node) -> IntRange | SuffixRange:
-        return next(filter(None, map(self.visit, node.children)))
+        # range-spec is int-range / suffix-range / other-range. This model only
+        # represents byte ranges, so reject other-range explicitly rather than
+        # letting it drop out silently (it visits to None).
+        result = self.visit(node.children[0])
+        if not isinstance(result, (IntRange, SuffixRange)):
+            raise ValueError("Unsupported range-spec (other-range).")
+        return result
 
     def visit_range_set(self, node: Node) -> list[IntRange | SuffixRange]:
         return [

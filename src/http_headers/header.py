@@ -41,8 +41,12 @@ class Header(ABC):
 
     @property
     def asgi_value(self) -> tuple[bytes, bytes]:
-        """Return a ``(name, value)`` pair of ASCII bytes for an ASGI send dict."""
-        return (self.name.encode("ascii"), self.value.encode("ascii"))
+        """Return a ``(name, value)`` pair of latin-1 bytes for an ASGI send dict.
+
+        ASGI encodes header values as ISO-8859-1 (latin-1); using the class
+        encoding keeps this consistent with ``__bytes__`` and accepts obs-text.
+        """
+        return (self.name.encode(self.encoding), self.value.encode(self.encoding))
 
     def __eq__(self, other: object, /) -> bool:
         if isinstance(other, Header) and type(other) is type(self):

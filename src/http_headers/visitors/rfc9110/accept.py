@@ -17,6 +17,7 @@ Token = token.Token
 TypeVisitor = type.TypeVisitor
 Weight = weight.Weight
 WeightVisitor = weight.WeightVisitor
+as_qvalue = weight.as_qvalue
 
 
 @dataclass(frozen=True)
@@ -88,8 +89,11 @@ class AcceptType:
                 self.params = tuple(_params)
                 self.weight = None
             else:
-                if w.name == "q":
-                    qvalue = max(min(float(w.value), 1.0), 0.0)
+                # A trailing "q" parameter is a weight only if its value is an
+                # unquoted, in-range qvalue (0..1). A quoted or out-of-range "q"
+                # is an ordinary parameter, not a weight.
+                qvalue = as_qvalue(w.value) if w.name == "q" else None
+                if qvalue is not None:
                     self.weight = Weight(qvalue=qvalue)
                     self.params = tuple(_params[:-1])
                 else:

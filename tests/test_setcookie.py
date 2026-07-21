@@ -250,3 +250,18 @@ def test_expiry_time4():
 def test_expiry_time5():
     header = SetCookie.build(cookie_name="name", cookie_value="value")
     assert header.expiry_time() is None
+
+
+def test_setcookie_no_samesite_not_invented():
+    # parse -> serialize must not add a SameSite the origin never set (bug 18).
+    assert SetCookie.parse("a=b").value == "a=b"
+
+
+def test_setcookie_samesite_preserved():
+    assert SetCookie.parse("a=b; SameSite=Strict").value == "a=b; SameSite=Strict"
+
+
+def test_setcookie_unknown_samesite_not_default():
+    # an unrecognized SameSite must never serialize as the invalid "SameSite=Default".
+    cookie = SetCookie.parse("a=b; SameSite=weird")
+    assert "Default" not in cookie.value

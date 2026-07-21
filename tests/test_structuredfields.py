@@ -11,10 +11,59 @@ from http_headers.structuredfields import (
     parse_dictionary,
     parse_item,
     parse_list,
+    serialize_bare,
     serialize_dictionary,
     serialize_item,
     serialize_list,
 )
+
+
+@pytest.mark.parametrize(
+    "item",
+    [
+        Item("café"),  # non-ASCII in a String
+        Item("tab\there"),  # control char in a String
+        Item(Token("not a token")),  # invalid Token (space)
+        Item(10**15),  # integer out of range
+        Item(1, (("BAD KEY", 2),)),  # invalid parameter key
+    ],
+)
+def test_serialize_rejects_invalid_items(item: Item):
+    # RFC 9651 section 4.1: a serializer must fail on values it cannot represent
+    # (regression: bug 12).
+    with pytest.raises(ValueError):
+        serialize_item(item)
+
+
+def test_serialize_bare_rejects_out_of_range_int():
+    with pytest.raises(ValueError):
+        serialize_bare(10**16)
+
+
+def test_serialize_dictionary_rejects_invalid_key():
+    with pytest.raises(ValueError):
+        serialize_dictionary((("BAD KEY", Item(1)),))
+
+
+def test_parameters_duplicate_key_last_wins():
+    # RFC 9651: a duplicate key keeps the last value (regression: bug 22).
+    assert parse_item("1;a=1;a=2").parameters == (("a", 2),)
+
+
+def test_dictionary_duplicate_key_last_wins():
+    assert parse_dictionary("a=1, a=2") == (("a", Item(2)),)
+
+
+def test_dictionary_duplicate_preserves_first_position():
+    assert parse_dictionary("a=1, b=2, a=3") == (("a", Item(3)), ("b", Item(2)))
+
+
+def test_serialize_naive_datetime_is_utc():
+    # A naive datetime must be interpreted as UTC, not the machine's local tz
+    # (regression: bug 24).
+    naive = datetime(2021, 1, 1, 0, 0, 0)
+    expected = int(datetime(2021, 1, 1, tzinfo=timezone.utc).timestamp())
+    assert serialize_bare(naive) == f"@{expected}"
 
 
 @pytest.mark.parametrize(

@@ -14,3 +14,18 @@ def test_accept_value():
 
 def test_accept_empty():
     assert Accept().value == ""
+
+
+def test_accept_quoted_q_is_parameter():
+    # A quoted "q" is a media-range parameter, not a weight, and must not crash
+    # (regression: bug 15).
+    accept = Accept.parse('text/html;q="0.5"')
+    assert accept.accept_types[0].weight is None
+    assert Accept.parse(accept.value) == accept
+
+
+def test_accept_out_of_range_q_not_clamped():
+    # q=5 is not a valid qvalue; keep it as a parameter rather than clamp to 1.
+    accept = Accept.parse("text/html;q=5")
+    assert accept.accept_types[0].weight is None
+    assert Accept.parse(accept.value) == accept

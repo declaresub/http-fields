@@ -1,6 +1,20 @@
 import base64
 
+import pytest
+
 from http_headers import ContentDigest, Header, ReprDigest
+
+
+def test_contentdigest_rejects_non_binary_member():
+    # A non-byte-sequence digest value is malformed and must raise, not be
+    # silently dropped (regression: bug 13).
+    with pytest.raises(ValueError):
+        ContentDigest.parse("x=5")
+
+
+def test_contentdigest_rejects_non_binary_among_valid():
+    with pytest.raises(ValueError):
+        ContentDigest.parse("sha-256=:AA==:, x=5")
 
 
 def test_contentdigest_parse():

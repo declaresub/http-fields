@@ -59,13 +59,16 @@ class DigestHeader(Header):
             members = parse_dictionary(value)
         except ParseError as exc:
             raise ValueError(f'Invalid {cls.__name__} value "{value}".') from exc
-        return cls(
-            *(
-                (key, m.value)
-                for key, m in members
-                if isinstance(m, Item) and isinstance(m.value, bytes)
-            )
-        )
+        digests: list[tuple[str, bytes]] = []
+        for key, m in members:
+            # Each digest value must be a byte sequence; anything else is
+            # malformed and must be rejected rather than silently discarded.
+            if not (isinstance(m, Item) and isinstance(m.value, bytes)):
+                raise ValueError(
+                    f"{cls.__name__} member {key!r} is not a byte sequence."
+                )
+            digests.append((key, m.value))
+        return cls(*digests)
 
     @property
     def value(self) -> str:

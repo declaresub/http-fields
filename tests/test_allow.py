@@ -17,3 +17,8 @@ def test_allow_parse_invalid():
 
 def test_allow_from_tokens():
     assert Allow("GET", "POST").value == "GET,POST"
+
+
+def test_allow_methods_case_sensitive():
+    # HTTP methods are case-sensitive per RFC 9110 section 9.1 (regression: bug 24).
+    assert Allow("GET") != Allow("get")

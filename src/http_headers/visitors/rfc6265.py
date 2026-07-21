@@ -1,11 +1,11 @@
 from abnf import Node, NodeVisitor
 from abnf.grammars import rfc6265
 
-from http_headers.parsedobjs import CaselessMixin, ParsedStr
+from http_headers.parsedobjs import ParsedStr
 
 
-class CookieName(CaselessMixin, ParsedStr):
-    """Represents an RFC 6265 cookie-name."""
+class CookieName(ParsedStr):
+    """Represents an RFC 6265 cookie-name. Cookie names are case-sensitive."""
 
     parser = rfc6265.Rule("cookie-name")
 
@@ -42,11 +42,10 @@ class CookieNameVisitor(NodeVisitor):
 
 
 class CookieValueVisitor(NodeVisitor):
-    def visit_cookie_value(self, node: Node):
-        return "".join(filter(None, map(self.visit, node.children)))
-
     @staticmethod
-    def visit_cookie_octet(node: Node):
+    def visit_cookie_value(node: Node):
+        # Return the raw matched text so surrounding DQUOTEs (part of the value
+        # per RFC 6265) are preserved, and an empty value stays "".
         return node.value
 
 
