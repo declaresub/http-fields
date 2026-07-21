@@ -24,7 +24,10 @@ class UriHeader(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(cls._node(value).value)
+        # Construction validates against the grammar (__post_init__), and a full
+        # parse_all match returns the whole input, so cls(value) is equivalent to
+        # cls(_node(value).value) but parses once instead of twice.
+        return cls(value)
 
     @property
     def value(self) -> str:

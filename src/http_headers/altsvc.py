@@ -55,7 +55,7 @@ class AltUsed(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(cls._node(value).value)
+        return cls(value)
 
     @property
     def value(self) -> str:
