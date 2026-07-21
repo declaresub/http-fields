@@ -24,3 +24,11 @@ def test_authorization_from_credentials():
 def test_authorization_requires_credentials():
     with pytest.raises(TypeError):
         Authorization()  # type: ignore[call-arg]
+
+
+def test_authorization_scheme_case_insensitive():
+    # RFC 9110 section 11.1: auth-scheme is case-insensitive (round 2, bug 3).
+    assert Authorization.parse("Basic dGVzdA==") == Authorization.parse("basic dGVzdA==")
+    assert hash(Authorization.parse("Basic dGVzdA==")) == hash(
+        Authorization.parse("basic dGVzdA==")
+    )

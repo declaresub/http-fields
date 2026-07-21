@@ -277,7 +277,7 @@ class SetCookie(Header):
             header_value.append(f"Max-Age={self.max_age}")
         if self.samesite is not None:
             header_value.append(f"SameSite={self.samesite}")
-        if self.secure or self.samesite == "None":
+        if self.secure:
             header_value.append("Secure")
         if self.http_only:
             header_value.append("HttpOnly")

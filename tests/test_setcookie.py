@@ -265,3 +265,18 @@ def test_setcookie_unknown_samesite_not_default():
     # an unrecognized SameSite must never serialize as the invalid "SameSite=Default".
     cookie = SetCookie.parse("a=b; SameSite=weird")
     assert "Default" not in cookie.value
+
+
+def test_setcookie_samesite_none_does_not_invent_secure():
+    # SameSite=None must not fabricate a Secure attribute; the round-trip and
+    # secure flag must be preserved (regression: round 2, bug 1).
+    cookie = SetCookie.parse("a=b; SameSite=None")
+    assert cookie.secure is False
+    assert cookie.value == "a=b; SameSite=None"
+    assert SetCookie.parse(cookie.value) == cookie
+
+
+def test_setcookie_samesite_none_keeps_explicit_secure():
+    cookie = SetCookie.parse("a=b; SameSite=None; Secure")
+    assert cookie.secure is True
+    assert SetCookie.parse(cookie.value) == cookie

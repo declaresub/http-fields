@@ -39,3 +39,10 @@ def test_hsts_missing_max_age_rejected():
         StrictTransportSecurity.parse("preload")
     with pytest.raises(ValueError):
         StrictTransportSecurity.parse("includeSubDomains")
+
+
+def test_hsts_bare_max_age_rejected():
+    # A max-age directive with no value is malformed; reject cleanly
+    # (regression: round 2, bug 2).
+    with pytest.raises(ValueError):
+        StrictTransportSecurity.parse("max-age")

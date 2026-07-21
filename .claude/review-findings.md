@@ -103,3 +103,22 @@ Status legend: ⬜ open · ✅ fixed (test added first, then fix).
    `parse(h.value) == h` across all headers would catch most of these.
    Added as `tests/test_roundtrip.py` (one sample per concrete header + a coverage test
    that fails if a new header is added without a sample).
+
+---
+
+## Round 2 (Opus, scoped to the fixes + under-reviewed modules) — 3 new, all fixed
+
+- ✅ **R2-1 (Med).** `SetCookie` with `SameSite=None` fabricated a `Secure` attribute on
+  serialization, breaking `parse(h.value) == h`. `setcookie.py:280`. Fix: serialize `Secure`
+  only when `self.secure`. (Regression introduced by #18.)
+- ✅ **R2-2 (Low).** `StrictTransportSecurity.parse("max-age")` (valueless directive) hit
+  `int("")`. Already raised `ValueError` (correct type) but with a leaky message; now routed
+  through the clean "requires a max-age directive" error. `stricttransportsecurity.py:72`.
+  (Gap in #16.)
+- ✅ **R2-3 (Low).** `auth-scheme` compared case-sensitively; RFC 9110 §11.1 makes it
+  case-insensitive (`Authorization.parse("Basic x") != Authorization.parse("basic x")`).
+  `visitors/rfc9110/authscheme.py:7`. Fix: `AuthScheme(CaselessMixin, ParsedStr)`. Affects
+  Authorization/Proxy-Authorization/WWW-Authenticate/Proxy-Authenticate.
+
+Reviewer confirmed the SF value model, the auth family, Via/Upgrade/Forwarded/Alt-Svc/Link/
+Prefer/Content-Range, and the round-1 fixes otherwise held up under edge-case fuzzing.

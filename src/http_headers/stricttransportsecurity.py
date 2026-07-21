@@ -60,17 +60,22 @@ class StrictTransportSecurity(Header):
                 c.value for c in directive.children if c.name == "directive-name"
             ).lower()
             if dname == "max-age":
-                dvalue = next(
-                    (
-                        c.value
-                        for c in directive.children
-                        if c.name == "directive-value"
-                    ),
-                    "",
+                dvalue = _unquote(
+                    next(
+                        (
+                            c.value
+                            for c in directive.children
+                            if c.name == "directive-value"
+                        ),
+                        "",
+                    )
                 )
                 # RFC 6797 section 6.1: directive-value = token / quoted-string.
-                max_age = int(_unquote(dvalue))
-                max_age_seen = True
+                # A max-age directive with no value is malformed; leave max_age_seen
+                # False so the "requires a max-age directive" error below fires.
+                if dvalue:
+                    max_age = int(dvalue)
+                    max_age_seen = True
             elif dname == "includesubdomains":
                 include_subdomains = True
             elif dname == "preload":
