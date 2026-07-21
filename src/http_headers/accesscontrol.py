@@ -46,23 +46,21 @@ class _CorsList(Header):
 
     item_type: ClassVar[type[ParsedStr]]
 
-    items: tuple[str, ...]
+    # Subclasses narrow this to their item_type so the field-type check is strict.
+    items: tuple[ParsedStr, ...]
 
-    def __init__(self, *items: str) -> None:
-        # Each item self-validates; values from the visitor are already item_type
-        # instances and pass through unparsed, so a parsed list validates once.
-        it = type(self).item_type
-        object.__setattr__(self, "items", tuple(it(i) for i in items))
+    def __init__(self, *items: ParsedStr) -> None:
+        object.__setattr__(self, "items", tuple(items))
 
     @classmethod
     def parse(cls, value: str) -> Self:
         node = cls._node(value)
-        rule_name = cls.item_type.parser.name
+        it = cls.item_type
         return cls(
             *(
-                cls.item_type(c.value, parse=False)
+                it(c.value, parse=False)
                 for c in node.children
-                if c.name == rule_name
+                if c.name == it.parser.name
             )
         )
 
@@ -77,6 +75,7 @@ class AccessControlAllowMethods(_CorsList):
     name: ClassVar[str] = "access-control-allow-methods"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Allow-Methods")
     item_type = CorsMethod
+    items: tuple[CorsMethod, ...]
 
 
 class AccessControlAllowHeaders(_CorsList):
@@ -85,6 +84,7 @@ class AccessControlAllowHeaders(_CorsList):
     name: ClassVar[str] = "access-control-allow-headers"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Allow-Headers")
     item_type = CorsFieldName
+    items: tuple[CorsFieldName, ...]
 
 
 class AccessControlExposeHeaders(_CorsList):
@@ -93,6 +93,7 @@ class AccessControlExposeHeaders(_CorsList):
     name: ClassVar[str] = "access-control-expose-headers"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Expose-Headers")
     item_type = CorsFieldName
+    items: tuple[CorsFieldName, ...]
 
 
 class AccessControlRequestHeaders(_CorsList):
@@ -101,6 +102,7 @@ class AccessControlRequestHeaders(_CorsList):
     name: ClassVar[str] = "access-control-request-headers"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Request-Headers")
     item_type = CorsFieldName
+    items: tuple[CorsFieldName, ...]
 
 
 @dataclass(frozen=True)
