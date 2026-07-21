@@ -1,3 +1,0 @@
-include CHANGELOG.md
-include LICENSE.txt
-include src/http_headers/py.typed
