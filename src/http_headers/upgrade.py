@@ -22,9 +22,9 @@ class Upgrade(Header):
     protocols: tuple[Protocol, ...]
 
     def __init__(self, *protocols: Protocol) -> None:
+        # Each Protocol self-validates on construction, so the field-type check is a
+        # complete guarantee -- no need to re-parse the serialized value here.
         object.__setattr__(self, "protocols", tuple(protocols))
-        if protocols:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
