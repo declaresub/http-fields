@@ -1,10 +1,19 @@
+from dataclasses import dataclass
+
 from abnf import Node, NodeVisitor, ParseError
 from abnf.grammars import rfc9110
 
 
+@dataclass(frozen=True)
 class EntityTag:
-    def __init__(self, tag: str, weak: bool = False):
-        # check to see if s double-quoted. If not, do so before validating.
+    """An RFC 9110 entity-tag. ``__eq__``/``__hash__`` are exact (weak flag + opaque
+    tag); use :meth:`compare` for the RFC's weak/strong comparison semantics."""
+
+    opaque_tag: str
+    weak: bool = False
+
+    def __init__(self, tag: str, weak: bool = False) -> None:
+        # Double-quote the tag if it is not already, then validate.
         opaque_tag = (
             f'"{tag}"' if not tag or (tag[0] != '"' and tag[-1] != '"') else tag
         )
@@ -13,22 +22,11 @@ class EntityTag:
             rfc9110.Rule("entity-tag").parse_all(entity_tag)
         except ParseError as exc:
             raise ValueError("Invalid character in value.") from exc
-        self.opaque_tag = opaque_tag
-        self.weak = weak
+        object.__setattr__(self, "opaque_tag", opaque_tag)
+        object.__setattr__(self, "weak", weak)
 
     def __str__(self) -> str:
         return f"W/{self.opaque_tag}" if self.weak else self.opaque_tag
-
-    def __eq__(self, __o: object) -> bool:
-        # beware that etag comparison is not this.
-        return (
-            self.weak == __o.weak and self.opaque_tag == __o.opaque_tag
-            if isinstance(__o, self.__class__)
-            else NotImplemented
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.weak, self.opaque_tag))
 
     def compare(self, __o: object, *, weak: bool) -> bool:
         if not isinstance(__o, self.__class__):

@@ -1,4 +1,16 @@
+from dataclasses import FrozenInstanceError
+
+import pytest
+
 from http_headers import EntityTag, ETag
+
+
+def test_entitytag_is_frozen():
+    et = EntityTag("abc")
+    with pytest.raises(FrozenInstanceError):
+        et.weak = True  # type: ignore[misc]
+    assert et == EntityTag("abc")
+    assert repr(et) == "EntityTag(opaque_tag='\"abc\"', weak=False)"
 
 
 def test_etag_parse():

@@ -1,3 +1,7 @@
+from dataclasses import FrozenInstanceError
+
+import pytest
+
 from http_headers import Accept
 from http_headers.accept import AcceptType
 
@@ -29,3 +33,13 @@ def test_accept_out_of_range_q_not_clamped():
     accept = Accept.parse("text/html;q=5")
     assert accept.accept_types[0].weight is None
     assert Accept.parse(accept.value) == accept
+
+
+def test_accepttype_is_frozen():
+    at = AcceptType(type="text", subtype="html")
+    with pytest.raises(FrozenInstanceError):
+        at.weight = None  # type: ignore[misc]
+    assert at == AcceptType(type="text", subtype="html")
+    assert repr(at) == (
+        "AcceptType(type=Token('text'), subtype=Token('html'), params=(), weight=None)"
+    )

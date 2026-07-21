@@ -1,7 +1,16 @@
+from dataclasses import FrozenInstanceError
+
 import pytest
 
-from http_headers import ContentType
+from http_headers import ContentType, MediaType
 from http_headers.visitors.rfc9110 import Parameter
+
+
+def test_mediatype_is_frozen():
+    mt = MediaType("text", "html")
+    with pytest.raises(FrozenInstanceError):
+        mt.subtype = "x"  # type: ignore[misc]
+    assert mt == MediaType("text", "html")
 
 
 @pytest.mark.parametrize(

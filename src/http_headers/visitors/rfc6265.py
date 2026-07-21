@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from abnf import Node, NodeVisitor
 from abnf.grammars import rfc6265
 
@@ -16,23 +18,16 @@ class CookieValue(ParsedStr):
     parser = rfc6265.Rule("cookie-value")
 
 
+@dataclass(frozen=True, slots=True)
 class CookiePair:
-    __slots__ = ("name", "value", "_key")
+    name: CookieName
+    value: CookieValue
 
-    def __init__(self, name: str, value: str):
+    def __init__(self, name: str, value: str) -> None:
         assert isinstance(name, str), "name must be str."
         assert isinstance(value, str), "value must be str."
-        self.name = CookieName(name)
-        self.value = CookieValue(value)
-        self._key = (self.name, self.value)
-
-    def __eq__(self, __x: object) -> bool:
-        return (
-            self._key == __x._key if isinstance(__x, self.__class__) else NotImplemented
-        )
-
-    def __hash__(self):
-        return hash(self._key)
+        object.__setattr__(self, "name", CookieName(name))
+        object.__setattr__(self, "value", CookieValue(value))
 
 
 class CookieNameVisitor(NodeVisitor):

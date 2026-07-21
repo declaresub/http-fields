@@ -1,6 +1,16 @@
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from http_headers import CacheControl, CacheDirective
+
+
+def test_cachedirective_is_frozen():
+    d = CacheDirective("no-store")
+    with pytest.raises(FrozenInstanceError):
+        d.value = False  # type: ignore[misc]
+    assert d == CacheDirective("no-store")
+    assert repr(d) == "CacheDirective(name=Token('no-store'), value=True)"
 
 
 def test_cachecontrol_bare_max_stale():

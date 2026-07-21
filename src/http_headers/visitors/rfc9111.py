@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -19,20 +20,22 @@ class AgeVisitor(NodeVisitor):
         return NonNegativeInt(node.value)
 
 
+@dataclass(frozen=True)
 class CacheDirective:
-    def __init__(self, name: str, value: Any = True):
+    name: Token
+    value: Any = True
 
-        self.name = Token(name)
+    def __init__(self, name: str, value: Any = True) -> None:
+        object.__setattr__(self, "name", Token(name))
+        resolved: Any
         if name == "max-stale":
             # RFC 9111 section 5.2.1.2: max-stale may be used with no value,
             # meaning "stale responses of any age".
-            self.value = (
-                True if value is None or value is True else NonNegativeInt(value)
-            )
+            resolved = True if value is None or value is True else NonNegativeInt(value)
         elif name in ["max-age", "s-maxage", "min-fresh"]:
             if value is None:
                 raise ValueError(f"Cache directive '{name}' requires a value.")
-            self.value = NonNegativeInt(value)
+            resolved = NonNegativeInt(value)
         elif name in [
             "immutable",
             "must-revalidate",
@@ -44,32 +47,20 @@ class CacheDirective:
             "public",
         ]:
             # immutable is defined in RFC 8246, a proposed standard.  But the directive appears to be in use.
-            self.value = True
+            resolved = True
         elif name in ["no-cache", "private"]:
-            if isinstance(value, str):
-                # should consider parsing value to ensure it matches #field-name.
-                self.value = QuotedString(value)
-            else:
-                self.value = True
+            # should consider parsing value to ensure it matches #field-name.
+            resolved = QuotedString(value) if isinstance(value, str) else True
         else:
             # extension (non-standard) directive: keep any value it carries.
             if isinstance(value, str):
                 try:
-                    self.value = Token(value)
+                    resolved = Token(value)
                 except ValueError:
-                    self.value = QuotedString(value)
+                    resolved = QuotedString(value)
             else:
-                self.value = True
-
-    def __eq__(self, __o: object) -> bool:
-        return (
-            self.__dict__ == __o.__dict__
-            if isinstance(__o, self.__class__)
-            else NotImplemented
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.name, self.value))
+                resolved = True
+        object.__setattr__(self, "value", resolved)
 
     def __str__(self):
         return str(self.name) if self.value is True else f"{self.name}={self.value}"

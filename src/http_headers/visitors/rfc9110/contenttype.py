@@ -4,7 +4,10 @@ from abnf import Node, NodeVisitor
 
 import http_headers.visitors.rfc9110.parameters as parameters
 import http_headers.visitors.rfc9110.token as token
-import http_headers.visitors.rfc9110.type as type
+
+# NB: do not alias the "type" grammar module as `type` -- it would shadow the
+# builtin, which MediaType's generated (frozen) __setattr__ (`type(self)`) needs.
+import http_headers.visitors.rfc9110.type as type_grammar
 
 
 @dataclass(frozen=True)
@@ -30,8 +33,8 @@ class MediaType:
 
 
 class MediaTypeVisitor(NodeVisitor):
-    visit_type = type.TypeVisitor()
-    visit_subtype = type.SubtypeVisitor()
+    visit_type = type_grammar.TypeVisitor()
+    visit_subtype = type_grammar.SubtypeVisitor()
     visit_parameters = parameters.ParametersVisitor()
 
     def visit_media_type(self, node: Node) -> MediaType:

@@ -1,5 +1,17 @@
+from dataclasses import FrozenInstanceError
+
+import pytest
+
 from http_headers import Cookie
-from http_headers.visitors.rfc6265 import CookiePair
+from http_headers.visitors.rfc6265 import CookiePair, CookieValue
+
+
+def test_cookiepair_is_frozen():
+    p = CookiePair("a", "b")
+    with pytest.raises(FrozenInstanceError):
+        p.value = CookieValue("c")  # type: ignore[misc]
+    assert p == CookiePair("a", "b")
+    assert repr(p) == "CookiePair(name=CookieName('a'), value=CookieValue('b'))"
 
 
 def test_cookie_parse():

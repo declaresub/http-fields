@@ -7,14 +7,16 @@ from abnf import Node, NodeVisitor
 import http_headers.visitors.rfc9110._base as base
 import http_headers.visitors.rfc9110.parameters as parameters
 import http_headers.visitors.rfc9110.token as token
-import http_headers.visitors.rfc9110.type as type
+import http_headers.visitors.rfc9110.type as type_grammar
 import http_headers.visitors.rfc9110.weight as weight
 
+# NB: do not alias the "type" grammar module as `type` -- it would shadow the
+# builtin, which a frozen dataclass's generated __setattr__ (`type(self)`) needs.
 Parameter = parameters.Parameter
 ParametersVisitor = parameters.ParametersVisitor
-SubtypeVisitor = type.SubtypeVisitor
+SubtypeVisitor = type_grammar.SubtypeVisitor
 Token = token.Token
-TypeVisitor = type.TypeVisitor
+TypeVisitor = type_grammar.TypeVisitor
 Weight = weight.Weight
 WeightVisitor = weight.WeightVisitor
 as_qvalue = weight.as_qvalue
@@ -60,7 +62,13 @@ class MediaRangeVisitor(NodeVisitor):
         return node.value if node.value in ["*/*", "/*"] else None
 
 
+@dataclass(frozen=True)
 class AcceptType:
+    type: Token
+    subtype: Token
+    params: tuple[Parameter, ...] = ()
+    weight: Weight | None = None
+
     def __init__(
         self,
         type: str,
@@ -68,43 +76,38 @@ class AcceptType:
         *,
         params: list[tuple[str, str] | Parameter] | None = None,
         weight: float | Weight | None = None,
-    ):
-        self.type = Token(type)
-        self.subtype = Token(subtype)
+    ) -> None:
         _params = (
             [Parameter(*p) if isinstance(p, tuple) else p for p in params]
             if params
             else []
         )
+        resolved_weight: Weight | None
         if isinstance(weight, (float, Weight)):
-            self.weight = Weight(qvalue=weight) if isinstance(weight, float) else weight
-            self.params: tuple[Parameter, ...] = tuple(_params)
-        else:
-            # sometimes, weight was captured by parser as a parameter because abnf backtracking is
-            # somewhat arbitrary.  So we check the last item of parameters to see if it is a weight and,
-            # if so, use it.
-            try:
-                w = _params[-1]
-            except IndexError:
-                self.params = tuple(_params)
-                self.weight = None
+            resolved_weight = (
+                Weight(qvalue=weight) if isinstance(weight, float) else weight
+            )
+            resolved_params = tuple(_params)
+        elif _params:
+            # sometimes, weight was captured by parser as a parameter because abnf
+            # backtracking is somewhat arbitrary. A trailing "q" parameter is a weight
+            # only if its value is an unquoted, in-range qvalue (0..1); a quoted or
+            # out-of-range "q" is an ordinary parameter.
+            w = _params[-1]
+            qvalue = as_qvalue(w.value) if w.name == "q" else None
+            if qvalue is not None:
+                resolved_weight = Weight(qvalue=qvalue)
+                resolved_params = tuple(_params[:-1])
             else:
-                # A trailing "q" parameter is a weight only if its value is an
-                # unquoted, in-range qvalue (0..1). A quoted or out-of-range "q"
-                # is an ordinary parameter, not a weight.
-                qvalue = as_qvalue(w.value) if w.name == "q" else None
-                if qvalue is not None:
-                    self.weight = Weight(qvalue=qvalue)
-                    self.params = tuple(_params[:-1])
-                else:
-                    self.params = tuple(_params)
-                    self.weight = None
-
-    def __eq__(self, __o: object) -> bool:
-        return isinstance(__o, self.__class__) and self.__dict__ == __o.__dict__
-
-    def __hash__(self) -> int:
-        return hash((self.type, self.subtype, self.params, self.weight))
+                resolved_weight = None
+                resolved_params = tuple(_params)
+        else:
+            resolved_weight = None
+            resolved_params = tuple(_params)
+        object.__setattr__(self, "type", Token(type))
+        object.__setattr__(self, "subtype", Token(subtype))
+        object.__setattr__(self, "params", resolved_params)
+        object.__setattr__(self, "weight", resolved_weight)
 
     def __str__(self):
         return (
