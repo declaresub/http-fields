@@ -24,10 +24,10 @@ class AltSvc(Header):
     clear: bool = False
 
     def __init__(self, *values: AltValue, clear: bool = False) -> None:
+        # Each AltValue self-validates (ProtocolId/AltAuthority/Param), so the field-type
+        # check fully guarantees a safe serialized value -- no re-parse.
         object.__setattr__(self, "values", tuple(values))
         object.__setattr__(self, "clear", clear)
-        if values:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

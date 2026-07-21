@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from abnf import Node, NodeVisitor
@@ -5,13 +6,30 @@ from abnf import Node, NodeVisitor
 import http_headers.visitors.rfc9110.quotedstring as quotedstring
 import http_headers.visitors.rfc9110.token as token
 
-__all__ = ["Parameter", "ParameterVisitor", "ParametersVisitor"]
+__all__ = [
+    "Param",
+    "Parameter",
+    "ParameterVisitor",
+    "ParametersVisitor",
+    "as_params",
+    "parsed_param",
+    "value_leaf",
+]
 
 
 Token = token.Token
 TokenVisitor = token.TokenVisitor
 QuotedString = quotedstring.QuotedString
 QuotedStringVisitor = quotedstring.QuotedStringVisitor
+
+
+def value_leaf(value: str) -> "Token | QuotedString":
+    """Coerce a parameter value to the right self-validating leaf: a Token if it is one,
+    otherwise a (double-quoted, escaped) QuotedString. An existing leaf passes through."""
+    try:
+        return Token(value)
+    except ValueError:
+        return QuotedString(value)
 
 
 @dataclass(frozen=True)
@@ -21,13 +39,44 @@ class Parameter:
 
     def __init__(self, name: str, value: str):
         object.__setattr__(self, "name", Token(name))
-        try:
-            object.__setattr__(self, "value", Token(value))
-        except ValueError:
-            object.__setattr__(self, "value", QuotedString(value))
+        object.__setattr__(self, "value", value_leaf(value))
 
     def __str__(self):
         return f"{self.name}={self.value}"
+
+
+@dataclass(frozen=True)
+class Param:
+    """A generic ``name`` or ``name=value`` parameter: a token name with an optional
+    token / quoted-string value. Used by headers (Link, Prefer, Alt-Svc, ...) whose
+    parameters may be valueless. Self-validating: an invalid name or value cannot be built."""
+
+    name: Token
+    value: Token | QuotedString | None = None
+
+    def __init__(self, name: str, value: str | None = None) -> None:
+        object.__setattr__(self, "name", Token(name))
+        object.__setattr__(
+            self, "value", value_leaf(value) if value is not None else None
+        )
+
+    def __str__(self) -> str:
+        return str(self.name) if self.value is None else f"{self.name}={self.value}"
+
+
+def as_params(items: "Iterable[Param | tuple[str, ...]]") -> tuple[Param, ...]:
+    """Coerce an iterable of ``Param`` (kept as-is) or raw ``(name[, value])`` tuples into a
+    tuple of validated ``Param``. Lets value-object constructors accept either form."""
+    return tuple(p if isinstance(p, Param) else Param(*p) for p in items)
+
+
+def parsed_param(name: str, value: str | None) -> Param:
+    """Build a ``Param`` from already-parsed node text, wrapping the parts as leaves with
+    ``parse=False`` so the parse() path does not re-parse (QuotedString still validates)."""
+    if value is None:
+        return Param(Token(name, parse=False))
+    leaf = QuotedString(value) if value[:1] == '"' else Token(value, parse=False)
+    return Param(Token(name, parse=False), leaf)
 
 
 class ParameterVisitor(NodeVisitor):

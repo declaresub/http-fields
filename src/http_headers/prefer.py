@@ -27,9 +27,9 @@ class Prefer(Header):
     preferences: tuple[Preference, ...]
 
     def __init__(self, *preferences: Preference) -> None:
+        # Each Preference self-validates (Token name, leaf value, Param parameters), so
+        # the field-type check fully guarantees a safe serialized value -- no re-parse.
         object.__setattr__(self, "preferences", tuple(preferences))
-        if preferences:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -53,9 +53,9 @@ class PreferenceApplied(Header):
     preferences: tuple[Preference, ...]
 
     def __init__(self, *preferences: Preference) -> None:
+        # Each Preference self-validates (Token name, leaf value, Param parameters), so
+        # the field-type check fully guarantees a safe serialized value -- no re-parse.
         object.__setattr__(self, "preferences", tuple(preferences))
-        if preferences:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

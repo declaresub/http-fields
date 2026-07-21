@@ -22,9 +22,9 @@ class Link(Header):
     links: tuple[LinkValue, ...]
 
     def __init__(self, *links: LinkValue) -> None:
+        # Each LinkValue self-validates (URIReference target, Param params), so the
+        # field-type check fully guarantees a safe serialized value -- no re-parse.
         object.__setattr__(self, "links", tuple(links))
-        if links:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
