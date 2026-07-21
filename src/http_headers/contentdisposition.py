@@ -51,6 +51,7 @@ class ContentDisposition(Header):
     def parse(cls, value: str) -> Self:
         # unlike most header rules, 'content-disposition' matches the whole header line, so
         # we prepend the field name before parsing.
+        cls._check_length(value)
         try:
             node = cls.rule.parse_all(f"content-disposition: {value}")
         except ParseError as exc:

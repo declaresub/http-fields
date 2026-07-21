@@ -29,6 +29,11 @@ class Header(ABC):
     # True when ``rule`` matches the whole ``Name: value`` line rather than just the
     # value; such headers validate/parse via the name-prefixed form.
     rule_matches_line: ClassVar[bool] = False
+    # Maximum accepted length of a value passed to parse(). Parsing is super-linear
+    # in the length for some grammars, so an oversized value is a CPU-exhaustion
+    # vector; reject it up front. Override per subclass where larger values are
+    # legitimate (e.g. cookie-heavy deployments).
+    max_length: ClassVar[int] = 8192
 
     @property
     @abstractmethod
@@ -74,8 +79,18 @@ class Header(ABC):
             self._node(self.value)
 
     @classmethod
+    def _check_length(cls, value: str) -> None:
+        """Reject an oversized parse() input before the (super-linear) grammar runs."""
+        if len(value) > cls.max_length:
+            raise ValueError(
+                f"{cls.__name__} value of {len(value)} chars exceeds the maximum "
+                f"of {cls.max_length}."
+            )
+
+    @classmethod
     def _node(cls, value: str) -> Node:
         """Parse ``value`` against ``cls.rule``, translating a ParseError to a ValueError."""
+        cls._check_length(value)
         try:
             return cls.rule.parse_all(value)
         except ParseError as exc:
@@ -85,6 +100,7 @@ class Header(ABC):
     def _prefixed_node(cls, value: str) -> Node:
         """Like :meth:`_node`, but for grammar rules that match the whole header line (name
         included); prepend ``"<name>: "`` before parsing."""
+        cls._check_length(value)
         try:
             return cls.rule.parse_all(f"{cls.name}: {value}")
         except ParseError as exc:

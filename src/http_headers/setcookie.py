@@ -278,6 +278,7 @@ class SetCookie(Header):
     def parse(cls, value: str) -> Self:
         """Parse a Set-Cookie value using the lenient RFC 6265 section 5 algorithm, which
         is more forgiving than the section 4 grammar for interoperability."""
+        cls._check_length(value)
         attrs = cls._parse_value(value)
         attrs["extension"] = tuple(attrs["extension"])
         return cls(**attrs)

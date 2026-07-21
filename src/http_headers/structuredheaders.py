@@ -33,6 +33,7 @@ class StructuredListHeader(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
+        cls._check_length(value)
         try:
             return cls(*parse_list(value))
         except ParseError as exc:
@@ -59,6 +60,7 @@ class DigestHeader(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
+        cls._check_length(value)
         try:
             members = parse_dictionary(value)
         except ParseError as exc:

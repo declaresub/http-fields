@@ -25,6 +25,7 @@ class Priority(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
+        cls._check_length(value)
         try:
             members = dict(parse_dictionary(value))
         except ParseError as exc:
