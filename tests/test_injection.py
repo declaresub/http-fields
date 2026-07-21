@@ -38,7 +38,6 @@ CONSTRUCTORS = [
     AccessControlExposeHeaders,
     AccessControlRequestHeaders,
     Host,
-    Expect,
 ]
 
 
@@ -47,6 +46,19 @@ CONSTRUCTORS = [
 def test_constructor_rejects_injection(ctor, bad):
     with pytest.raises(ValueError):
         ctor(bad)
+
+
+@pytest.mark.parametrize("bad", BAD)
+def test_expect_strict_contract(bad):
+    # Strict, typed construction: untrusted strings go through parse() (which
+    # validates), and the constructor takes already-parsed Expectation values.
+    from http_headers.expect import Expectation
+
+    with pytest.raises(ValueError):
+        Expect.parse(bad)
+    with pytest.raises(TypeError):
+        Expect(bad)  # type: ignore[arg-type]  # str is not an Expectation
+    assert Expect(Expectation("100-continue")).value == "100-continue"
 
 
 @pytest.mark.parametrize("bad", BAD)

@@ -2,16 +2,43 @@
 
 from __future__ import annotations
 
+import dataclasses
+import inspect
+import types
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from functools import cached_property
-from typing import ClassVar
+from functools import cached_property, wraps
+from typing import Any, ClassVar, Union, get_args, get_origin
 
 from abnf import Node, ParseError, Rule
 from abnf.grammars import rfc9110
 
 from http_headers.visitors.rfc9110 import FieldName, FieldValue
+
+
+def _matches_type(value: object, hint: object) -> bool:
+    """A small, deterministic runtime type check covering the field-annotation shapes
+    headers actually use: a concrete type, ``tuple[X, ...]``/``tuple[X, Y]``, unions
+    (``X | Y``, ``Optional``), and ``None``. Every element is checked (no sampling).
+    Unrecognised shapes are not blocked."""
+    origin = get_origin(hint)
+    if origin is tuple:
+        args = get_args(hint)
+        if not isinstance(value, tuple):
+            return False
+        if len(args) == 2 and args[1] is Ellipsis:  # tuple[X, ...]
+            return all(_matches_type(v, args[0]) for v in value)
+        return len(value) == len(args) and all(
+            _matches_type(v, a) for v, a in zip(value, args, strict=True)
+        )
+    if origin is Union or origin is types.UnionType:
+        return any(_matches_type(value, a) for a in get_args(hint))
+    if hint is type(None):
+        return value is None
+    if isinstance(hint, type):
+        return isinstance(value, hint)
+    return True  # unrecognised annotation shape: don't block
 
 
 class Header(ABC):
@@ -35,6 +62,8 @@ class Header(ABC):
     # vector; reject it up front. Override per subclass where larger values are
     # legitimate (e.g. cookie-heavy deployments).
     max_length: ClassVar[int] = 8192
+    # Per-class cache of resolved field-annotation hints (populated on first use).
+    _field_hints_cache: ClassVar[dict[str, object] | None] = None
 
     def __init_subclass__(cls, **kwargs: object) -> None:
         super().__init_subclass__(**kwargs)
@@ -52,6 +81,25 @@ class Header(ABC):
             cached = cached_property(prop.fget)
             cached.__set_name__(cls, "value")
             cls.value = cached  # type: ignore[assignment]
+
+        # Wrap a custom __init__ so field types are checked after construction. The
+        # type checker still reads the source __init__ signature for argument
+        # checking; this only adds the runtime guard. (A dataclass-generated __init__
+        # isn't present yet at __init_subclass__ time and is not wrapped.)
+        user_init = cls.__dict__.get("__init__")
+        if callable(user_init):
+
+            @wraps(user_init)
+            def checked_init(
+                self: Header,
+                *args: object,
+                _init: Callable[..., object] = user_init,
+                **kwargs: object,
+            ) -> None:
+                _init(self, *args, **kwargs)
+                self._check_field_types()
+
+            cls.__init__ = checked_init  # type: ignore[assignment]
 
     @property
     @abstractmethod
@@ -81,6 +129,51 @@ class Header(ABC):
 
     def __hash__(self) -> int:
         return hash((self.name, self.value))
+
+    @classmethod
+    def _field_hints(cls) -> dict[str, object]:
+        """Resolved ``{field_name: type_hint}`` for this header's dataclass fields,
+        cached per class. Annotations are resolved per class across the MRO (so an
+        unresolvable annotation on one class doesn't disable the check for others)."""
+        cached = cls.__dict__.get("_field_hints_cache")
+        if cached is None:
+            merged: dict[str, Any] = {}
+            for klass in reversed(cls.__mro__):  # base -> derived; derived wins
+                try:
+                    merged.update(inspect.get_annotations(klass, eval_str=True))
+                except Exception:
+                    continue
+            cached = {
+                f.name: merged[f.name]
+                for f in dataclasses.fields(cls)  # type: ignore[arg-type]
+                if f.name in merged
+            }
+            cls._field_hints_cache = cached
+        return cached
+
+    def __post_init__(self) -> None:
+        # Field-type check for headers with a dataclass-generated __init__ (which
+        # calls __post_init__). Custom __init__s are wrapped in __init_subclass__
+        # instead. A subclass overriding __post_init__ should call super() to keep
+        # this guard (or it must validate its fields another way).
+        self._check_field_types()
+
+    def _check_field_types(self) -> None:
+        """Runtime enforcement of the construction contract: every field must match
+        its declared type. Because each field type validates itself on creation, a
+        type check is a complete guarantee -- no grammar re-parse. Raises TypeError
+        (pointing to :meth:`parse`) on a mismatch."""
+        for name, hint in type(self)._field_hints().items():
+            value = getattr(self, name)
+            if not _matches_type(value, hint):
+                cls_name = type(self).__name__
+                shown = repr(value)
+                if len(shown) > 60:
+                    shown = shown[:57] + "..."
+                raise TypeError(
+                    f"{cls_name}.{name} expects {hint!r}; got {shown}. Use "
+                    f"{cls_name}.parse() to build a {cls_name} from a string."
+                )
 
     def _validate_value(self) -> None:
         """Validate this header's serialized ``value`` against its grammar, raising

@@ -11,7 +11,20 @@ from abnf.grammars import cors
 from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.parsedobjs import NonNegativeInt
+from http_headers.parsedobjs import NonNegativeInt, ParsedStr
+
+
+class CorsMethod(ParsedStr):
+    """A CORS method token. Self-validating."""
+
+    parser = cors.Rule("method")
+
+
+class CorsFieldName(ParsedStr):
+    """A CORS field-name. Self-validating."""
+
+    parser = cors.Rule("field-name")
+
 
 __all__ = [
     "AccessControlAllowCredentials",
@@ -28,22 +41,30 @@ __all__ = [
 @dataclass(frozen=True)
 class _CorsList(Header):
     """Base for CORS headers that are a comma-separated list of tokens (methods or
-    field-names). Subclasses set ``name``/``rule`` and ``child_rule`` (the grammar rule name
-    of each list item)."""
+    field-names). Subclasses set ``name``/``rule`` and ``item_type`` (the self-validating
+    ParsedStr type of each list item)."""
 
-    child_rule: ClassVar[str]
+    item_type: ClassVar[type[ParsedStr]]
 
     items: tuple[str, ...]
 
     def __init__(self, *items: str) -> None:
-        object.__setattr__(self, "items", tuple(items))
-        if items:
-            self._validate_value()
+        # Each item self-validates; values from the visitor are already item_type
+        # instances and pass through unparsed, so a parsed list validates once.
+        it = type(self).item_type
+        object.__setattr__(self, "items", tuple(it(i) for i in items))
 
     @classmethod
     def parse(cls, value: str) -> Self:
         node = cls._node(value)
-        return cls(*(c.value for c in node.children if c.name == cls.child_rule))
+        rule_name = cls.item_type.parser.name
+        return cls(
+            *(
+                cls.item_type(c.value, parse=False)
+                for c in node.children
+                if c.name == rule_name
+            )
+        )
 
     @property
     def value(self) -> str:
@@ -55,7 +76,7 @@ class AccessControlAllowMethods(_CorsList):
 
     name: ClassVar[str] = "access-control-allow-methods"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Allow-Methods")
-    child_rule = "method"
+    item_type = CorsMethod
 
 
 class AccessControlAllowHeaders(_CorsList):
@@ -63,7 +84,7 @@ class AccessControlAllowHeaders(_CorsList):
 
     name: ClassVar[str] = "access-control-allow-headers"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Allow-Headers")
-    child_rule = "field-name"
+    item_type = CorsFieldName
 
 
 class AccessControlExposeHeaders(_CorsList):
@@ -71,7 +92,7 @@ class AccessControlExposeHeaders(_CorsList):
 
     name: ClassVar[str] = "access-control-expose-headers"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Expose-Headers")
-    child_rule = "field-name"
+    item_type = CorsFieldName
 
 
 class AccessControlRequestHeaders(_CorsList):
@@ -79,7 +100,7 @@ class AccessControlRequestHeaders(_CorsList):
 
     name: ClassVar[str] = "access-control-request-headers"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Request-Headers")
-    child_rule = "field-name"
+    item_type = CorsFieldName
 
 
 @dataclass(frozen=True)
