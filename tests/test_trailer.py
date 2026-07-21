@@ -1,4 +1,5 @@
 from http_headers import Header, Trailer
+from http_headers.visitors.rfc9110 import FieldName
 
 
 def test_trailer_parse():
@@ -7,7 +8,7 @@ def test_trailer_parse():
 
 
 def test_trailer_value():
-    assert Trailer("Expires", "Content-MD5").value == "Expires, Content-MD5"
+    assert Trailer(FieldName("Expires"), FieldName("Content-MD5")).value == "Expires, Content-MD5"
 
 
 def test_trailer_create():

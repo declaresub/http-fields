@@ -31,12 +31,12 @@ class ContentEncoding(Header):
 
     codings: tuple[Token, ...]
 
-    def __init__(self, *codings: str) -> None:
-        object.__setattr__(self, "codings", tuple(Token(c) for c in codings))
+    def __init__(self, *codings: Token) -> None:
+        object.__setattr__(self, "codings", tuple(codings))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*cls.visitor.visit(cls._node(value)))
+        return cls(*(Token(c, parse=False) for c in cls.visitor.visit(cls._node(value))))
 
     @property
     def value(self) -> str:

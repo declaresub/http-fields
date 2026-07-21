@@ -1,6 +1,7 @@
 import pytest
 
 from http_headers import Vary
+from http_headers.visitors.rfc9110 import FieldName
 
 
 def test_vary_parse():
@@ -9,7 +10,7 @@ def test_vary_parse():
 
 
 def test_vary_from_field_names():
-    header = Vary("accept-encoding", "accept-language")
+    header = Vary(FieldName("accept-encoding"), FieldName("accept-language"))
     assert header.value == "accept-encoding, accept-language"
 
 
@@ -20,7 +21,7 @@ def test_vary_star():
 
 def test_vary_invalid_field_name():
     with pytest.raises(ValueError):
-        Vary("test:")
+        Vary(FieldName("test:"))
 
 
 def test_vary_invalid_value():

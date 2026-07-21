@@ -21,14 +21,14 @@ class AcceptRanges(Header):
 
     range_units: tuple[RangeUnit, ...]
 
-    def __init__(self, *range_units: str) -> None:
-        object.__setattr__(
-            self, "range_units", tuple(RangeUnit(r) for r in range_units)
-        )
+    def __init__(self, *range_units: RangeUnit) -> None:
+        object.__setattr__(self, "range_units", tuple(range_units))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*cls.visitor.visit(cls._node(value)))
+        return cls(
+            *(RangeUnit(r, parse=False) for r in cls.visitor.visit(cls._node(value)))
+        )
 
     @property
     def value(self) -> str:

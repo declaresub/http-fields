@@ -32,12 +32,12 @@ class Allow(Header):
 
     methods: tuple[Method, ...]
 
-    def __init__(self, *methods: str) -> None:
-        object.__setattr__(self, "methods", tuple(Method(m) for m in methods))
+    def __init__(self, *methods: Method) -> None:
+        object.__setattr__(self, "methods", tuple(methods))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*cls.visitor.visit(cls._node(value)))
+        return cls(*(Method(m, parse=False) for m in cls.visitor.visit(cls._node(value))))
 
     @property
     def value(self) -> str:

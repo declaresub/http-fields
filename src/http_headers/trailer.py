@@ -30,14 +30,14 @@ class Trailer(Header):
 
     field_names: tuple[FieldName, ...]
 
-    def __init__(self, *field_names: str) -> None:
-        object.__setattr__(
-            self, "field_names", tuple(FieldName(f) for f in field_names)
-        )
+    def __init__(self, *field_names: FieldName) -> None:
+        object.__setattr__(self, "field_names", tuple(field_names))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*cls.visitor.visit(cls._node(value)))
+        return cls(
+            *(FieldName(f, parse=False) for f in cls.visitor.visit(cls._node(value)))
+        )
 
     @property
     def value(self) -> str:

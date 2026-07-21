@@ -1,12 +1,12 @@
 import pytest
 
 from http_headers import Allow
-from http_headers.visitors.rfc9110 import Token
+from http_headers.allow import Method
 
 
 def test_allow_parse():
     allow = Allow.parse("GET, POST")
-    assert allow.methods == (Token("GET"), Token("POST"))
+    assert allow.methods == (Method("GET"), Method("POST"))
 
 
 def test_allow_parse_invalid():
@@ -16,9 +16,9 @@ def test_allow_parse_invalid():
 
 
 def test_allow_from_tokens():
-    assert Allow("GET", "POST").value == "GET,POST"
+    assert Allow(Method("GET"), Method("POST")).value == "GET,POST"
 
 
 def test_allow_methods_case_sensitive():
     # HTTP methods are case-sensitive per RFC 9110 section 9.1 (regression: bug 24).
-    assert Allow("GET") != Allow("get")
+    assert Allow(Method("GET")) != Allow(Method("get"))

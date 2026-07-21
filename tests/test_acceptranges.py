@@ -11,15 +11,15 @@ from http_headers import AcceptRanges, RangeUnit
     ],
 )
 def test_acceptranges(value: list[str], expected: tuple[RangeUnit, ...]):
-    header = AcceptRanges(*value)
+    header = AcceptRanges(*(RangeUnit(v) for v in value))
     assert header.range_units == expected
 
 
 def test_acceptranges_value():
-    header = AcceptRanges("bytes", "blobs")
+    header = AcceptRanges(RangeUnit("bytes"), RangeUnit("blobs"))
     assert header.value == "bytes,blobs"
 
 
 def test_acceptranges_parse_bad():
     with pytest.raises(ValueError):
-        AcceptRanges("bytes\r\nblobs")
+        AcceptRanges(RangeUnit("bytes\r\nblobs"))

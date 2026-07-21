@@ -10,12 +10,12 @@ def test_connection_parse():
 
 
 def test_connection_from_tokens():
-    header = Connection("foo", "bar")
+    header = Connection(Token("foo"), Token("bar"))
     assert header.directives == (Token("foo"), Token("bar"))
 
 
 def test_connection_value():
-    assert Connection("foo", "bar").value == "foo,bar"
+    assert Connection(Token("foo"), Token("bar")).value == "foo,bar"
 
 
 def test_connection_parse_bad_value():
@@ -25,4 +25,4 @@ def test_connection_parse_bad_value():
 
 def test_connection_bad_token():
     with pytest.raises(ValueError):
-        Connection("foo bar")
+        Connection(Token("foo bar"))

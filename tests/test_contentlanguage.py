@@ -7,7 +7,7 @@ def test_contentlanguage_parse():
 
 
 def test_contentlanguage_value():
-    assert ContentLanguage("en", "de-DE").value == "en, de-DE"
+    assert ContentLanguage(LanguageTag("en"), LanguageTag("de-DE")).value == "en, de-DE"
 
 
 def test_contentlanguage_create():

@@ -21,12 +21,12 @@ class Connection(Header):
 
     directives: tuple[Token, ...]
 
-    def __init__(self, *directives: str) -> None:
-        object.__setattr__(self, "directives", tuple(Token(d) for d in directives))
+    def __init__(self, *directives: Token) -> None:
+        object.__setattr__(self, "directives", tuple(directives))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*cls.visitor.visit(cls._node(value)))
+        return cls(*(Token(d, parse=False) for d in cls.visitor.visit(cls._node(value))))
 
     @property
     def value(self) -> str:

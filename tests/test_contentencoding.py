@@ -8,11 +8,11 @@ def test_contentencoding_parse():
 
 
 def test_contentencoding_from_codings():
-    assert ContentEncoding("deflate", "gzip").value == "deflate, gzip"
+    assert ContentEncoding(Token("deflate"), Token("gzip")).value == "deflate, gzip"
 
 
 def test_contentencoding_parse_matches_direct():
     assert (
         ContentEncoding.parse("deflate, gzip").codings
-        == ContentEncoding("deflate", "gzip").codings
+        == ContentEncoding(Token("deflate"), Token("gzip")).codings
     )

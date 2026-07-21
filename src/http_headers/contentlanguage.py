@@ -24,12 +24,14 @@ class ContentLanguage(Header):
 
     languages: tuple[LanguageTag, ...]
 
-    def __init__(self, *languages: str) -> None:
-        object.__setattr__(self, "languages", tuple(LanguageTag(x) for x in languages))
+    def __init__(self, *languages: LanguageTag) -> None:
+        object.__setattr__(self, "languages", tuple(languages))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*cls.visitor.visit(cls._node(value)))
+        return cls(
+            *(LanguageTag(x, parse=False) for x in cls.visitor.visit(cls._node(value)))
+        )
 
     @property
     def value(self) -> str:
