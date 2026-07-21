@@ -122,3 +122,28 @@ Status legend: ⬜ open · ✅ fixed (test added first, then fix).
 
 Reviewer confirmed the SF value model, the auth family, Via/Upgrade/Forwarded/Alt-Svc/Link/
 Prefer/Content-Range, and the round-1 fixes otherwise held up under edge-case fuzzing.
+
+---
+
+## Security review (Opus) — all remediated
+
+Defensive review of the parser handling untrusted input.
+
+- ✅ **S1 (Critical).** Response-splitting / header injection: every constructor (not
+  just `parse()`) stored raw strings and emitted CR/LF/NUL into `bytes()`/`asgi_value`.
+  Fix: `Header._validate_value()` re-parses the serialized value against the header
+  grammar at construction; applied comprehensively (an empirical probe found every gap —
+  UriHeader, Origin, CORS, Host, Expect, SetCookie, AltUsed, From, AltSvc, Forwarded,
+  Link, Via, Prefer, TE, Upgrade, the SF list/digest bases, CacheControl). SetCookie
+  (lenient parse) rejects control chars in its string fields instead.
+- ✅ **S2 (High).** Super-linear parse-time DoS with no input bound. Fix: `max_length`
+  ClassVar (default 8192), enforced by `_check_length` in `_node`/`_prefixed_node` and the
+  SF/Priority/Content-Disposition/SetCookie parse paths; overridable per subclass.
+- ✅ **S3 (Low).** `SetCookie.build(extension=…)` raised `abnf.ParseError`; now `ValueError`.
+
+Approach note: chose construction-time validation over a serialization-boundary guard, so
+the guarantee comes from the constructors (`X(str)` accepts exactly what `X.parse(str)`
+does) rather than from `str()`/`bytes()`/`asgi_value` being able to raise.
+
+Verified: the original review's repros (Location/CORS/Host/Origin injection, oversized
+Accept, bad SetCookie extension) all raise ValueError; valid construction unaffected.
