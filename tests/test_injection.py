@@ -8,12 +8,17 @@ be tricked into response splitting / header injection.
 import pytest
 
 from http_headers import (
+    AcceptRanges,
     AccessControlAllowHeaders,
     AccessControlAllowMethods,
     AccessControlAllowOrigin,
     AccessControlExposeHeaders,
     AccessControlRequestHeaders,
     AccessControlRequestMethod,
+    Allow,
+    Connection,
+    ContentEncoding,
+    ContentLanguage,
     ContentLocation,
     Expect,
     Host,
@@ -21,31 +26,78 @@ from http_headers import (
     Origin,
     Referer,
     SetCookie,
+    Trailer,
+    Vary,
 )
+from http_headers.accesscontrol import CorsFieldName, CorsMethod
+from http_headers.allow import Method
+from http_headers.visitors.rfc9110 import FieldName, RangeUnit, Token
+from http_headers.visitors.rfc9110.contentlanguage import LanguageTag
 
 # CRLF (response splitting), bare LF, and NUL.
 BAD = ["x\r\nSet-Cookie: p=1", "x\nY: z", "x\x00y"]
 
-CONSTRUCTORS = [
+# Scalar-string headers that still accept a raw string, validated in __init__.
+STRING_CONSTRUCTORS = [
     Location,
     Referer,
     ContentLocation,
     Origin,
     AccessControlAllowOrigin,
     AccessControlRequestMethod,
-    AccessControlAllowMethods,
-    AccessControlAllowHeaders,
-    AccessControlExposeHeaders,
-    AccessControlRequestHeaders,
     Host,
 ]
 
 
-@pytest.mark.parametrize("ctor", CONSTRUCTORS, ids=lambda c: c.__name__)
+@pytest.mark.parametrize("ctor", STRING_CONSTRUCTORS, ids=lambda c: c.__name__)
 @pytest.mark.parametrize("bad", BAD)
-def test_constructor_rejects_injection(ctor, bad):
+def test_string_constructor_rejects_injection(ctor, bad):
     with pytest.raises(ValueError):
         ctor(bad)
+
+
+# Strict list headers take leaf types, so an untrusted string goes through parse()
+# (which validates); passing a raw string to the constructor is a TypeError instead.
+STRICT_LIST_HEADERS = [
+    Connection,
+    Allow,
+    Vary,
+    Trailer,
+    AcceptRanges,
+    ContentEncoding,
+    ContentLanguage,
+    AccessControlAllowMethods,
+    AccessControlAllowHeaders,
+    AccessControlExposeHeaders,
+    AccessControlRequestHeaders,
+]
+
+
+@pytest.mark.parametrize("ctor", STRICT_LIST_HEADERS, ids=lambda c: c.__name__)
+@pytest.mark.parametrize("bad", BAD)
+def test_strict_list_parse_rejects_injection(ctor, bad):
+    with pytest.raises(ValueError):
+        ctor.parse(bad)
+
+
+# The leaf types that those headers are built from must reject injection at
+# construction, so a value object can never hold a control character.
+LEAF_TYPES = [
+    Token,
+    Method,
+    FieldName,
+    RangeUnit,
+    LanguageTag,
+    CorsMethod,
+    CorsFieldName,
+]
+
+
+@pytest.mark.parametrize("leaf", LEAF_TYPES, ids=lambda t: t.__name__)
+@pytest.mark.parametrize("bad", BAD)
+def test_leaf_type_rejects_injection(leaf, bad):
+    with pytest.raises(ValueError):
+        leaf(bad)
 
 
 @pytest.mark.parametrize("bad", BAD)
