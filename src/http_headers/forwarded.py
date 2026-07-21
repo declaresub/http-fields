@@ -24,6 +24,8 @@ class Forwarded(Header):
 
     def __init__(self, *elements: ForwardedElement) -> None:
         object.__setattr__(self, "elements", tuple(elements))
+        if elements:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

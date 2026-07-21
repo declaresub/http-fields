@@ -26,6 +26,9 @@ class Header(ABC):
     rule: ClassVar[Rule]  # abnf rule for the header value; provided by subclasses
     name: ClassVar[str]  # field name; a class constant on known headers,
     # overridden by a per-instance property on CustomHeader.
+    # True when ``rule`` matches the whole ``Name: value`` line rather than just the
+    # value; such headers validate/parse via the name-prefixed form.
+    rule_matches_line: ClassVar[bool] = False
 
     @property
     @abstractmethod
@@ -65,7 +68,10 @@ class Header(ABC):
         what :meth:`parse` would accept — a header built from untrusted data cannot
         smuggle control characters onto the wire.
         """
-        self._node(self.value)
+        if self.rule_matches_line:
+            self._prefixed_node(self.value)
+        else:
+            self._node(self.value)
 
     @classmethod
     def _node(cls, value: str) -> Node:

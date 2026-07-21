@@ -26,6 +26,8 @@ class AltSvc(Header):
     def __init__(self, *values: AltValue, clear: bool = False) -> None:
         object.__setattr__(self, "values", tuple(values))
         object.__setattr__(self, "clear", clear)
+        if values:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -47,6 +49,9 @@ class AltUsed(Header):
     rule: ClassVar[Rule] = rfc7838.Rule("Alt-Used")
 
     authority: str
+
+    def __post_init__(self) -> None:
+        self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

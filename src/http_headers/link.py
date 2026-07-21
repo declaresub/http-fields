@@ -23,6 +23,8 @@ class Link(Header):
 
     def __init__(self, *links: LinkValue) -> None:
         object.__setattr__(self, "links", tuple(links))
+        if links:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

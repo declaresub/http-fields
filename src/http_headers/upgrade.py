@@ -23,6 +23,8 @@ class Upgrade(Header):
 
     def __init__(self, *protocols: Protocol) -> None:
         object.__setattr__(self, "protocols", tuple(protocols))
+        if protocols:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

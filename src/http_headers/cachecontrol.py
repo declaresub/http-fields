@@ -68,6 +68,10 @@ class CacheControl(Header):
         # max-stale may be valueless (True); only coerce a delta-seconds bound.
         if self.max_stale is not None and self.max_stale is not True:
             object.__setattr__(self, "max_stale", NonNegativeInt(self.max_stale))
+        # Validate the serialized value (e.g. a no-cache/private string field) against
+        # the grammar, so construction cannot smuggle invalid content onto the wire.
+        if self.value:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

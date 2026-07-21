@@ -21,12 +21,15 @@ class Prefer(Header):
 
     name: ClassVar[str] = "Prefer"
     rule: ClassVar[Rule] = rfc7240.Rule("Prefer")
+    rule_matches_line: ClassVar[bool] = True
     visitor: ClassVar[PreferVisitor] = PreferVisitor()
 
     preferences: tuple[Preference, ...]
 
     def __init__(self, *preferences: Preference) -> None:
         object.__setattr__(self, "preferences", tuple(preferences))
+        if preferences:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -44,12 +47,15 @@ class PreferenceApplied(Header):
 
     name: ClassVar[str] = "Preference-Applied"
     rule: ClassVar[Rule] = rfc7240.Rule("Preference-Applied")
+    rule_matches_line: ClassVar[bool] = True
     visitor: ClassVar[PreferenceAppliedVisitor] = PreferenceAppliedVisitor()
 
     preferences: tuple[Preference, ...]
 
     def __init__(self, *preferences: Preference) -> None:
         object.__setattr__(self, "preferences", tuple(preferences))
+        if preferences:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

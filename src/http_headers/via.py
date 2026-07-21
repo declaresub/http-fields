@@ -23,6 +23,8 @@ class Via(Header):
 
     def __init__(self, *elements: ViaElement) -> None:
         object.__setattr__(self, "elements", tuple(elements))
+        if elements:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

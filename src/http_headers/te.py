@@ -24,6 +24,8 @@ class TE(Header):
 
     def __init__(self, *codings: TCoding) -> None:
         object.__setattr__(self, "codings", tuple(codings))
+        if codings:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

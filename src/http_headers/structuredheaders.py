@@ -28,6 +28,8 @@ class StructuredListHeader(Header):
 
     def __init__(self, *members: Item | InnerList) -> None:
         object.__setattr__(self, "members", tuple(members))
+        if members:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -52,6 +54,8 @@ class DigestHeader(Header):
 
     def __init__(self, *digests: tuple[str, bytes]) -> None:
         object.__setattr__(self, "digests", tuple(digests))
+        if digests:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
