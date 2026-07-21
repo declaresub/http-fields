@@ -22,9 +22,9 @@ class Via(Header):
     elements: tuple[ViaElement, ...]
 
     def __init__(self, *elements: ViaElement) -> None:
+        # Each ViaElement self-validates (leaf-typed fields), so the field-type check
+        # fully guarantees a safe serialized value -- no re-parse.
         object.__setattr__(self, "elements", tuple(elements))
-        if elements:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

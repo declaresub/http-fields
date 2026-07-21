@@ -23,9 +23,9 @@ class TE(Header):
     codings: tuple[TCoding, ...]
 
     def __init__(self, *codings: TCoding) -> None:
+        # Each TCoding self-validates (Token coding, safe Weight/Parameter), so the
+        # field-type check fully guarantees a safe serialized value -- no re-parse.
         object.__setattr__(self, "codings", tuple(codings))
-        if codings:
-            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

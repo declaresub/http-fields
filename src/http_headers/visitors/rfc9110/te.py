@@ -15,9 +15,20 @@ class TCoding:
     """A single TE t-coding: a transfer-coding (or "trailers") with an optional weight and
     transfer-parameters."""
 
-    coding: str
+    coding: Token
     weight: Weight | None = None
     parameters: tuple[Parameter, ...] = ()
+
+    def __init__(
+        self,
+        coding: str,
+        weight: Weight | None = None,
+        parameters: tuple[Parameter, ...] = (),
+    ) -> None:
+        # coding self-validates as a Token; weight and Parameter are already safe.
+        object.__setattr__(self, "coding", Token(coding))
+        object.__setattr__(self, "weight", weight)
+        object.__setattr__(self, "parameters", tuple(parameters))
 
     def __str__(self) -> str:
         parts = [self.coding, *(str(p) for p in self.parameters)]
@@ -35,15 +46,16 @@ class TEVisitor(NodeVisitor):
         items = [x for x in map(self.visit, node.children) if x is not None]
         return Parameter(str(items[0]), str(items[-1]))
 
-    def visit_transfer_coding(self, node: Node) -> tuple[str, list[Parameter]]:
-        coding = ""
+    def visit_transfer_coding(self, node: Node) -> tuple[Token, list[Parameter]]:
+        coding: Token | None = None
         params: list[Parameter] = []
         for child in node.children:
             result = self.visit(child)
             if isinstance(result, Parameter):
                 params.append(result)
             elif isinstance(result, Token):
-                coding = str(result)
+                coding = result
+        assert coding is not None
         return (coding, params)
 
     def visit_t_codings(self, node: Node) -> TCoding:
