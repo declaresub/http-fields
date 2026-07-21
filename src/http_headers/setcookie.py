@@ -104,7 +104,14 @@ class CookieDateVisitor(NodeVisitor):
         h: int
         m: int
         s: int
-        h, m, s = filter(None, map(self.visit, node.children))
+        # Select the time-field children by name; the ":" separators visit to
+        # None, and a zero-valued field (e.g. "00") would be lost by a
+        # truthiness filter.
+        h, m, s = (
+            self.visit(child)
+            for child in node.children
+            if child.name == "time-field"
+        )
         # raises ValueError if h, m. s do not satisfy the same bounds as
         # as specified by parsing algorithm.
         return time(h, m, s, tzinfo=timezone.utc)
@@ -348,11 +355,15 @@ class SetCookie(Header):
         name_value_pair, attribute_src = (
             _ if len(_ := src.split(";", 1)) == 2 else (_[0], "")
         )
-        cookie_name, cookie_value = (
-            _
-            if len(_ := [x.strip(" \t]") for x in name_value_pair.split("=", 1)]) == 2
-            else ("", _[1])
-        )
+        name_value_split = name_value_pair.split("=", 1)
+        if len(name_value_split) != 2:
+            # RFC 6265 section 5.2 step 2: a name-value pair lacking "=" causes
+            # the entire set-cookie-string to be ignored.
+            raise ValueError("Set-Cookie name-value pair lacks '='.")
+        cookie_name, cookie_value = (x.strip(" \t") for x in name_value_split)
+        if not cookie_name:
+            # RFC 6265 section 5.2 step 5: an empty cookie-name is ignored.
+            raise ValueError("Set-Cookie name is empty.")
         # if len(cookie_name) + len(cookie_value) > 4096: this test is contained in RFC 6265bis, a new draft.
         # raise ValueError("Cookie name-value pair exceeds 4096 characters.")
 
@@ -363,7 +374,7 @@ class SetCookie(Header):
         for attr in [x for x in attribute_src.split(";") if x]:
             attr_name, attr_value = (
                 _
-                if len(_ := [x.strip(" \t]") for x in attr.split("=", 1)]) == 2
+                if len(_ := [x.strip(" \t") for x in attr.split("=", 1)]) == 2
                 else (_[0], "")
             )
             # if len(attr_value) > 1024: this test is contained in RFC 6265bis, a new draft.
@@ -382,14 +393,16 @@ class SetCookie(Header):
                     # ignore.
                     log.info(f"Invalid Max-Age value {attr_value}.")
             elif matchname == "domain":
-                cookie_attrs["domain"] = (
-                    attr_value[1:] if attr_value[0] == "." else attr_value
-                ).lower()
+                # An empty Domain attribute-value carries no cookie-domain; ignore it.
+                if attr_value:
+                    cookie_attrs["domain"] = (
+                        attr_value[1:] if attr_value.startswith(".") else attr_value
+                    ).lower()
             elif matchname == "path":
                 # when cookie path is '' or not an absolute path, the default path should be used for comparison.  But computation
                 # of the default path depends on the request path.  We don't want to entangle parsing with the request,
                 # so we leave it to the user to call default_path as needed.
-                cookie_attrs["path"] = attr_value if attr_value[0] == "/" else None
+                cookie_attrs["path"] = attr_value if attr_value.startswith("/") else None
             elif matchname == "secure":
                 cookie_attrs["secure"] = True
             elif matchname == "httponly":

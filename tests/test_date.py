@@ -1,8 +1,19 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from http_headers import Date
+
+
+def test_date_serializes_in_utc():
+    # A tz-aware, non-UTC datetime must serialize as the equivalent UTC instant,
+    # not its local wall clock relabelled "GMT" (regression: bug 8).
+    eastern = timezone(timedelta(hours=-5))
+    utc_date = Date(datetime(2021, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
+    eastern_date = Date(datetime(2021, 1, 1, 7, 0, 0, tzinfo=eastern))
+    assert utc_date == eastern_date
+    assert utc_date.value == "Fri, 01 Jan 2021 12:00:00 GMT"
+    assert eastern_date.value == "Fri, 01 Jan 2021 12:00:00 GMT"
 
 
 @pytest.mark.parametrize(

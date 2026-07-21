@@ -51,7 +51,9 @@ class CacheControl(Header):
     must_revalidate: bool = False
     proxy_revalidate: bool = False
     max_age: int | None = None
-    max_stale: int | None = None
+    # max_stale is None when absent, True when valueless ("stale of any age",
+    # RFC 9111 section 5.2.1.2), or an int delta-seconds bound.
+    max_stale: int | bool | None = None
     min_fresh: int | None = None
     only_if_cached: bool = False
     s_maxage: int | None = None
@@ -59,10 +61,13 @@ class CacheControl(Header):
 
     def __post_init__(self) -> None:
         # fail-fast coercion of the int-valued directives (frozen -> setattr).
-        for attr in ("max_age", "max_stale", "min_fresh", "s_maxage"):
+        for attr in ("max_age", "min_fresh", "s_maxage"):
             v = getattr(self, attr)
             if v is not None:
                 object.__setattr__(self, attr, NonNegativeInt(v))
+        # max-stale may be valueless (True); only coerce a delta-seconds bound.
+        if self.max_stale is not None and self.max_stale is not True:
+            object.__setattr__(self, "max_stale", NonNegativeInt(self.max_stale))
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -90,7 +95,11 @@ class CacheControl(Header):
                 out.append(CacheDirective(n))
         for n, attr in _INT.items():
             v = getattr(self, attr)
-            if v is not None:  # keep 0, unlike a truthiness check
+            if v is None:
+                continue
+            if attr == "max_stale" and v is True:  # valueless max-stale
+                out.append(CacheDirective(n))
+            else:  # keep 0, unlike a truthiness check
                 out.append(CacheDirective(n, v))
         for n, attr in _BOOL_OR_STR.items():
             v = getattr(self, attr)

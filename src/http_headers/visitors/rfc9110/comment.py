@@ -5,12 +5,25 @@ from abnf import Node, NodeVisitor
 import http_headers.visitors.rfc9110.quotedstring as quotedstring
 
 
+def _escape_ctext(text: str) -> str:
+    # ctext excludes "(", ")" and "\"; these appear in parsed text only because a
+    # quoted-pair was unescaped, so re-escape them to keep the comment parseable.
+    return "".join("\\" + c if c in "()\\" else c for c in text)
+
+
 class Comment:
     def __init__(self, *items: str | Comment):
         self.items = list(items)
 
     def __str__(self):
-        return "(" + "".join(str(item) for item in self.items) + ")"
+        return (
+            "("
+            + "".join(
+                str(item) if isinstance(item, Comment) else _escape_ctext(str(item))
+                for item in self.items
+            )
+            + ")"
+        )
 
     def __eq__(self, __o: object) -> bool:
         return (

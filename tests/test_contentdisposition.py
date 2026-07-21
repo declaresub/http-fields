@@ -75,3 +75,21 @@ def test_contentdisposition_parse(value: str, expected: ContentDisposition):
 def test_contentdisposition_missing_type():
     with pytest.raises(TypeError):
         ContentDisposition.build()  # type: ignore[call-arg]
+
+
+def test_contentdisposition_ext_parm_serializes():
+    # A non-filename ext parameter must serialize to a valid header, not a
+    # dataclass repr (regression: bug 4).
+    cd = ContentDisposition.parse("attachment; foo=bar")
+    assert cd.value == "attachment;foo=bar"
+    # round-trips back to an equal object
+    assert ContentDisposition.parse(cd.value) == cd
+
+
+def test_contentdisposition_ext_value_decoded_once():
+    # A literal percent (%25) in an ext-value must survive one decode, not two
+    # (regression: bug 5).
+    cd = ContentDisposition.parse("attachment; filename*=UTF-8''%2541.txt")
+    parm_value = cd.disposition_parms[0].value
+    assert isinstance(parm_value, ExtValue)
+    assert parm_value.value == "%41.txt"

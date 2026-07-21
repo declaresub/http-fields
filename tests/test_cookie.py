@@ -17,3 +17,15 @@ def test_cookie_trailing_semicolon():
 
 def test_cookie_from_pairs():
     assert Cookie(("a", "b"), ("c", "d")).value == "a=b; c=d"
+
+
+def test_cookie_empty_value():
+    # An empty cookie-value must parse (regression: bug 3).
+    cookie = Cookie.parse("a=")
+    assert cookie.pairs == (CookiePair("a", ""),)
+    assert cookie.value == "a="
+
+
+def test_cookie_empty_value_among_others():
+    cookie = Cookie.parse("a=; b=c")
+    assert cookie.pairs == (CookiePair("a", ""), CookiePair("b", "c"))

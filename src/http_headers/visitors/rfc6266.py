@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 from abnf import Node, NodeVisitor
 from abnf.grammars import rfc6266
@@ -56,11 +56,14 @@ class ExtValueVisitor(NodeVisitor):
         items = list(filter(NotNone, map(self.visit, node.children)))
         charset = items[0]
         language = items[1] if len(items) == 3 else ""
+        # value_chars is already the fully pct-decoded byte string (visit_value_chars
+        # resolves pct-encoded octets); decode it once. Passing it through unquote a
+        # second time would re-decode any literal '%' the value legitimately contains.
         value_chars = items[-1]
         return ExtValue(
             charset=charset,
             language=language,
-            value=unquote(value_chars, encoding=charset),
+            value=value_chars.decode(charset),
         )
 
     @staticmethod
@@ -182,6 +185,9 @@ class DispExtParm:
                     f"Value for name {name} must be a string that parses as a "
                     "Token or QuotedString."
                 )
+
+    def __str__(self):
+        return f"{self.name}={self.value}"
 
 
 class DispExtParmVisitor(NodeVisitor):

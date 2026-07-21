@@ -55,7 +55,9 @@ class CookiePairVisitor(NodeVisitor):
     visit_cookie_value = CookieValueVisitor()
 
     def visit_cookie_pair(self, node: Node) -> CookiePair:
-        name, value = filter(None, map(self.visit, node.children))
+        # The "=" separator visits to None; an empty cookie-value visits to ""
+        # (falsy but valid), so filter on identity, not truthiness.
+        name, value = (v for v in map(self.visit, node.children) if v is not None)
         return CookiePair(name=name, value=value)
 
 

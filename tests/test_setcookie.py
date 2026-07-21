@@ -50,6 +50,53 @@ def test_parse_bad_cookie_date(value: str):
 @pytest.mark.parametrize(
     "value, expected",
     [
+        # Times with zero-valued fields must not be dropped (regression: bug 1).
+        (
+            "Wed, 09 Jun 2021 10:00:05 GMT",
+            datetime(2021, 6, 9, 10, 0, 5, tzinfo=timezone.utc),
+        ),
+        (
+            "Wed, 09 Jun 2021 00:00:00 GMT",
+            datetime(2021, 6, 9, 0, 0, 0, tzinfo=timezone.utc),
+        ),
+        (
+            "Wed, 09 Jun 2021 16:00:00 GMT",
+            datetime(2021, 6, 9, 16, 0, 0, tzinfo=timezone.utc),
+        ),
+    ],
+)
+def test_parse_cookie_date_zero_fields(value: str, expected: datetime):
+    assert parse_cookie_date(value) == expected
+
+
+def test_parse_setcookie_expires_on_the_hour():
+    cookie = SetCookie.parse("a=b; Expires=Wed, 09 Jun 2021 10:00:05 GMT")
+    assert cookie.expires == datetime(2021, 6, 9, 10, 0, 5, tzinfo=timezone.utc)
+
+
+@pytest.mark.parametrize("value", ["foo", "=b", "  "])
+def test_parse_setcookie_missing_name_rejected(value: str):
+    # RFC 6265 section 5.2: a name-value pair without "=", or with an empty
+    # name, must be ignored entirely (regression: bug 2).
+    with pytest.raises(ValueError):
+        SetCookie.parse(value)
+
+
+def test_parse_setcookie_empty_domain_and_path():
+    # Empty Domain=/Path= attribute values must not crash (regression: bug 2).
+    assert SetCookie.parse("a=b; Domain=").domain is None
+    assert SetCookie.parse("a=b; Path=").path is None
+
+
+def test_parse_setcookie_preserves_bracket():
+    # The strip set must not include "]" (regression: bug 10).
+    assert SetCookie.parse("a=[v]").cookie_value == "[v]"
+    assert SetCookie.parse("a=b]; Path=/x]").cookie_value == "b]"
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
         (
             "SID=31d4d96e407aad42",
             SetCookie.build(cookie_name="SID", cookie_value="31d4d96e407aad42"),

@@ -44,8 +44,16 @@ class EntityTag:
 
 class EntityTagVisitor(NodeVisitor):
     def visit_entity_tag(self, node: Node) -> EntityTag:
-        items = list(filter(None, map(self.visit, node.children)))
-        weak, tag = items if len(items) == 2 else (False, items[0])
+        # Match children by name: an empty opaque-tag ("") and an absent weak
+        # flag are both falsy, so a truthiness filter would lose them and shift
+        # the positional unpacking.
+        weak = False
+        tag = ""
+        for child in node.children:
+            if child.name == "weak":
+                weak = self.visit(child)
+            elif child.name == "opaque-tag":
+                tag = self.visit(child)
         return EntityTag(tag, weak=weak)
 
     def visit_opaque_tag(self, node: Node) -> str:

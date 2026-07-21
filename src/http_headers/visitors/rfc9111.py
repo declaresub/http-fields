@@ -23,7 +23,15 @@ class CacheDirective:
     def __init__(self, name: str, value: Any = True):
 
         self.name = Token(name)
-        if name in ["max-age", "s-maxage", "max-stale", "min-fresh"]:
+        if name == "max-stale":
+            # RFC 9111 section 5.2.1.2: max-stale may be used with no value,
+            # meaning "stale responses of any age".
+            self.value = (
+                True if value is None or value is True else NonNegativeInt(value)
+            )
+        elif name in ["max-age", "s-maxage", "min-fresh"]:
+            if value is None:
+                raise ValueError(f"Cache directive '{name}' requires a value.")
             self.value = NonNegativeInt(value)
         elif name in [
             "immutable",

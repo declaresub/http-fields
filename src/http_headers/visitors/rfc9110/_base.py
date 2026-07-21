@@ -2,7 +2,7 @@
 
 import itertools
 from collections.abc import Iterator
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TypeVar, cast
 
 S = TypeVar("S")
@@ -35,6 +35,12 @@ def imf_fixdate(pydate: datetime):
     """
     Converts a datetime object to a fixdate string.
     """
+
+    # HTTP dates are expressed in GMT/UTC. Convert tz-aware datetimes to UTC so the
+    # printed wall-clock fields match the "GMT" label; naive datetimes are assumed
+    # to already be UTC.
+    if pydate.tzinfo is not None:
+        pydate = pydate.astimezone(timezone.utc)
 
     day_name = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     month_name = [

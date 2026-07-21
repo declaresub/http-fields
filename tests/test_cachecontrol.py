@@ -1,4 +1,26 @@
+import pytest
+
 from http_headers import CacheControl, CacheDirective
+
+
+def test_cachecontrol_bare_max_stale():
+    # RFC 9111 section 5.2.1.2: max-stale may appear with no value (regression: bug 9).
+    cc = CacheControl.parse("max-stale")
+    assert cc.max_stale is True
+    assert cc.value == "max-stale"
+
+
+def test_cachecontrol_bounded_max_stale():
+    cc = CacheControl.parse("max-stale=60")
+    assert cc.max_stale == 60
+    assert cc.value == "max-stale=60"
+
+
+def test_cachecontrol_bare_max_age_rejected():
+    # max-age requires a value; a valueless one is malformed and must raise
+    # ValueError (not TypeError).
+    with pytest.raises(ValueError):
+        CacheControl.parse("max-age")
 
 
 def test_cachecontrol_parse():
