@@ -5,6 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
+from functools import cached_property
 from typing import ClassVar
 
 from abnf import Node, ParseError, Rule
@@ -34,6 +35,23 @@ class Header(ABC):
     # vector; reject it up front. Override per subclass where larger values are
     # legitimate (e.g. cookie-heavy deployments).
     max_length: ClassVar[int] = 8192
+
+    def __init_subclass__(cls, **kwargs: object) -> None:
+        super().__init_subclass__(**kwargs)
+        # Headers (and every value-object they hold) are immutable, so the serialized
+        # value is stable: cache it per instance with functools.cached_property, so it
+        # is computed at most once (str/bytes/asgi_value/__eq__/__hash__ and direct
+        # access all share it). We swap the descriptor in here, at class creation,
+        # rather than decorating each subclass's `value` -- a cached_property directly
+        # overriding the abstract `value` property trips reportIncompatibleMethodOverride,
+        # so subclasses keep a plain @property. cached_property writes to the instance
+        # __dict__, bypassing the frozen __setattr__. Only the class that *defines*
+        # value is wrapped; subclasses inherit the cached descriptor.
+        prop = cls.__dict__.get("value")
+        if isinstance(prop, property) and prop.fget is not None:
+            cached = cached_property(prop.fget)
+            cached.__set_name__(cls, "value")
+            cls.value = cached  # type: ignore[assignment]
 
     @property
     @abstractmethod
