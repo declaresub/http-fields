@@ -22,6 +22,9 @@ class Origin(Header):
 
     origin: str
 
+    def __post_init__(self) -> None:
+        self._validate_value()
+
     @classmethod
     def parse(cls, value: str) -> Self:
         return cls(cls._node(value).value)

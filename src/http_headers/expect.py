@@ -31,6 +31,8 @@ class Expect(Header):
 
     def __init__(self, *expectations: str) -> None:
         object.__setattr__(self, "expectations", tuple(expectations))
+        if expectations:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

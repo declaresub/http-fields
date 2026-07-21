@@ -11,11 +11,16 @@ from http_headers.header import Header
 class UriHeader(Header):
     """Base for headers whose value is a single URI reference.
 
-    The URI is validated against the subclass's ``rule`` and stored as a string. Concrete
-    subclasses supply ``name`` and ``rule`` as ClassVars.
+    The URI is validated against the subclass's ``rule`` on construction (not only via
+    :meth:`parse`) and stored as a string, so a raw constructor call cannot smuggle
+    CR/LF/NUL or other invalid content into the serialized header. Concrete subclasses
+    supply ``name`` and ``rule`` as ClassVars.
     """
 
     uri: str
+
+    def __post_init__(self) -> None:
+        self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

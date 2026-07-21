@@ -15,6 +15,10 @@ from http_headers.visitors.rfc9110 import imf_fixdate
 
 _LOGGER = getLogger(__name__)
 
+# Control characters disallowed in a Set-Cookie string: C0 except TAB, plus DEL.
+# Blocking CR/LF/NUL here is what prevents header injection via cookie fields.
+_CONTROL_CHARS = frozenset(chr(c) for c in range(0x20) if c != 0x09) | {"\x7f"}
+
 
 @load_grammar_rules()
 class CookieDate(Rule):
@@ -198,6 +202,20 @@ class SetCookie(Header):
     samesite: str | None = None
     extension: tuple[str, ...] = ()
 
+    def __post_init__(self) -> None:
+        # Reject control characters (CR/LF/NUL, ...) in the string fields, so a direct
+        # constructor call cannot inject header content that the lenient parse() and
+        # build() paths also reject.
+        for value in (
+            self.cookie_name,
+            self.cookie_value,
+            self.domain,
+            self.path,
+            *self.extension,
+        ):
+            if value is not None and _CONTROL_CHARS.intersection(value):
+                raise ValueError("Set-Cookie field contains a control character.")
+
     @classmethod
     def build(
         cls,
@@ -316,42 +334,8 @@ class SetCookie(Header):
     def _parse_value(src: str, *, log: Logger = _LOGGER) -> dict[str, Any]:
         cookie_attrs: dict[str, Any] = {}
 
-        ctl_chars = {
-            "\x1a",
-            "\x04",
-            "\x7f",
-            "\x01",
-            "\x1b",
-            "\x15",
-            "\x14",
-            "\x1c",
-            "\x03",
-            "\x0f",
-            "\x08",
-            "\x00",
-            "\r",
-            "\x02",
-            "\x06",
-            "\x07",
-            "\x16",
-            "\x19",
-            "\x1e",
-            "\x11",
-            "\x17",
-            "\x1f",
-            "\x0b",
-            "\x10",
-            "\x0e",
-            "\x0c",
-            "\x1d",
-            "\x05",
-            "\x18",
-            "\n",
-            "\x13",
-            "\x12",
-        }
         for idx, x in enumerate(src):
-            if x in ctl_chars:
+            if x in _CONTROL_CHARS:
                 raise ValueError(f"Illegal character in value at offset {idx}")
 
         name_value_pair, attribute_src = (

@@ -37,6 +37,8 @@ class _CorsList(Header):
 
     def __init__(self, *items: str) -> None:
         object.__setattr__(self, "items", tuple(items))
+        if items:
+            self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -89,6 +91,9 @@ class AccessControlAllowOrigin(Header):
 
     origin: str
 
+    def __post_init__(self) -> None:
+        self._validate_value()
+
     @classmethod
     def parse(cls, value: str) -> Self:
         return cls(cls._node(value).value)
@@ -106,6 +111,9 @@ class AccessControlRequestMethod(Header):
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Request-Method")
 
     method: str
+
+    def __post_init__(self) -> None:
+        self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

@@ -36,6 +36,8 @@ class Host(Header):
         # Compare host names case-insensitively while preserving the original text.
         if not isinstance(self.hostname, _HostName):
             object.__setattr__(self, "hostname", _HostName(self.hostname))
+        # Reject invalid input (including CR/LF/NUL injection) at construction.
+        self._validate_value()
 
     @classmethod
     def parse(cls, value: str) -> Self:

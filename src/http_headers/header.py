@@ -56,6 +56,17 @@ class Header(ABC):
     def __hash__(self) -> int:
         return hash((self.name, self.value))
 
+    def _validate_value(self) -> None:
+        """Validate this header's serialized ``value`` against its grammar, raising
+        ValueError on invalid input (including CR/LF/NUL injection).
+
+        Subclasses whose constructor accepts raw strings call this from
+        ``__init__``/``__post_init__`` so that direct construction validates exactly
+        what :meth:`parse` would accept — a header built from untrusted data cannot
+        smuggle control characters onto the wire.
+        """
+        self._node(self.value)
+
     @classmethod
     def _node(cls, value: str) -> Node:
         """Parse ``value`` against ``cls.rule``, translating a ParseError to a ValueError."""
