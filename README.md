@@ -47,4 +47,7 @@ uv run pytest                 # run the tests
 uv run ruff check .           # lint
 uv run ruff format .          # format
 uv run basedpyright           # type-check
+
+uv sync --group docs          # add the docs toolchain
+uv run sphinx-build -b html docs docs/_build/html   # build the docs locally
 ```

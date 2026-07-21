@@ -40,6 +40,11 @@ dev = [
     "basedpyright",
     "ruff",
 ]
+docs = [
+    "sphinx>=8",
+    "myst-parser>=4",
+    "furo",
+]
 
 [tool.setuptools]
 zip-safe = false

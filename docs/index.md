@@ -1,5 +1,19 @@
 # http-headers documentation
 
+```{toctree}
+:hidden:
+:maxdepth: 2
+
+tutorials/getting-started
+how-to/parse-and-build-headers
+how-to/custom-and-unknown-headers
+how-to/structured-fields
+reference/headers
+reference/structured-fields
+reference/api
+explanation/design
+```
+
 `http-headers` represents HTTP headers as immutable Python dataclasses. [abnf](https://pypi.org/project/abnf/)
 grammars drive both directions: **parsing** incoming header strings and **validating** field
 values, so a constructed header is always well-formed.
