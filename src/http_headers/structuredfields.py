@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import TypeAlias
 
 from abnf import NodeVisitor
 from abnf.grammars import rfc9651
@@ -48,8 +49,8 @@ class DisplayString(str):
 
 
 # A bare item is one of these Python types (Token/DisplayString are str subclasses).
-BareItem = "int | Decimal | bool | bytes | datetime | str | Token | DisplayString"
-Parameters = "tuple[tuple[str, object], ...]"
+BareItem: TypeAlias = int | Decimal | bool | bytes | datetime | str | Token | DisplayString
+Parameters: TypeAlias = tuple[tuple[str, object], ...]
 
 
 @dataclass(frozen=True)
@@ -69,7 +70,7 @@ class InnerList:
 
 
 # A member of a List or Dictionary is either an Item or an InnerList.
-Member = "Item | InnerList"
+Member: TypeAlias = Item | InnerList
 
 
 # --- string / display-string / byte helpers -------------------------------------------------

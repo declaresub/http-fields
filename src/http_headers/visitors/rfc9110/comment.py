@@ -13,7 +13,10 @@ def _escape_ctext(text: str) -> str:
 
 class Comment:
     def __init__(self, *items: str | Comment):
-        self.items = list(items)
+        # A tuple keeps the value immutable, so the hash stays stable while a
+        # Comment is used as a dict key or in a set (e.g. inside a frozen
+        # UserAgent/Server/Via).
+        self.items = tuple(items)
 
     def __str__(self):
         return (

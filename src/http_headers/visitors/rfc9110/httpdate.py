@@ -69,7 +69,7 @@ class Date2Visitor(NodeVisitor):
         # So, on the off chance that we are parsing and RFC 850 date, we'll use this
         # suggestion to resolve the 2-digit date.
 
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         if date2 > today.replace(year=today.year + 50):
             date2 = date2.replace(year=date2.year - 100)
         return date2

@@ -9,6 +9,25 @@ from typing_extensions import Self
 
 from http_headers.header import Header
 from http_headers.visitors.rfc9110 import ContentTypeVisitor, MediaType, Parameter
+from http_headers.visitors.rfc9110.quotedstring import QuotedString
+
+
+def _unquote(value: str) -> str:
+    """Return the logical value of a parameter, stripping the surrounding DQUOTEs
+    and unescaping quoted-pairs when it is a quoted-string."""
+    if not isinstance(value, QuotedString):
+        return str(value)
+    inner = str(value)[1:-1]
+    out: list[str] = []
+    i = 0
+    while i < len(inner):
+        if inner[i] == "\\" and i + 1 < len(inner):
+            out.append(inner[i + 1])
+            i += 2
+        else:
+            out.append(inner[i])
+            i += 1
+    return "".join(out)
 
 
 @dataclass(frozen=True)
@@ -70,14 +89,14 @@ class ContentType(Header):
     def charset(self) -> str | None:
         for param in self.media_type.params:
             if param.name == "charset":
-                return param.value
+                return _unquote(param.value)
         return None
 
     @property
     def boundary(self) -> str | None:
         for param in self.media_type.params:
             if param.name == "boundary":
-                return param.value
+                return _unquote(param.value)
         return None
 
     @property

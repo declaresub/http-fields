@@ -77,14 +77,20 @@ Status legend: ⬜ open · ✅ fixed (test added first, then fix).
 
 ---
 
-## Plausible (reasoned, not proven)
+## Plausible (reasoned, not proven) — all resolved
 
-- **P1.** `BareItem`/`Parameters`/`Member` are plain strings, not `TypeAlias`. `structuredfields.py:50`.
-- **P2.** `ContentType.charset` returns the quoted form. `contenttype.py:70`.
-- **P3.** `Comment` is mutable yet hashed. `visitors/rfc9110/comment.py:9`.
-- **P4.** `Date2Visitor` uses deprecated `datetime.utcnow()`. `visitors/rfc9110/httpdate.py:72`.
-- **P5.** `transform()` is recursive — RecursionError DoS on long `Accept-*`. `visitors/rfc9110/_base.py:12`.
-- **P6.** `imf_fixdate` `%02d` for year — <1000 serializes <4 digits. `_base.py:54`.
+- ✅ **P1.** `BareItem`/`Parameters`/`Member` are plain strings, not `TypeAlias`. `structuredfields.py:50`.
+  Fix: real `TypeAlias` unions.
+- ✅ **P2.** `ContentType.charset` returns the quoted form. `contenttype.py:70`. Fix: unquote in
+  the `charset`/`boundary` accessors.
+- ✅ **P3.** `Comment` is mutable yet hashed. `visitors/rfc9110/comment.py:9`. Fix: store `items`
+  as a tuple.
+- ✅ **P4.** `Date2Visitor` uses deprecated `datetime.utcnow()`. `visitors/rfc9110/httpdate.py:72`.
+  Fix: `datetime.now(timezone.utc)`.
+- ✅ **P5.** `transform()` is recursive — RecursionError DoS on long `Accept-*`.
+  `visitors/rfc9110/_base.py:12`. Fix: rewritten iteratively.
+- ✅ **P6.** `imf_fixdate` `%02d` for year — <1000 serializes <4 digits. `_base.py:54`.
+  Fix: `%04d`.
 
 ---
 
@@ -95,3 +101,5 @@ Status legend: ⬜ open · ✅ fixed (test added first, then fix).
 2. **Serializers trust their inputs** — `.value`/`__str__` never re-escape/re-validate, so
    `parse(x).value` can be unparseable (#4, #6, #12, #14, #18, #23). A property test
    `parse(h.value) == h` across all headers would catch most of these.
+   Added as `tests/test_roundtrip.py` (one sample per concrete header + a coverage test
+   that fails if a new header is added without a sample).

@@ -1,6 +1,5 @@
 """A few functions used here and there in this package."""
 
-import itertools
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from typing import TypeVar, cast
@@ -12,23 +11,26 @@ T = TypeVar("T")
 def transform(
     items: Iterator[S | T], type_s: type[S], type_t: type[T]
 ) -> Iterator[tuple[S, T | None]]:
-    try:
-        item: S = cast(S, next(items))
-    except StopIteration:
-        return
-    else:
-        next_item: S | T | None = next(items, None)
-        if isinstance(next_item, type_t):
-            yield (item, cast(T, next_item))
-            yield from transform(items, type_s, type_t)
-        elif isinstance(next_item, type_s):
-            yield (item, None)
-            rest: Iterator[S | T] = itertools.chain([next_item], items)
-            yield from transform(rest, type_s, type_t)
-        elif next_item is None:
-            yield (item, None)
+    """Pair each ``type_s`` item with the optional ``type_t`` item that follows it.
+
+    Iterative (not recursive) so an arbitrarily long stream — e.g. a very long
+    ``Accept`` header — cannot exhaust the call stack.
+    """
+    pending: S | None = None
+    for item in items:
+        if isinstance(item, type_t):
+            if pending is None:  # pragma: no cover - a type_t with no preceding type_s
+                raise AssertionError()
+            yield (pending, cast(T, item))
+            pending = None
+        elif isinstance(item, type_s):
+            if pending is not None:
+                yield (pending, None)
+            pending = item
         else:  # pragma: no cover
             raise AssertionError()
+    if pending is not None:
+        yield (pending, None)
 
 
 def imf_fixdate(pydate: datetime):
@@ -57,7 +59,7 @@ def imf_fixdate(pydate: datetime):
         "Nov",
         "Dec",
     ]
-    fixdate_fmt = "%s, %02d %s %s %02d:%02d:%02d GMT"
+    fixdate_fmt = "%s, %02d %s %04d %02d:%02d:%02d GMT"
     return fixdate_fmt % (
         day_name[pydate.weekday()],
         pydate.day,
