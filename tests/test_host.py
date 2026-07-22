@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import Host
+from http_fields import Host
 
 
 @pytest.mark.parametrize(

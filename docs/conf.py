@@ -2,12 +2,12 @@
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version
 
-project = "http-headers"
+project = "http-fields"
 author = "Charles Yeomans"
 copyright = "Charles Yeomans"  # noqa: A001
 
 try:
-    release = _version("http-headers")
+    release = _version("http-fields")
 except PackageNotFoundError:  # not installed in the docs environment
     release = "0.0.0"
 version = release
@@ -42,4 +42,4 @@ source_suffix = {".md": "markdown"}
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "furo"
-html_title = "http-headers"
+html_title = "http-fields"

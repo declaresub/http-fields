@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from http_headers import LastModified
+from http_fields import LastModified
 
 
 def test_lastmodified_parse():

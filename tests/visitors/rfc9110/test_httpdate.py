@@ -3,7 +3,7 @@ from datetime import date, datetime, time, timezone
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.httpdate import (
+from http_fields.visitors.rfc9110.httpdate import (
     AscTimeDateVisitor,
     Date1Visitor,
     Date2Visitor,

@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from http_headers import EntityTag, Header, IfRange
+from http_fields import EntityTag, Header, IfRange
 
 
 def test_ifrange_parse_etag():

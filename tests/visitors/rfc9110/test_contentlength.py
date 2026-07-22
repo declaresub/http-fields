@@ -1,7 +1,7 @@
 from abnf.grammars import rfc9110
 
-from http_headers.parsedobjs import NonNegativeInt
-from http_headers.visitors.rfc9110.contentlength import ContentLengthVisitor
+from http_fields.parsedobjs import NonNegativeInt
+from http_fields.visitors.rfc9110.contentlength import ContentLengthVisitor
 
 
 def test_contentlength_visitor():

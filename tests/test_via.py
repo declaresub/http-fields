@@ -1,4 +1,4 @@
-from http_headers import Header, Via, ViaElement
+from http_fields import Header, Via, ViaElement
 
 
 def test_via_parse():

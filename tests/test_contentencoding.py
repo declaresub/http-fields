@@ -1,5 +1,5 @@
-from http_headers import ContentEncoding
-from http_headers.visitors.rfc9110 import Token
+from http_fields import ContentEncoding
+from http_fields.visitors.rfc9110 import Token
 
 
 def test_contentencoding_parse():

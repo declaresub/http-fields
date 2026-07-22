@@ -1,6 +1,6 @@
-# Code review findings — `http-headers`
+# Code review findings — `http-fields`
 
-Adversarial bug-finding review (2026-07-21). All 105 files under `src/http_headers/`
+Adversarial bug-finding review (2026-07-21). All 105 files under `src/http_fields/`
 reviewed; findings below reproduced by execution unless marked *plausible*. Baseline at
 review time: `uv run pytest -q` → 473 passed.
 

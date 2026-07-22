@@ -1,4 +1,4 @@
-from http_headers import TE, Header, TCoding
+from http_fields import TE, Header, TCoding
 
 
 def test_te_parse():

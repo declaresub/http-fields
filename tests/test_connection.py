@@ -1,7 +1,7 @@
 import pytest
 
-from http_headers import Connection
-from http_headers.visitors.rfc9110 import Token
+from http_fields import Connection
+from http_fields.visitors.rfc9110 import Token
 
 
 def test_connection_parse():

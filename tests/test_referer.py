@@ -1,4 +1,4 @@
-from http_headers import Header, Referer
+from http_fields import Header, Referer
 
 
 def test_referer_parse():

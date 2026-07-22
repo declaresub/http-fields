@@ -1,12 +1,12 @@
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.authorization import (
+from http_fields.visitors.rfc9110.authorization import (
     AuthParamCredentials,
     CredentialsVisitor,
     TokenCredentials,
 )
-from http_headers.visitors.rfc9110.authparam import AuthParam
-from http_headers.visitors.rfc9110.authscheme import AuthScheme
+from http_fields.visitors.rfc9110.authparam import AuthParam
+from http_fields.visitors.rfc9110.authscheme import AuthScheme
 
 
 def test_authparamcredentials():

@@ -1,4 +1,4 @@
-# http-headers documentation
+# http-fields documentation
 
 ```{toctree}
 :hidden:
@@ -14,7 +14,7 @@ reference/api
 explanation/design
 ```
 
-`http-headers` represents HTTP headers as immutable Python dataclasses. [abnf](https://pypi.org/project/abnf/)
+`http-fields` represents HTTP headers as immutable Python dataclasses. [abnf](https://pypi.org/project/abnf/)
 grammars drive both directions: **parsing** incoming header strings and **validating** field
 values, so a constructed header is always well-formed.
 
@@ -39,6 +39,6 @@ The docs follow the [Diátaxis](https://diataxis.fr/) model:
 ## Install
 
 ```sh
-uv add http-headers
-# or: pip install http-headers
+uv add http-fields
+# or: pip install http-fields
 ```

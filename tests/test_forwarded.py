@@ -1,4 +1,4 @@
-from http_headers import Forwarded, ForwardedElement, Header
+from http_fields import Forwarded, ForwardedElement, Header
 
 
 def test_forwarded_parse():

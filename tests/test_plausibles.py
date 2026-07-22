@@ -5,10 +5,10 @@ from datetime import datetime
 
 import pytest
 
-from http_headers import ContentType, Date, UserAgent
-from http_headers.structuredfields import BareItem, InnerList, Item, Member
-from http_headers.visitors.rfc9110._base import imf_fixdate, transform
-from http_headers.visitors.rfc9110.comment import Comment
+from http_fields import ContentType, Date, UserAgent
+from http_fields.structuredfields import BareItem, InnerList, Item, Member
+from http_fields.visitors.rfc9110._base import imf_fixdate, transform
+from http_fields.visitors.rfc9110.comment import Comment
 
 
 def test_p1_type_aliases_are_real_types():

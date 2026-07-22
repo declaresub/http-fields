@@ -1,6 +1,6 @@
 # The header model
 
-This page explains *why* `http-headers` is shaped the way it is. For task-focused instructions,
+This page explains *why* `http-fields` is shaped the way it is. For task-focused instructions,
 see the [how-to guides](../how-to/parse-and-build-headers.md); for the full API, the
 [reference](../reference/headers.md).
 

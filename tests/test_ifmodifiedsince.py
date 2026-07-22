@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from http_headers import IfModifiedSince
+from http_fields import IfModifiedSince
 
 
 def test_ifmodifiedsince_parse():

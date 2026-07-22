@@ -1,7 +1,7 @@
 import pytest
 
-from http_headers.contentlength import ContentLength
-from http_headers.parsedobjs import NonNegativeInt
+from http_fields.contentlength import ContentLength
+from http_fields.parsedobjs import NonNegativeInt
 
 
 def test_content_length_parse():

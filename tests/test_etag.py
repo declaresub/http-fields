@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from http_headers import EntityTag, ETag
+from http_fields import EntityTag, ETag
 
 
 def test_entitytag_is_frozen():

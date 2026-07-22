@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import Header, IntRange, Range, SuffixRange
+from http_fields import Header, IntRange, Range, SuffixRange
 
 
 def test_range_parse():

@@ -1,8 +1,8 @@
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.entitytag import EntityTag
-from http_headers.visitors.rfc9110.etag import ETagVisitor
+from http_fields.visitors.rfc9110.entitytag import EntityTag
+from http_fields.visitors.rfc9110.etag import ETagVisitor
 
 
 @pytest.mark.parametrize(

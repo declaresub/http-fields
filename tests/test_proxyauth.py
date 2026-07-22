@@ -1,10 +1,10 @@
-from http_headers import (
+from http_fields import (
     Header,
     ProxyAuthenticate,
     ProxyAuthenticationInfo,
     ProxyAuthorization,
 )
-from http_headers.visitors.rfc9110 import (
+from http_fields.visitors.rfc9110 import (
     AuthParam,
     AuthParamChallenge,
     TokenChallenge,

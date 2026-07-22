@@ -1,8 +1,8 @@
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers import WWWAuthenticate
-from http_headers.wwwauthenticate import (
+from http_fields import WWWAuthenticate
+from http_fields.wwwauthenticate import (
     AuthParam,
     AuthParamChallenge,
     TokenChallenge,

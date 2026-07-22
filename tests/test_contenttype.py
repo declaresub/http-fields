@@ -2,8 +2,8 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from http_headers import ContentType, MediaType
-from http_headers.visitors.rfc9110 import Parameter
+from http_fields import ContentType, MediaType
+from http_fields.visitors.rfc9110 import Parameter
 
 
 def test_mediatype_is_frozen():
