@@ -27,7 +27,9 @@ class RetryAfter(Header):
     def __init__(self, delay: int | datetime) -> None:
         if isinstance(delay, datetime):
             object.__setattr__(self, "delay", delay)
-        elif isinstance(delay, int) and not isinstance(delay, bool):
+        # Runtime guard against callers that ignore the type annotation; the int check
+        # reads as redundant to the type checker but rejects a stray non-int at runtime.
+        elif isinstance(delay, int) and not isinstance(delay, bool):  # pyright: ignore[reportUnnecessaryIsInstance]
             object.__setattr__(self, "delay", NonNegativeInt(delay))
         else:
             raise TypeError("delay must be an int or datetime.")

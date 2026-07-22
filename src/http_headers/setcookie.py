@@ -44,7 +44,8 @@ class CookieDateVisitor(NodeVisitor):
         found_day_of_month: int | None = None
         found_month: int | None = None
         found_year: int | None = None
-        date_tokens = next(filter(None, map(self.visit, node.children)))
+        # The date-token-list child visits to list[str] (visit() returns Any from abnf).
+        date_tokens: list[str] = next(filter(None, map(self.visit, node.children)))
         for date_token in date_tokens:
             try:
                 node = CookieDate("time").parse_all(date_token)
@@ -230,9 +231,10 @@ class SetCookie(Header):
         extension: list[str] | None = None,
     ) -> Self:
         """Build a validated Set-Cookie from its pieces."""
-        if not isinstance(cookie_name, str):
+        # Runtime guards for callers that ignore the type annotations.
+        if not isinstance(cookie_name, str):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("cookie_name must be str.")
-        if not isinstance(cookie_value, str):
+        if not isinstance(cookie_value, str):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("cookie_value must be str.")
         try:
             cookie_name = rfc6265.Rule("cookie-name").parse_all(cookie_name).value

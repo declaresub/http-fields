@@ -33,7 +33,8 @@ class IfRange(Header):
     condition: EntityTag | datetime
 
     def __init__(self, condition: EntityTag | datetime) -> None:
-        if not isinstance(condition, (EntityTag, datetime)):
+        # Runtime guard for callers that ignore the type annotation.
+        if not isinstance(condition, (EntityTag, datetime)):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("condition must be an EntityTag or datetime.")
         object.__setattr__(self, "condition", condition)
 

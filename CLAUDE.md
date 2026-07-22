@@ -15,7 +15,7 @@ Equivalently, the three tools individually:
 uv run pytest -q              # tests
 uv run ruff check .           # lint (rules: E, F, I, UP, B; E501 intentionally off)
 uv run ruff format --check .  # formatting (the whole tree is ruff-format clean)
-uv run basedpyright           # types (standard mode)
+uv run basedpyright           # types (strict; reportUnknown* off — abnf visit() is Any)
 ```
 
 `make fmt` auto-formats and applies safe lint fixes; `make cov` / `make docs` also exist.

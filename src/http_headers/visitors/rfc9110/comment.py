@@ -91,8 +91,9 @@ class CommentVisitor(NodeVisitor):
         if text:
             comment_items.append("".join(text))
         # Build directly from the (already-unescaped) items; passing them back
-        # through Comment.__init__ would try to re-parse them as content.
-        return Comment._from_items(tuple(comment_items))
+        # through Comment.__init__ would try to re-parse them as content. This is the
+        # module's own internal factory (same file), not cross-module private access.
+        return Comment._from_items(tuple(comment_items))  # pyright: ignore[reportPrivateUsage]
 
 
 _CONTENT_VISITOR = CommentVisitor()

@@ -72,4 +72,19 @@ extraPaths = ["src"]
 venvPath = "."
 venv = ".venv"
 pythonVersion = "3.10"
-typeCheckingMode = "standard"
+typeCheckingMode = "strict"
+# abnf's NodeVisitor.visit is typed `-> Any` (its return is dispatched at runtime by
+# node name, so Any is the honest ceiling). basedpyright's reportUnknown* family flags
+# every Any that flows from visit() through the visitors; disable that family rather than
+# cast at ~46 call sites. Any improvement to visit's signature belongs upstream in abnf.
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownLambdaType = false
+
+# Test functions don't annotate their pytest parametrize/fixture parameters; keep the
+# missing-annotation check for src only.
+[[tool.pyright.executionEnvironments]]
+root = "tests"
+reportMissingParameterType = false
