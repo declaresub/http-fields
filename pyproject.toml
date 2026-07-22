@@ -54,6 +54,19 @@ source = "vcs"
 [tool.hatch.build.targets.wheel]
 packages = ["src/http_fields"]
 
+# Be explicit about the sdist contents. Without this, hatchling walks the working tree and a
+# stray directory (e.g. an accidentally-created virtualenv) is pulled in and breaks the build.
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE.txt",
+    "/SECURITY.md",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
