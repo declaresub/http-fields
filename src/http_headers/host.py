@@ -8,14 +8,8 @@ from abnf.grammars import rfc9110
 from typing_extensions import Self
 
 from http_headers.header import Header
-from http_headers.parsedobjs import CaselessMixin
-from http_headers.visitors.rfc9110 import HostVisitor
-
-
-class _HostName(CaselessMixin, str):
-    """Host names compare case-insensitively (RFC 9110 / RFC 3986 host)."""
-
-    __slots__ = ()
+from http_headers.parsedobjs import NonNegativeInt
+from http_headers.visitors.rfc9110 import Hostname, HostVisitor
 
 
 @dataclass(frozen=True)
@@ -29,15 +23,16 @@ class Host(Header):
     rule: ClassVar[Rule] = rfc9110.Rule("Host")
     visitor: ClassVar[HostVisitor] = HostVisitor()
 
-    hostname: str
-    port: int | None = None
+    hostname: Hostname
+    port: NonNegativeInt | None = None
 
-    def __post_init__(self) -> None:
-        # Compare host names case-insensitively while preserving the original text.
-        if not isinstance(self.hostname, _HostName):
-            object.__setattr__(self, "hostname", _HostName(self.hostname))
-        # Reject invalid input (including CR/LF/NUL injection) at construction.
-        self._validate_value()
+    def __init__(self, hostname: str, port: int | None = None) -> None:
+        # hostname/port self-validate as leaves (an already-parsed value passes through),
+        # so a valid uri-host and numeric port serialize to a valid Host -- no re-parse.
+        object.__setattr__(self, "hostname", Hostname(hostname))
+        object.__setattr__(
+            self, "port", NonNegativeInt(port) if port is not None else None
+        )
 
     @classmethod
     def parse(cls, value: str) -> Self:

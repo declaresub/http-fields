@@ -37,7 +37,7 @@ from http_headers.visitors.rfc9110.date import DateVisitor
 from http_headers.visitors.rfc9110.entitytag import EntityTag
 from http_headers.visitors.rfc9110.etag import ETagVisitor
 from http_headers.visitors.rfc9110.field import FieldName, FieldValue
-from http_headers.visitors.rfc9110.host import HostVisitor
+from http_headers.visitors.rfc9110.host import Hostname, HostVisitor
 from http_headers.visitors.rfc9110.httpdate import HttpDateVisitor
 from http_headers.visitors.rfc9110.ifmatch import IfMatchVisitor
 from http_headers.visitors.rfc9110.ifmodifiedsince import IfModifiedSinceVisitor
@@ -85,6 +85,7 @@ __all__ = [
     "FieldName",
     "FieldValue",
     "HostVisitor",
+    "Hostname",
     "HttpDateVisitor",
     "IfMatchVisitor",
     "IfModifiedSinceVisitor",
