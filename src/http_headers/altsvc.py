@@ -8,7 +8,14 @@ from abnf.grammars import rfc7838
 from typing_extensions import Self
 
 from http_headers.header import Header
+from http_headers.parsedobjs import ParsedStr
 from http_headers.visitors.rfc7838 import AltSvcVisitor, AltValue
+
+
+class AltUsedAuthority(ParsedStr):
+    """An Alt-Used authority (the alternative ``host[:port]`` actually used). Self-validating."""
+
+    parser = rfc7838.Rule("Alt-Used")
 
 
 @dataclass(frozen=True)
@@ -48,10 +55,11 @@ class AltUsed(Header):
     name: ClassVar[str] = "Alt-Used"
     rule: ClassVar[Rule] = rfc7838.Rule("Alt-Used")
 
-    authority: str
+    authority: AltUsedAuthority
 
-    def __post_init__(self) -> None:
-        self._validate_value()
+    def __init__(self, authority: str) -> None:
+        # The authority self-validates as a leaf; build from a string via AltUsed(...).
+        object.__setattr__(self, "authority", AltUsedAuthority(authority))
 
     @classmethod
     def parse(cls, value: str) -> Self:

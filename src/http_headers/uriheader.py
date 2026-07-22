@@ -1,32 +1,34 @@
 """Base class for headers whose value is a single URI reference."""
 
 from dataclasses import dataclass
+from typing import ClassVar
 
 from typing_extensions import Self
 
 from http_headers.header import Header
+from http_headers.parsedobjs import ParsedStr
 
 
 @dataclass(frozen=True)
 class UriHeader(Header):
     """Base for headers whose value is a single URI reference.
 
-    The URI is validated against the subclass's ``rule`` on construction (not only via
-    :meth:`parse`) and stored as a string, so a raw constructor call cannot smuggle
-    CR/LF/NUL or other invalid content into the serialized header. Concrete subclasses
-    supply ``name`` and ``rule`` as ClassVars.
+    Concrete subclasses supply ``name``, ``rule``, and ``uri_type`` -- a self-validating
+    ParsedStr over that grammar rule. The uri validates on construction (not only via
+    :meth:`parse`), so a raw constructor call cannot smuggle CR/LF/NUL or other invalid
+    content into the serialized header.
     """
 
-    uri: str
+    uri_type: ClassVar[type[ParsedStr]]
 
-    def __post_init__(self) -> None:
-        self._validate_value()
+    uri: ParsedStr
+
+    def __init__(self, uri: str) -> None:
+        # The uri self-validates as a leaf; an already-parsed value passes through.
+        object.__setattr__(self, "uri", type(self).uri_type(uri))
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        # Construction validates against the grammar (__post_init__), and a full
-        # parse_all match returns the whole input, so cls(value) is equivalent to
-        # cls(_node(value).value) but parses once instead of twice.
         return cls(value)
 
     @property

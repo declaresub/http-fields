@@ -54,9 +54,6 @@ class Header(ABC):
     rule: ClassVar[Rule]  # abnf rule for the header value; provided by subclasses
     name: ClassVar[str]  # field name; a class constant on known headers,
     # overridden by a per-instance property on CustomHeader.
-    # True when ``rule`` matches the whole ``Name: value`` line rather than just the
-    # value; such headers validate/parse via the name-prefixed form.
-    rule_matches_line: ClassVar[bool] = False
     # Maximum accepted length of a value passed to parse(). Parsing is super-linear
     # in the length for some grammars, so an oversized value is a CPU-exhaustion
     # vector; reject it up front. Override per subclass where larger values are
@@ -174,20 +171,6 @@ class Header(ABC):
                     f"{cls_name}.{name} expects {hint!r}; got {shown}. Use "
                     f"{cls_name}.parse() to build a {cls_name} from a string."
                 )
-
-    def _validate_value(self) -> None:
-        """Validate this header's serialized ``value`` against its grammar, raising
-        ValueError on invalid input (including CR/LF/NUL injection).
-
-        Subclasses whose constructor accepts raw strings call this from
-        ``__init__``/``__post_init__`` so that direct construction validates exactly
-        what :meth:`parse` would accept — a header built from untrusted data cannot
-        smuggle control characters onto the wire.
-        """
-        if self.rule_matches_line:
-            self._prefixed_node(self.value)
-        else:
-            self._node(self.value)
 
     @classmethod
     def _check_length(cls, value: str) -> None:

@@ -26,6 +26,18 @@ class CorsFieldName(ParsedStr):
     parser = cors.Rule("field-name")
 
 
+class AllowedOrigin(ParsedStr):
+    """An Access-Control-Allow-Origin value (an origin, ``null``, or ``*``). Self-validating."""
+
+    parser = cors.Rule("Access-Control-Allow-Origin")
+
+
+class RequestedMethod(ParsedStr):
+    """An Access-Control-Request-Method value (a single method). Self-validating."""
+
+    parser = cors.Rule("Access-Control-Request-Method")
+
+
 __all__ = [
     "AccessControlAllowCredentials",
     "AccessControlAllowHeaders",
@@ -112,10 +124,10 @@ class AccessControlAllowOrigin(Header):
     name: ClassVar[str] = "access-control-allow-origin"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Allow-Origin")
 
-    origin: str
+    origin: AllowedOrigin
 
-    def __post_init__(self) -> None:
-        self._validate_value()
+    def __init__(self, origin: str) -> None:
+        object.__setattr__(self, "origin", AllowedOrigin(origin))
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -133,10 +145,10 @@ class AccessControlRequestMethod(Header):
     name: ClassVar[str] = "access-control-request-method"
     rule: ClassVar[Rule] = cors.Rule("Access-Control-Request-Method")
 
-    method: str
+    method: RequestedMethod
 
-    def __post_init__(self) -> None:
-        self._validate_value()
+    def __init__(self, method: str) -> None:
+        object.__setattr__(self, "method", RequestedMethod(method))
 
     @classmethod
     def parse(cls, value: str) -> Self:
