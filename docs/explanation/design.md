@@ -30,13 +30,24 @@ Those grammars are used in both directions:
 A constructed header is therefore always well-formed: invalid input raises `ValueError` (or
 `TypeError` for wrong argument types), whether it came from `parse()` or direct construction.
 
+Because each field type is self-validating, a header is parsed **at most once**. `parse()` runs
+the grammar and the visitor wraps the already-validated node text as leaf types with
+`parse=False` (a trusted construction that skips re-parsing); direct construction validates only
+the parts you actually pass. There is no second grammar pass to re-check a value the visitor just
+built. Structured-Fields headers take this a step further: their serializer *is* the validator —
+a value that would inject control characters or exceed a numeric bound simply fails to serialize —
+so a successful serialization is grammar-valid by construction, with no re-parse at all.
+
 ## One construction contract
 
 There is a single, consistent way to make headers:
 
 - **`Header.parse(value)`** is the only string entry point.
-- **Direct construction** takes the structured fields. Scalars coerce plain values (`Age(60)`);
-  list-style headers take varargs (`Connection("keep-alive", "close")`).
+- **Direct construction** takes the structured fields as their parsed types. Scalars coerce plain
+  values (`Age(60)`); list-style headers take leaf types as varargs
+  (`Connection(Token("keep-alive"), Token("close"))`); headers with richer values take value
+  objects (`Upgrade(Protocol("HTTP", "2"))`). A raw string where a typed field is expected is a
+  `TypeError` — reach for `parse()` instead.
 - **Builders** (`ContentType.of(...)`, `SetCookie.build(...)`, `ETag.from_tag(...)`) exist only
   where piece-wise construction is richer than the stored fields.
 - **`Header.create(name, value)`** dispatches by field name to the right subclass, or a

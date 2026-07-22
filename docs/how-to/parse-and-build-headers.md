@@ -18,28 +18,49 @@ cc.immutable     # True
 
 Pass the header *value* only — not the `Name: value` line.
 
-## Construct from structured fields
+## Construct from parsed fields
 
-Direct construction takes the header's fields. Scalars coerce plain values; list-style headers
-take varargs.
+`parse()` is the entry point for *strings*. Direct construction takes each field as its
+already-parsed type — a leaf type or value object — so a constructor never re-runs the grammar
+on untrusted text. Passing a raw string where a typed field is expected raises `TypeError`
+pointing you back to `parse()`.
 
-```python
-from http_headers import Age, Connection, Vary
-
-Age(60)                          # coerced to NonNegativeInt
-Connection("keep-alive", "close")
-Vary("accept-encoding", "accept-language")
-```
-
-Union-typed headers accept either member:
+Plain scalars still coerce their natural Python value:
 
 ```python
 from datetime import datetime, timezone
-from http_headers import RetryAfter, Date
+from http_headers import Age, Date, RetryAfter
 
-RetryAfter(120)                                          # delay-seconds
-RetryAfter(datetime(2030, 1, 1, tzinfo=timezone.utc))    # HTTP-date
-Date(datetime(2030, 1, 1, tzinfo=timezone.utc))
+Age(60)                                                  # int -> NonNegativeInt
+Date(datetime(2030, 1, 1, tzinfo=timezone.utc))          # a datetime
+RetryAfter(120)                                          # delay-seconds ...
+RetryAfter(datetime(2030, 1, 1, tzinfo=timezone.utc))    # ... or an HTTP-date
+```
+
+List-style headers take their leaf types as varargs. Build the leaves (each validates itself),
+or `parse()` a whole value string:
+
+```python
+from http_headers import Connection, Vary
+from http_headers.visitors.rfc9110 import FieldName, Token
+
+Connection(Token("keep-alive"), Token("close"))
+Vary(FieldName("accept-encoding"), FieldName("accept-language"))
+
+Connection.parse("keep-alive, close")                    # from a raw string
+```
+
+`Connection("keep-alive")` — a bare string — is now a `TypeError`; use `Connection.parse(...)`.
+
+Headers with structured values take value objects, which coerce their string parts to validated
+leaves:
+
+```python
+from http_headers import Upgrade
+from http_headers.visitors.rfc9110.upgrade import Protocol
+
+Upgrade(Protocol("HTTP", "2"), Protocol("WebSocket"))
+Upgrade.parse("HTTP/2, WebSocket")                       # equivalent, from a string
 ```
 
 ## Use a builder classmethod
