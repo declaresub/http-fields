@@ -56,6 +56,35 @@ There is a single, consistent way to make headers:
 This is a deliberate break from the older overloaded "string *or* pieces" constructors: one
 object, one obvious way to build it, and precise types throughout.
 
+## On performance
+
+Correctness comes first, deliberately. Header handling has a long history of vulnerabilities —
+request smuggling, response splitting, header injection — and they are almost never caused by
+slow code. They come from *disagreement*: two hand-written parsers in a chain resolve the same
+bytes differently (`Content-Length` versus `Transfer-Encoding` precedence, obs-fold continuation
+lines, whitespace before the colon, repeated fields), and the gap between them is the
+vulnerability. Driving every header from its RFC ABNF removes the room in which such a divergence
+can appear — the grammar *is* the specification, so there is no shortcut available to quietly
+disagree with it.
+
+The same reasoning applies on the way out, and that direction is easy to overlook. Response
+splitting usually originates not in a parser but in application code interpolating
+attacker-influenced data *into* a header it is building. That is why validity here is a property
+of the field types rather than a check performed by `parse()`: an invalid value cannot be held in
+the first place, so *every* construction path — not just `parse()` — rejects CR/LF/NUL.
+
+None of this is an argument for being gratuitously slow. A header is parsed at most once (see
+above), and each header's serialized `value` is computed once and cached per instance, so the
+common paths avoid repeated work.
+
+What is deliberately *not* claimed is a throughput figure. There are no benchmarks, and raw
+parsing speed has neither been measured nor tuned. If it ever matters, the measurement worth
+making is not headers per second but **worst-case behaviour on hostile input**: grammar
+backtracking can be super-linear, which turns a pathological value into an algorithmic
+denial of service. That is a correctness property wearing a performance costume — and it is why
+`parse()` bounds the length of its input (`Header.max_length`, 8192 by default and overridable
+per subclass) before running the grammar at all.
+
 ## Shared bases where shapes repeat
 
 Families that share an identical shape are factored onto a common base — dates (`DateHeader`),
