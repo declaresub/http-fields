@@ -33,6 +33,10 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/declaresub/http-fields"
+Documentation = "https://http-fields.readthedocs.io/"
+Repository = "https://github.com/declaresub/http-fields"
+Changelog = "https://github.com/declaresub/http-fields/blob/master/CHANGELOG.md"
+Issues = "https://github.com/declaresub/http-fields/issues"
 
 [dependency-groups]
 dev = [
