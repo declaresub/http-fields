@@ -1,9 +1,13 @@
-from collections.abc import Iterable
 from dataclasses import dataclass
 
 from abnf import Node, NodeVisitor
 
-from http_headers.visitors.rfc9110.parameters import Param, as_params, parsed_param
+from http_headers.visitors.rfc9110.parameters import (
+    Param,
+    ParamsInput,
+    as_params,
+    parsed_param,
+)
 
 __all__ = ["ForwardedElement", "ForwardedVisitor"]
 
@@ -15,7 +19,7 @@ class ForwardedElement:
 
     pairs: tuple[Param, ...]
 
-    def __init__(self, pairs: "Iterable[Param | tuple[str, ...]]") -> None:
+    def __init__(self, pairs: ParamsInput) -> None:
         # Each pair is a self-validating Param; raw (name, value) tuples are coerced.
         object.__setattr__(self, "pairs", as_params(pairs))
 

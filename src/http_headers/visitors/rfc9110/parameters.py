@@ -8,10 +8,12 @@ import http_headers.visitors.rfc9110.token as token
 
 __all__ = [
     "Param",
+    "ParamsInput",
     "Parameter",
     "ParameterVisitor",
     "ParametersVisitor",
     "as_params",
+    "param_from_node",
     "parsed_param",
     "value_leaf",
 ]
@@ -64,7 +66,12 @@ class Param:
         return str(self.name) if self.value is None else f"{self.name}={self.value}"
 
 
-def as_params(items: "Iterable[Param | tuple[str, ...]]") -> tuple[Param, ...]:
+# What a value object's constructor accepts for its params: ready-made Param objects
+# or raw ``(name[, value])`` tuples (coerced by as_params).
+ParamsInput = Iterable[Param | tuple[str, ...]]
+
+
+def as_params(items: ParamsInput) -> tuple[Param, ...]:
     """Coerce an iterable of ``Param`` (kept as-is) or raw ``(name[, value])`` tuples into a
     tuple of validated ``Param``. Lets value-object constructors accept either form."""
     return tuple(p if isinstance(p, Param) else Param(*p) for p in items)
@@ -77,6 +84,20 @@ def parsed_param(name: str, value: str | None) -> Param:
         return Param(Token(name, parse=False))
     leaf = QuotedString(value) if value[:1] == '"' else Token(value, parse=False)
     return Param(Token(name, parse=False), leaf)
+
+
+def param_from_node(node: Node) -> Param:
+    """Build a ``Param`` from a ``token [ "=" ( token / quoted-string ) ]`` node (the shape
+    shared by Link-, Prefer-, and Alt-Svc-style parameters)."""
+    name = node.children[0].value
+    value: str | None = None
+    seen_eq = False
+    for child in node.children[1:]:
+        if child.name == "literal" and child.value == "=":
+            seen_eq = True
+        elif seen_eq and child.name not in ("BWS", "OWS"):
+            value = child.value
+    return parsed_param(name, value)
 
 
 class ParameterVisitor(NodeVisitor):

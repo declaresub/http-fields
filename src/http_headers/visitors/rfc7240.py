@@ -1,30 +1,19 @@
-from collections.abc import Iterable
 from dataclasses import dataclass
 
 from abnf import Node, NodeVisitor
 
 from http_headers.visitors.rfc9110.parameters import (
     Param,
+    ParamsInput,
     QuotedString,
     Token,
     as_params,
+    param_from_node,
     parsed_param,
     value_leaf,
 )
 
 __all__ = ["Preference", "PreferVisitor", "PreferenceAppliedVisitor"]
-
-
-def _pair(node: Node) -> tuple[str, str | None]:
-    name = node.children[0].value
-    value: str | None = None
-    seen_eq = False
-    for child in node.children[1:]:
-        if child.name == "literal" and child.value == "=":
-            seen_eq = True
-        elif seen_eq and child.name not in ("BWS", "OWS"):
-            value = child.value
-    return (name, value)
 
 
 @dataclass(frozen=True)
@@ -40,7 +29,7 @@ class Preference:
         self,
         name: str,
         value: str | None = None,
-        parameters: "Iterable[Param | tuple[str, ...]]" = (),
+        parameters: ParamsInput = (),
     ) -> None:
         object.__setattr__(self, "name", Token(name))
         object.__setattr__(
@@ -64,7 +53,7 @@ class PreferVisitor(NodeVisitor):
         seen_eq = False
         for child in node.children[1:]:
             if child.name == "parameter":
-                params.append(parsed_param(*_pair(child)))
+                params.append(param_from_node(child))
             elif child.name == "literal" and child.value == "=" and not params:
                 seen_eq = True
             elif seen_eq and value is None and child.name not in ("BWS", "OWS"):
