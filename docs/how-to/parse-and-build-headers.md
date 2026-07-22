@@ -41,8 +41,7 @@ List-style headers take their leaf types as varargs. Build the leaves (each vali
 or `parse()` a whole value string:
 
 ```python
-from http_headers import Connection, Vary
-from http_headers.visitors.rfc9110 import FieldName, Token
+from http_headers import Connection, FieldName, Token, Vary
 
 Connection(Token("keep-alive"), Token("close"))
 Vary(FieldName("accept-encoding"), FieldName("accept-language"))
@@ -56,8 +55,7 @@ Headers with structured values take value objects, which coerce their string par
 leaves:
 
 ```python
-from http_headers import Upgrade
-from http_headers.visitors.rfc9110.upgrade import Protocol
+from http_headers import Protocol, Upgrade
 
 Upgrade(Protocol("HTTP", "2"), Protocol("WebSocket"))
 Upgrade.parse("HTTP/2, WebSocket")                       # equivalent, from a string

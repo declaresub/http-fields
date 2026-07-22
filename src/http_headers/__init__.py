@@ -92,6 +92,13 @@ __all__ = [
     "ViaElement",
     "WeightedCoding",
     "WeightedLanguageRange",
+    # Leaf types for strict list-header construction (e.g. Connection(Token("keep-alive"))).
+    "CorsFieldName",
+    "CorsMethod",
+    "Expectation",
+    "FieldName",
+    "Method",
+    "Token",
 ]
 
 from http_headers.accept import Accept
@@ -108,9 +115,11 @@ from http_headers.accesscontrol import (
     AccessControlMaxAge,
     AccessControlRequestHeaders,
     AccessControlRequestMethod,
+    CorsFieldName,
+    CorsMethod,
 )
 from http_headers.age import Age
-from http_headers.allow import Allow
+from http_headers.allow import Allow, Method
 from http_headers.altsvc import AltSvc, AltUsed
 from http_headers.authenticationinfo import AuthenticationInfo
 from http_headers.authorization import Authorization
@@ -128,7 +137,7 @@ from http_headers.contenttype import ContentType
 from http_headers.cookie import Cookie, CookiePair
 from http_headers.date import Date
 from http_headers.etag import ETag
-from http_headers.expect import Expect
+from http_headers.expect import Expect, Expectation
 from http_headers.expires import Expires
 from http_headers.forwarded import Forwarded
 from http_headers.fromheader import From
@@ -170,8 +179,10 @@ from http_headers.visitors.rfc8288 import LinkValue
 from http_headers.visitors.rfc9110 import (
     AuthParam,
     EntityTag,
+    FieldName,
     MediaType,
     RangeUnit,
+    Token,
     WeightedLanguageRange,
 )
 from http_headers.visitors.rfc9110.contentlanguage import LanguageTag
