@@ -6,12 +6,18 @@ parses/validates against an `abnf` grammar. Python >= 3.10.
 ## Gate (run before considering any change done)
 
 ```bash
+make check                # lint + types + test; all must be clean
+```
+
+Equivalently, the three tools individually:
+
+```bash
 uv run pytest -q          # tests
 uv run ruff check .       # lint (rules: E, F, I, UP, B; E501 intentionally off)
 uv run basedpyright       # types (standard mode)
 ```
 
-All three must be clean. Prefer the dedicated tools over ad-hoc scripts.
+`make fmt` auto-formats and applies safe lint fixes; `make cov` / `make docs` also exist.
 
 ## Workflow conventions
 
