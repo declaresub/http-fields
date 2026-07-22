@@ -1,5 +1,11 @@
 # http-fields
 
+[![PyPI](https://img.shields.io/pypi/v/http-fields)](https://pypi.org/project/http-fields/)
+[![Python versions](https://img.shields.io/pypi/pyversions/http-fields)](https://pypi.org/project/http-fields/)
+[![CI](https://github.com/declaresub/http-fields/actions/workflows/ci.yml/badge.svg)](https://github.com/declaresub/http-fields/actions/workflows/ci.yml)
+[![Docs](https://readthedocs.org/projects/http-fields/badge/?version=latest)](https://http-fields.readthedocs.io/)
+[![License](https://img.shields.io/pypi/l/http-fields)](LICENSE.txt)
+
 Typed, validated HTTP headers for Python. Each header is an immutable
 [dataclass](https://docs.python.org/3/library/dataclasses.html) whose fields are the structured
 components of the header. [abnf](https://pypi.org/project/abnf/) grammars are used both to
