@@ -37,7 +37,9 @@ class Allow(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*(Method(m, parse=False) for m in cls.visitor.visit(cls._node(value))))
+        return cls(
+            *(Method(m, parse=False) for m in cls.visitor.visit(cls._node(value)))
+        )
 
     @property
     def value(self) -> str:

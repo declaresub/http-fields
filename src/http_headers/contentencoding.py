@@ -36,7 +36,9 @@ class ContentEncoding(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*(Token(c, parse=False) for c in cls.visitor.visit(cls._node(value))))
+        return cls(
+            *(Token(c, parse=False) for c in cls.visitor.visit(cls._node(value)))
+        )
 
     @property
     def value(self) -> str:

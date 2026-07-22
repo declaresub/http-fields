@@ -112,9 +112,7 @@ class CookieDateVisitor(NodeVisitor):
         # None, and a zero-valued field (e.g. "00") would be lost by a
         # truthiness filter.
         h, m, s = (
-            self.visit(child)
-            for child in node.children
-            if child.name == "time-field"
+            self.visit(child) for child in node.children if child.name == "time-field"
         )
         # raises ValueError if h, m. s do not satisfy the same bounds as
         # as specified by parsing algorithm.
@@ -394,7 +392,9 @@ class SetCookie(Header):
                 # when cookie path is '' or not an absolute path, the default path should be used for comparison.  But computation
                 # of the default path depends on the request path.  We don't want to entangle parsing with the request,
                 # so we leave it to the user to call default_path as needed.
-                cookie_attrs["path"] = attr_value if attr_value.startswith("/") else None
+                cookie_attrs["path"] = (
+                    attr_value if attr_value.startswith("/") else None
+                )
             elif matchname == "secure":
                 cookie_attrs["secure"] = True
             elif matchname == "httponly":

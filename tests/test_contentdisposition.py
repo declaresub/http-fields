@@ -98,6 +98,8 @@ def test_contentdisposition_ext_value_decoded_once():
 def test_contentdisposition_ext_value_encodes_slash():
     # "/" is not an RFC 5987 attr-char, so it must be percent-encoded; the result
     # must round-trip through the parser (regression: bug 23).
-    cd = ContentDisposition.build("attachment", {"filename*": ExtValue(value="a/b.txt")})
+    cd = ContentDisposition.build(
+        "attachment", {"filename*": ExtValue(value="a/b.txt")}
+    )
     assert "/b.txt" not in cd.value
     assert ContentDisposition.parse(cd.value) == cd

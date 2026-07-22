@@ -49,7 +49,9 @@ class DisplayString(str):
 
 
 # A bare item is one of these Python types (Token/DisplayString are str subclasses).
-BareItem: TypeAlias = int | Decimal | bool | bytes | datetime | str | Token | DisplayString
+BareItem: TypeAlias = (
+    int | Decimal | bool | bytes | datetime | str | Token | DisplayString
+)
 Parameters: TypeAlias = tuple[tuple[str, object], ...]
 
 
@@ -299,9 +301,7 @@ def serialize_bare(value: object) -> str:
         return str(value)
     if isinstance(value, str):
         if any(ord(c) < 0x20 or ord(c) > 0x7E for c in value):
-            raise ValueError(
-                f"String {value!r} contains characters outside %x20-7E."
-            )
+            raise ValueError(f"String {value!r} contains characters outside %x20-7E.")
         return '"' + _escape_string(value) + '"'
     if isinstance(value, bytes):
         return ":" + base64.b64encode(value).decode("ascii") + ":"

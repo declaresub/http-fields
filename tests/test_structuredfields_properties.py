@@ -49,13 +49,11 @@ sf_datetimes = st.integers(min_value=0, max_value=2**32).map(
 # SF strings: any %x20-7E char (serialize escapes \ and ").
 sf_strings = st.text(alphabet=st.characters(min_codepoint=0x20, max_codepoint=0x7E))
 # SF tokens: tchar-ish, must start with ALPHA / "*".
-sf_tokens = st.from_regex(
-    r"\A[A-Za-z*][A-Za-z0-9!#$%&'*+\-.^_`|~:/]*\Z"
-).map(Token)
+sf_tokens = st.from_regex(r"\A[A-Za-z*][A-Za-z0-9!#$%&'*+\-.^_`|~:/]*\Z").map(Token)
 # SF display strings: arbitrary Unicode, minus lone surrogates (not UTF-8 encodable).
-sf_display_strings = st.text(
-    alphabet=st.characters(exclude_categories=("Cs",))
-).map(DisplayString)
+sf_display_strings = st.text(alphabet=st.characters(exclude_categories=("Cs",))).map(
+    DisplayString
+)
 
 bare_items = st.one_of(
     sf_integers,
@@ -76,9 +74,7 @@ parameters = st.dictionaries(sf_keys, bare_items, max_size=4).map(
 )
 
 items = st.builds(Item, bare_items, parameters)
-inner_lists = st.builds(
-    InnerList, st.lists(items, max_size=3).map(tuple), parameters
-)
+inner_lists = st.builds(InnerList, st.lists(items, max_size=3).map(tuple), parameters)
 members = st.one_of(items, inner_lists)
 
 sf_lists = st.lists(members, max_size=4).map(tuple)

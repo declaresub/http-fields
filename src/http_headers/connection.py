@@ -26,7 +26,9 @@ class Connection(Header):
 
     @classmethod
     def parse(cls, value: str) -> Self:
-        return cls(*(Token(d, parse=False) for d in cls.visitor.visit(cls._node(value))))
+        return cls(
+            *(Token(d, parse=False) for d in cls.visitor.visit(cls._node(value)))
+        )
 
     @property
     def value(self) -> str:

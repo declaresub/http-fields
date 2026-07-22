@@ -17,7 +17,10 @@ from http_headers.accesscontrol import CorsFieldName, CorsMethod
 def test_allow_methods():
     header = AccessControlAllowMethods.parse("GET, POST")
     assert header.items == ("GET", "POST")
-    assert AccessControlAllowMethods(CorsMethod("GET"), CorsMethod("POST")).value == "GET, POST"
+    assert (
+        AccessControlAllowMethods(CorsMethod("GET"), CorsMethod("POST")).value
+        == "GET, POST"
+    )
 
 
 def test_allow_headers():
@@ -30,7 +33,10 @@ def test_request_headers():
 
 
 def test_expose_headers():
-    assert AccessControlExposeHeaders(CorsFieldName("X-Foo"), CorsFieldName("X-Bar")).value == "X-Foo, X-Bar"
+    assert (
+        AccessControlExposeHeaders(CorsFieldName("X-Foo"), CorsFieldName("X-Bar")).value
+        == "X-Foo, X-Bar"
+    )
 
 
 def test_allow_origin():

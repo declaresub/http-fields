@@ -83,9 +83,7 @@ class StrictTransportSecurity(Header):
         if not max_age_seen:
             # RFC 6797 section 6.1.1: an STS header field without max-age is
             # ignored; surface that as an error rather than a spurious max-age=0.
-            raise ValueError(
-                "Strict-Transport-Security requires a max-age directive."
-            )
+            raise ValueError("Strict-Transport-Security requires a max-age directive.")
         return cls(max_age, include_subdomains, preload)
 
     @property
