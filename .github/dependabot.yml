@@ -10,6 +10,9 @@ updates:
     open-pull-requests-limit: 5
 
   # GitHub Actions used by the workflows (kept SHA-pinned; Dependabot bumps the pins).
+  # Grouped into a single PR: actions published from one repo under several paths
+  # (e.g. github/codeql-action/init and .../analyze) must move together, and a split
+  # PR leaves them on mismatched versions, which fails the job.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -17,3 +20,6 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns: ["*"]
