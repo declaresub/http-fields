@@ -1,4 +1,4 @@
-from http_headers.visitors.rfc9110.product import Product
+from http_fields.visitors.rfc9110.product import Product
 
 
 def test_product_str():

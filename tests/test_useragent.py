@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import UserAgent
+from http_fields import UserAgent
 
 
 def test_useragent_parse():

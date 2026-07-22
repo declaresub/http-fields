@@ -19,7 +19,7 @@ fmt:
 	uv run ruff check --fix .
 
 cov:
-	uv run pytest -q --cov=http_headers --cov-report=term-missing
+	uv run pytest -q --cov=http_fields --cov-report=term-missing
 
 docs:
 	uv run sphinx-build -b html docs docs/_build/html

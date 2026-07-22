@@ -2,7 +2,7 @@
 
 import pytest
 
-from http_headers import Accept, CacheStatus, Cookie, Host, SetCookie
+from http_fields import Accept, CacheStatus, Cookie, Host, SetCookie
 
 
 def test_parse_rejects_oversized_value():

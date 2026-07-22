@@ -1,8 +1,8 @@
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.authparam import AuthParam, AuthParamVisitor
-from http_headers.visitors.rfc9110.quotedstring import QuotedString
-from http_headers.visitors.rfc9110.token import Token
+from http_fields.visitors.rfc9110.authparam import AuthParam, AuthParamVisitor
+from http_fields.visitors.rfc9110.quotedstring import QuotedString
+from http_fields.visitors.rfc9110.token import Token
 
 
 def test_authparam():

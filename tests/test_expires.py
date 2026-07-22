@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from http_headers import Expires
+from http_fields import Expires
 
 
 def test_expires_parse():

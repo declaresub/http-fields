@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from http_headers import ContentRange
+from http_fields import ContentRange
 
 
 @pytest.mark.parametrize(

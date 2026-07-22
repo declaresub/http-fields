@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers.visitors.rfc9110.authscheme import AuthScheme
+from http_fields.visitors.rfc9110.authscheme import AuthScheme
 
 
 def test_authscheme():

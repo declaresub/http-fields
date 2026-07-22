@@ -3,8 +3,8 @@ from typing import Literal
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.entitytag import EntityTag
-from http_headers.visitors.rfc9110.ifnonematch import IfNoneMatchVisitor
+from http_fields.visitors.rfc9110.entitytag import EntityTag
+from http_fields.visitors.rfc9110.ifnonematch import IfNoneMatchVisitor
 
 
 @pytest.mark.parametrize(

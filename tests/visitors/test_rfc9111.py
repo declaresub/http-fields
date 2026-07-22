@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 from abnf.grammars import rfc9111
 
-from http_headers.visitors.rfc9110 import QuotedString, Token
-from http_headers.visitors.rfc9111 import (
+from http_fields.visitors.rfc9110 import QuotedString, Token
+from http_fields.visitors.rfc9111 import (
     AgeVisitor,
     CacheDirective,
     CacheDirectiveVisitor,

@@ -1,4 +1,4 @@
-# `http_headers.structuredfields`
+# `http_fields.structuredfields`
 
 An implementation of [RFC 9651 Structured Field Values for HTTP](https://www.rfc-editor.org/rfc/rfc9651):
 a value model plus parse and serialize functions for the three top-level types (Item, List,
@@ -54,7 +54,7 @@ escaping, Display String percent-encoding, Byte Sequence base64, and Dates.
 ## Example
 
 ```python
-from http_headers.structuredfields import parse_dictionary, serialize_dictionary
+from http_fields.structuredfields import parse_dictionary, serialize_dictionary
 
 members = parse_dictionary('a=1, b, c=(1 2);y')
 serialize_dictionary(members)   # 'a=1, b, c=(1 2);y'

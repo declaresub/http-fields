@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import Header, MaxForwards, NonNegativeInt
+from http_fields import Header, MaxForwards, NonNegativeInt
 
 
 def test_maxforwards_parse():

@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import CustomHeader, Header, Host
+from http_fields import CustomHeader, Header, Host
 
 
 def test_customheader_fields():

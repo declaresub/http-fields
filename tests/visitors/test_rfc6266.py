@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from abnf.grammars import rfc6266
 
-from http_headers.visitors.rfc6266 import (
+from http_fields.visitors.rfc6266 import (
     ContentDispositionNodeVisitor,
     DispExtParm,
     DispExtParmVisitor,
@@ -18,7 +18,7 @@ from http_headers.visitors.rfc6266 import (
     NotNone,
     ValueVisitor,
 )
-from http_headers.visitors.rfc7230 import QuotedString, Token
+from http_fields.visitors.rfc7230 import QuotedString, Token
 
 
 def test_dispositiontypevisitor():

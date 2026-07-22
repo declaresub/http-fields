@@ -1,7 +1,7 @@
 import pytest
 
-from http_headers import Authorization
-from http_headers.authorization import TokenCredentials
+from http_fields import Authorization
+from http_fields.authorization import TokenCredentials
 
 
 def test_authorization_parse():

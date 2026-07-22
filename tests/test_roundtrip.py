@@ -10,8 +10,8 @@ import inspect
 
 import pytest
 
-import http_headers as hh
-from http_headers.header import Header
+import http_fields as hh
+from http_fields.header import Header
 
 # One representative, valid raw value per concrete header class.
 SAMPLES: dict[str, str] = {

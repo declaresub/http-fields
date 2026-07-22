@@ -1,4 +1,4 @@
-from http_headers import ContentLocation, Header
+from http_fields import ContentLocation, Header
 
 
 def test_contentlocation_parse():

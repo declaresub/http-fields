@@ -3,14 +3,14 @@ from typing import Any
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.accept import (
+from http_fields.visitors.rfc9110.accept import (
     AcceptType,
     AcceptVisitor,
     MediaRange,
     MediaRangeVisitor,
 )
-from http_headers.visitors.rfc9110.parameters import Parameter
-from http_headers.visitors.rfc9110.weight import Weight
+from http_fields.visitors.rfc9110.parameters import Parameter
+from http_fields.visitors.rfc9110.weight import Weight
 
 
 def test_mediarange_str():

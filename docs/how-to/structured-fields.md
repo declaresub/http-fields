@@ -1,15 +1,15 @@
 # How to work with Structured Fields
 
 [RFC 9651 Structured Field Values](https://www.rfc-editor.org/rfc/rfc9651) is the type system
-that modern HTTP headers are built on. `http-headers` ships a standalone implementation in
-`http_headers.structuredfields`, plus header classes that use it.
+that modern HTTP headers are built on. `http-fields` ships a standalone implementation in
+`http_fields.structuredfields`, plus header classes that use it.
 
 ## Use the Structured-Fields headers
 
 These behave like any other header:
 
 ```python
-from http_headers import Priority, CacheStatus, ContentDigest
+from http_fields import Priority, CacheStatus, ContentDigest
 import base64
 
 Priority.parse("u=5, i").urgency        # 5
@@ -30,7 +30,7 @@ Use the `parse_*` / `serialize_*` functions directly for the three top-level typ
 and Dictionary:
 
 ```python
-from http_headers.structuredfields import (
+from http_fields.structuredfields import (
     parse_item, parse_list, parse_dictionary,
     serialize_item, serialize_list, serialize_dictionary,
 )
@@ -57,7 +57,7 @@ Bare items map to native Python types:
 is bare, a `str` is quoted):
 
 ```python
-from http_headers.structuredfields import Item, Token, serialize_item
+from http_fields.structuredfields import Item, Token, serialize_item
 
 serialize_item(Item(Token("gzip")))   # 'gzip'
 serialize_item(Item("gzip"))          # '"gzip"'
@@ -68,7 +68,7 @@ serialize_item(Item("gzip"))          # '"gzip"'
 Compose `Item` / `InnerList` and serialize:
 
 ```python
-from http_headers.structuredfields import Item, InnerList, Token, serialize_list
+from http_fields.structuredfields import Item, InnerList, Token, serialize_list
 
 members = (Item(Token("sugar")), InnerList((Item(1), Item(2)), (("x", True),)))
 serialize_list(members)               # 'sugar, (1 2);x'

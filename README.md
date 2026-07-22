@@ -1,4 +1,4 @@
-# http-headers
+# http-fields
 
 Typed, validated HTTP headers for Python. Each header is an immutable
 [dataclass](https://docs.python.org/3/library/dataclasses.html) whose fields are the structured
@@ -9,7 +9,7 @@ always well-formed.
 Requires Python 3.10+.
 
 ```python
-from http_headers import ContentType, Header
+from http_fields import ContentType, Header
 
 ct = ContentType.parse("text/html; charset=UTF-8")
 ct.type, ct.subtype, ct.charset          # ('text', 'html', 'UTF-8')
@@ -22,22 +22,29 @@ Header.create("x-request-id", "abc123")                         # dispatch by na
 ## Install
 
 ```sh
-uv add http-headers
-# or: pip install http-headers
+uv add http-fields
+# or: pip install http-fields
 ```
 
 ## Documentation
 
-Full documentation lives in [`docs/`](docs/index.md) and follows the
-[Diátaxis](https://diataxis.fr/) model:
+Full documentation: **<https://http-fields.readthedocs.io/>**
 
-- **Tutorial:** [Getting started](docs/tutorials/getting-started.md)
-- **How-to guides:** [parse & build](docs/how-to/parse-and-build-headers.md) ·
-  [custom / unknown headers](docs/how-to/custom-and-unknown-headers.md) ·
-  [Structured Fields](docs/how-to/structured-fields.md)
-- **Reference:** [header catalog](docs/reference/headers.md) ·
-  [`structuredfields` API](docs/reference/structured-fields.md)
-- **Explanation:** [the header model](docs/explanation/design.md)
+It follows the [Diátaxis](https://diataxis.fr/) model:
+
+- **Tutorial:**
+  [Getting started](https://http-fields.readthedocs.io/en/latest/tutorials/getting-started.html)
+- **How-to guides:**
+  [parse & build](https://http-fields.readthedocs.io/en/latest/how-to/parse-and-build-headers.html) ·
+  [custom / unknown headers](https://http-fields.readthedocs.io/en/latest/how-to/custom-and-unknown-headers.html) ·
+  [Structured Fields](https://http-fields.readthedocs.io/en/latest/how-to/structured-fields.html)
+- **Reference:**
+  [header catalog](https://http-fields.readthedocs.io/en/latest/reference/headers.html) ·
+  [`structuredfields` API](https://http-fields.readthedocs.io/en/latest/reference/structured-fields.html)
+- **Explanation:**
+  [the header model](https://http-fields.readthedocs.io/en/latest/explanation/design.html)
+
+The sources live in [`docs/`](docs/index.md).
 
 ## Development
 

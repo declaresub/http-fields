@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from http_headers import RetryAfter
+from http_fields import RetryAfter
 
 
 @pytest.mark.parametrize(

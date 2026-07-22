@@ -1,12 +1,12 @@
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.parameters import (
+from http_fields.visitors.rfc9110.parameters import (
     Parameter,
     ParametersVisitor,
     ParameterVisitor,
 )
-from http_headers.visitors.rfc9110.quotedstring import QuotedString
-from http_headers.visitors.rfc9110.token import Token
+from http_fields.visitors.rfc9110.quotedstring import QuotedString
+from http_fields.visitors.rfc9110.token import Token
 
 
 def test_parameter():

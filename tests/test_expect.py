@@ -1,4 +1,4 @@
-from http_headers import Expect, Header
+from http_fields import Expect, Header
 
 
 def test_expect_parse():

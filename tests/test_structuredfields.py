@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from http_headers.structuredfields import (
+from http_fields.structuredfields import (
     DisplayString,
     InnerList,
     Item,

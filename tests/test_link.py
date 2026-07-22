@@ -1,4 +1,4 @@
-from http_headers import Header, Link, LinkValue
+from http_fields import Header, Link, LinkValue
 
 
 def test_link_parse():

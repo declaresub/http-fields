@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import Age, NonNegativeInt
+from http_fields import Age, NonNegativeInt
 
 
 def test_age_parse():

@@ -1,4 +1,4 @@
-from http_headers import Header, Server
+from http_fields import Header, Server
 
 
 def test_server_parse():

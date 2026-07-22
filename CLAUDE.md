@@ -1,4 +1,4 @@
-# http-headers — working notes for agents
+# http-fields — working notes for agents
 
 A typed, immutable model of HTTP headers. Each header is a frozen dataclass that
 parses/validates against an `abnf` grammar. Python >= 3.10.
@@ -26,7 +26,8 @@ uv run basedpyright           # types (strict; reportUnknown* off — abnf visit
 - **Pre-release.** No git tags yet (hatch-vcs → dev version), so **API breaks are free** —
   don't preserve backward compatibility for its own sake; do update tests + docs.
 - **Commits.** Concise subject; body explains the *why*. Keep the gate green per commit.
-- **Docs live in `docs/`** (Sphinx + MyST). Design rationale: `docs/explanation/design.md`.
+- **Docs live in `docs/`** (Sphinx + MyST), published at <https://http-fields.readthedocs.io/>.
+  Design rationale: `docs/explanation/design.md`.
 
 ## The header model — invariants that bite if you don't know them
 
@@ -57,12 +58,12 @@ uv run basedpyright           # types (strict; reportUnknown* off — abnf visit
 
 ## Where things live
 
-- Header classes: `src/http_headers/<name>.py` (usually one class each).
-- Base class + field-check machinery: `src/http_headers/header.py`.
-- Leaf-string bases: `src/http_headers/parsedobjs.py` (`ParsedStr`, `CaselessMixin`,
+- Header classes: `src/http_fields/<name>.py` (usually one class each).
+- Base class + field-check machinery: `src/http_fields/header.py`.
+- Leaf-string bases: `src/http_fields/parsedobjs.py` (`ParsedStr`, `CaselessMixin`,
   `NonNegativeInt`).
-- Visitors + value objects + leaf types: `src/http_headers/visitors/` (grouped by RFC).
-- Structured Fields codec: `src/http_headers/structuredfields.py`; SF header bases:
+- Visitors + value objects + leaf types: `src/http_fields/visitors/` (grouped by RFC).
+- Structured Fields codec: `src/http_fields/structuredfields.py`; SF header bases:
   `structuredheaders.py`.
 - Public surface (incl. leaf types re-exported for strict construction): `__init__.py`.
 - Tests: `tests/` (one per header, plus `test_injection.py` and the property suite).

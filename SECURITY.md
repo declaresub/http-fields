@@ -1,6 +1,6 @@
 # Security Policy
 
-`http-headers` parses and validates HTTP header values, often from untrusted input, so
+`http-fields` parses and validates HTTP header values, often from untrusted input, so
 correctness of that validation is a security property (e.g. rejecting CR/LF/NUL to prevent
 response splitting / header injection).
 

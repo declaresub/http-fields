@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import AcceptEncoding, WeightedCoding
+from http_fields import AcceptEncoding, WeightedCoding
 
 
 def test_accept_encoding_parse():
