@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Python dependencies (uv). The lockfile is committed; review PRs, don't auto-merge.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+
+  # GitHub Actions used by the workflows (kept SHA-pinned; Dependabot bumps the pins).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
