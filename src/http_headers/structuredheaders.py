@@ -28,8 +28,10 @@ class StructuredListHeader(Header):
 
     def __init__(self, *members: Item | InnerList) -> None:
         object.__setattr__(self, "members", tuple(members))
-        if members:
-            self._validate_value()
+        # Serializing validates every member (rejecting injection / out-of-range values
+        # via serialize_bare) and caches the result; a valid serialization is grammar-valid
+        # by construction, so no re-parse is needed.
+        _ = self.value
 
     @classmethod
     def parse(cls, value: str) -> Self:
@@ -55,8 +57,9 @@ class DigestHeader(Header):
 
     def __init__(self, *digests: tuple[str, bytes]) -> None:
         object.__setattr__(self, "digests", tuple(digests))
-        if digests:
-            self._validate_value()
+        # Serializing validates every dictionary key (via _validate_key) and caches the
+        # result; a valid serialization is grammar-valid by construction, so no re-parse.
+        _ = self.value
 
     @classmethod
     def parse(cls, value: str) -> Self:

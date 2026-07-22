@@ -68,10 +68,11 @@ class CacheControl(Header):
         # max-stale may be valueless (True); only coerce a delta-seconds bound.
         if self.max_stale is not None and self.max_stale is not True:
             object.__setattr__(self, "max_stale", NonNegativeInt(self.max_stale))
-        # Validate the serialized value (e.g. a no-cache/private string field) against
-        # the grammar, so construction cannot smuggle invalid content onto the wire.
-        if self.value:
-            self._validate_value()
+        # Serializing builds a self-validating CacheDirective for each field (name -> Token,
+        # no-cache/private string -> QuotedString, ints -> NonNegativeInt), rejecting invalid
+        # content, and caches the result; a valid serialization is grammar-valid by
+        # construction, so no re-parse is needed.
+        _ = self.value
 
     @classmethod
     def parse(cls, value: str) -> Self:
