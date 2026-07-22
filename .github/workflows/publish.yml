@@ -1,4 +1,4 @@
-name: Release
+name: Publish
 
 # Tag-driven release. Publishing is gated on the `testpypi` then `pypi` protected
 # environments, each of which requires a manual approval. A workflow_dispatch run is a
