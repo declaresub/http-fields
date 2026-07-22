@@ -1,5 +1,5 @@
-from http_headers import Header, Prefer, PreferenceApplied
-from http_headers.visitors.rfc7240 import Preference
+from http_fields import Header, Prefer, PreferenceApplied
+from http_fields.visitors.rfc7240 import Preference
 
 
 def test_prefer_parse():

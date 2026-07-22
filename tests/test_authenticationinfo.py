@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import AuthenticationInfo, AuthParam
+from http_fields import AuthenticationInfo, AuthParam
 
 
 def test_authenticationinfo_empty():

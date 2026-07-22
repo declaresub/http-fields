@@ -1,14 +1,14 @@
 # Getting started
 
-This tutorial walks you through the core of `http-headers`: parsing a header, reading its
+This tutorial walks you through the core of `http-fields`: parsing a header, reading its
 structured fields, building one from scratch, and turning it back into bytes. By the end you'll
 understand the shape shared by every header in the library.
 
 ## Install
 
 ```sh
-uv add http-headers
-# or: pip install http-headers
+uv add http-fields
+# or: pip install http-fields
 ```
 
 ## 1. Parse a header
@@ -17,7 +17,7 @@ Every known header has a `.parse()` classmethod that takes the raw header *value
 `Name: value` line) and returns a validated instance:
 
 ```python
-from http_headers import ContentType
+from http_fields import ContentType
 
 ct = ContentType.parse("text/html; charset=UTF-8")
 ```
@@ -54,7 +54,7 @@ You don't have to start from a string. Simple headers take their field directly;
 provide a builder classmethod (here, `ContentType.of(...)`):
 
 ```python
-from http_headers import Age, ContentType
+from http_fields import Age, ContentType
 
 Age(60)                                              # a scalar header takes its value
 ContentType.of(type="text", subtype="html", charset="utf-8")
@@ -73,7 +73,7 @@ front, `Header.create()` returns the right subclass — or a `CustomHeader` for 
 name:
 
 ```python
-from http_headers import Header
+from http_fields import Header
 
 Header.create("content-type", "text/plain")   # -> ContentType(...)
 Header.create("x-request-id", "abc123")        # -> CustomHeader(...)
@@ -84,7 +84,7 @@ Header.create("x-request-id", "abc123")        # -> CustomHeader(...)
 Every header is a frozen dataclass: immutable, comparable, and hashable.
 
 ```python
-from http_headers import Age
+from http_fields import Age
 
 Age(1) == Age(1)          # True
 len({Age(1), Age(1)})     # 1  (deduplicates)

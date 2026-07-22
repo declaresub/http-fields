@@ -1,4 +1,4 @@
-from http_headers import Header, Origin
+from http_fields import Header, Origin
 
 
 def test_origin_parse():

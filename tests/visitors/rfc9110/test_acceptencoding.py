@@ -1,11 +1,11 @@
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.acceptencoding import (
+from http_fields.visitors.rfc9110.acceptencoding import (
     AcceptEncodingVisitor,
     WeightedCoding,
 )
-from http_headers.visitors.rfc9110.weight import Weight
+from http_fields.visitors.rfc9110.weight import Weight
 
 
 @pytest.mark.parametrize(

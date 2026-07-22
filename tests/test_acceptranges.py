@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import AcceptRanges, RangeUnit
+from http_fields import AcceptRanges, RangeUnit
 
 
 @pytest.mark.parametrize(

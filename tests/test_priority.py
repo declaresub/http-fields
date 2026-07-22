@@ -1,4 +1,4 @@
-from http_headers import Header, Priority
+from http_fields import Header, Priority
 
 
 def test_priority_parse():

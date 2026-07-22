@@ -1,7 +1,7 @@
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.connection import ConnectionVisitor
-from http_headers.visitors.rfc9110.token import Token
+from http_fields.visitors.rfc9110.connection import ConnectionVisitor
+from http_fields.visitors.rfc9110.token import Token
 
 
 def test_comnectionvisitor():

@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from http_headers import CacheControl, CacheDirective
+from http_fields import CacheControl, CacheDirective
 
 
 def test_cachedirective_is_frozen():

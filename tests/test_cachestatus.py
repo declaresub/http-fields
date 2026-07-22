@@ -1,7 +1,7 @@
 import pytest
 
-from http_headers import CacheStatus, Header, ProxyStatus
-from http_headers.structuredfields import Item, Token
+from http_fields import CacheStatus, Header, ProxyStatus
+from http_fields.structuredfields import Item, Token
 
 
 def test_cachestatus_parse():

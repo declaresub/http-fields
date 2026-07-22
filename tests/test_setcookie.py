@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from http_headers.setcookie import SetCookie, parse_cookie_date
+from http_fields.setcookie import SetCookie, parse_cookie_date
 
 
 @pytest.mark.parametrize(

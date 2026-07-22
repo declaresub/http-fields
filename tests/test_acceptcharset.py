@@ -1,4 +1,4 @@
-from http_headers import AcceptCharset
+from http_fields import AcceptCharset
 
 
 def test_acceptcharset_parse():

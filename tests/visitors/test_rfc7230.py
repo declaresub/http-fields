@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers.visitors.rfc7230 import (
+from http_fields.visitors.rfc7230 import (
     QuotedPairVisitor,
     QuotedString,
     QuotedStringVisitor,

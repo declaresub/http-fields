@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import From, Header
+from http_fields import From, Header
 
 
 def test_from_parse():

@@ -1,4 +1,4 @@
-from http_headers import AltSvc, AltUsed, AltValue, Header
+from http_fields import AltSvc, AltUsed, AltValue, Header
 
 
 def test_altsvc_parse():

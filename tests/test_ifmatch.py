@@ -1,4 +1,4 @@
-from http_headers import EntityTag, IfMatch
+from http_fields import EntityTag, IfMatch
 
 
 def test_ifmatch_parse_star():

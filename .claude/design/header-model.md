@@ -1,6 +1,6 @@
 # Design: HTTP headers as frozen dataclasses
 
-**Status:** proposed · **Scope:** the ~34 `Header` subclasses in `src/http_headers/` and their base
+**Status:** proposed · **Scope:** the ~34 `Header` subclasses in `src/http_fields/` and their base
 **Decided:** stdlib dataclasses (not attrs); frozen/immutable; clean-break constructor API (`.parse()`)
 
 ## 1. Goals
@@ -116,8 +116,8 @@ Notes:
 from dataclasses import dataclass
 from typing import ClassVar
 from abnf.grammars import rfc9111
-from http_headers.parsedobjs import NonNegativeInt
-from http_headers.visitors.rfc9111 import AgeVisitor
+from http_fields.parsedobjs import NonNegativeInt
+from http_fields.visitors.rfc9111 import AgeVisitor
 
 @dataclass(frozen=True)
 class Age(Header):
@@ -209,7 +209,7 @@ This is a deliberate behavior change from the old `(name, value)`-string compari
 ### 4.5 Custom headers
 
 ```python
-from http_headers.visitors.rfc9110 import FieldName, FieldValue
+from http_fields.visitors.rfc9110 import FieldName, FieldValue
 
 @dataclass(frozen=True, slots=True)
 class CustomHeader(Header):

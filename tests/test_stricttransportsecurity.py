@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import Header, StrictTransportSecurity
+from http_fields import Header, StrictTransportSecurity
 
 
 def test_hsts_parse():

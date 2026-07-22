@@ -1,7 +1,7 @@
 import pytest
 
-from http_headers import Allow
-from http_headers.allow import Method
+from http_fields import Allow
+from http_fields.allow import Method
 
 
 def test_allow_parse():

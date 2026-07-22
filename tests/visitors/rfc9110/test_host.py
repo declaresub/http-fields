@@ -1,7 +1,7 @@
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.host import HostVisitor
+from http_fields.visitors.rfc9110.host import HostVisitor
 
 
 @pytest.mark.parametrize(

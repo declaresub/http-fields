@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import (
+from http_fields import (
     AccessControlAllowCredentials,
     AccessControlAllowHeaders,
     AccessControlAllowMethods,
@@ -11,7 +11,7 @@ from http_headers import (
     AccessControlRequestMethod,
     Header,
 )
-from http_headers.accesscontrol import CorsFieldName, CorsMethod
+from http_fields.accesscontrol import CorsFieldName, CorsMethod
 
 
 def test_allow_methods():

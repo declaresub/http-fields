@@ -1,7 +1,7 @@
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.parsedobjs import NonNegativeInt, ParsedStr
+from http_fields.parsedobjs import NonNegativeInt, ParsedStr
 
 
 class ParsedStrTester(ParsedStr):
