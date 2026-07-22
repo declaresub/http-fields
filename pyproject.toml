@@ -38,6 +38,7 @@ Homepage = "https://github.com/declaresub/http-headers"
 dev = [
     "pytest",
     "pytest-cov",
+    "hypothesis",
     "basedpyright",
     "ruff",
 ]
