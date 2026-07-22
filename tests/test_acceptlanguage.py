@@ -1,4 +1,4 @@
-from http_headers import AcceptLanguage, WeightedLanguageRange
+from http_fields import AcceptLanguage, WeightedLanguageRange
 
 
 def test_acceptlanguage_parse():

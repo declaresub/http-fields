@@ -1,4 +1,4 @@
-# http-headers
+# http-fields
 
 Typed, validated HTTP headers for Python. Each header is an immutable
 [dataclass](https://docs.python.org/3/library/dataclasses.html) whose fields are the structured
@@ -9,7 +9,7 @@ always well-formed.
 Requires Python 3.10+.
 
 ```python
-from http_headers import ContentType, Header
+from http_fields import ContentType, Header
 
 ct = ContentType.parse("text/html; charset=UTF-8")
 ct.type, ct.subtype, ct.charset          # ('text', 'html', 'UTF-8')
@@ -22,8 +22,8 @@ Header.create("x-request-id", "abc123")                         # dispatch by na
 ## Install
 
 ```sh
-uv add http-headers
-# or: pip install http-headers
+uv add http-fields
+# or: pip install http-fields
 ```
 
 ## Documentation

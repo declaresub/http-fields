@@ -337,7 +337,7 @@ wheels = [
 ]
 
 [[package]]
-name = "http-headers"
+name = "http-fields"
 source = { editable = "." }
 dependencies = [
     { name = "abnf" },

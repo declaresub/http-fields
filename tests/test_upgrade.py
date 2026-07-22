@@ -1,4 +1,4 @@
-from http_headers import Header, Protocol, Upgrade
+from http_fields import Header, Protocol, Upgrade
 
 
 def test_upgrade_parse():

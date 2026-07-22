@@ -1,13 +1,13 @@
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.authparam import AuthParam
-from http_headers.visitors.rfc9110.authscheme import AuthScheme
-from http_headers.visitors.rfc9110.challenge import (
+from http_fields.visitors.rfc9110.authparam import AuthParam
+from http_fields.visitors.rfc9110.authscheme import AuthScheme
+from http_fields.visitors.rfc9110.challenge import (
     AuthParamChallenge,
     ChallengeVisitor,
     TokenChallenge,
 )
-from http_headers.visitors.rfc9110.token68 import Token68
+from http_fields.visitors.rfc9110.token68 import Token68
 
 
 def test_tokenchallenge():

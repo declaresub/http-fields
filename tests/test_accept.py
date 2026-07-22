@@ -2,8 +2,8 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from http_headers import Accept
-from http_headers.accept import AcceptType
+from http_fields import Accept
+from http_fields.accept import AcceptType
 
 
 def test_accept_parse():

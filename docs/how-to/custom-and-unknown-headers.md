@@ -7,7 +7,7 @@ When you receive a `(name, value)` pair and don't know the type ahead of time, u
 that subclass, falling back to `CustomHeader` for anything unrecognized:
 
 ```python
-from http_headers import Header, ContentType, CustomHeader
+from http_fields import Header, ContentType, CustomHeader
 
 h = Header.create("Content-Type", "text/plain")
 isinstance(h, ContentType)     # True
@@ -25,7 +25,7 @@ value still raises `ValueError`.
 as an RFC 9110 `field-name` / `field-value`:
 
 ```python
-from http_headers import CustomHeader
+from http_fields import CustomHeader
 
 h = CustomHeader("X-Request-Id", "abc123")
 h.name          # 'X-Request-Id'
@@ -42,7 +42,7 @@ CustomHeader("bad name", "v")   # ValueError: Invalid field-name "bad name".
 introspection:
 
 ```python
-from http_headers import Header
+from http_fields import Header
 
 names = sorted(
     c.name for c in Header.subclass_tree()

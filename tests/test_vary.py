@@ -1,7 +1,7 @@
 import pytest
 
-from http_headers import Vary
-from http_headers.visitors.rfc9110 import FieldName
+from http_fields import Vary
+from http_fields.visitors.rfc9110 import FieldName
 
 
 def test_vary_parse():

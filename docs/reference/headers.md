@@ -1,6 +1,6 @@
 # Header catalog
 
-Every header class exported from `http_headers`, grouped by function. All are frozen dataclasses
+Every header class exported from `http_fields`, grouped by function. All are frozen dataclasses
 sharing the same contract:
 
 - `Header.parse(value)` — validate and parse a raw header value.

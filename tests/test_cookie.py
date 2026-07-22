@@ -2,8 +2,8 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from http_headers import Cookie
-from http_headers.visitors.rfc6265 import CookiePair, CookieValue
+from http_fields import Cookie
+from http_fields.visitors.rfc6265 import CookiePair, CookieValue
 
 
 def test_cookiepair_is_frozen():

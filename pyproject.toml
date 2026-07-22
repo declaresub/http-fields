@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "http-headers"
+name = "http-fields"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/declaresub/http-headers"
+Homepage = "https://github.com/declaresub/http-fields"
 
 [dependency-groups]
 dev = [
@@ -52,7 +52,7 @@ docs = [
 source = "vcs"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/http_headers"]
+packages = ["src/http_fields"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

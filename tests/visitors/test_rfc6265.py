@@ -1,4 +1,4 @@
-from http_headers.visitors.rfc6265 import CookiePair
+from http_fields.visitors.rfc6265 import CookiePair
 
 
 def test_cookie_pair_eq():

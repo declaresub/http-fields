@@ -2,7 +2,7 @@ import base64
 
 import pytest
 
-from http_headers import ContentDigest, Header, ReprDigest
+from http_fields import ContentDigest, Header, ReprDigest
 
 
 def test_contentdigest_rejects_non_binary_member():

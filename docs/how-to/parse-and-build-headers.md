@@ -8,7 +8,7 @@ There are three ways to get a header instance. This guide shows when to use each
 grammar and raises `ValueError` on bad input.
 
 ```python
-from http_headers import CacheControl
+from http_fields import CacheControl
 
 cc = CacheControl.parse("max-age=3600, no-cache, immutable")
 cc.max_age       # 3600
@@ -29,7 +29,7 @@ Plain scalars still coerce their natural Python value:
 
 ```python
 from datetime import datetime, timezone
-from http_headers import Age, Date, RetryAfter
+from http_fields import Age, Date, RetryAfter
 
 Age(60)                                                  # int -> NonNegativeInt
 Date(datetime(2030, 1, 1, tzinfo=timezone.utc))          # a datetime
@@ -41,7 +41,7 @@ List-style headers take their leaf types as varargs. Build the leaves (each vali
 or `parse()` a whole value string:
 
 ```python
-from http_headers import Connection, FieldName, Token, Vary
+from http_fields import Connection, FieldName, Token, Vary
 
 Connection(Token("keep-alive"), Token("close"))
 Vary(FieldName("accept-encoding"), FieldName("accept-language"))
@@ -55,7 +55,7 @@ Headers with structured values take value objects, which coerce their string par
 leaves:
 
 ```python
-from http_headers import Protocol, Upgrade
+from http_fields import Protocol, Upgrade
 
 Upgrade(Protocol("HTTP", "2"), Protocol("WebSocket"))
 Upgrade.parse("HTTP/2, WebSocket")                       # equivalent, from a string
@@ -73,7 +73,7 @@ Headers whose piece-wise construction is richer than their stored fields expose 
 | `ETag` | `ETag.from_tag(tag, weak=False)` |
 
 ```python
-from http_headers import ContentType, SetCookie, ETag
+from http_fields import ContentType, SetCookie, ETag
 
 ContentType.of(type="text", subtype="html", charset="utf-8")
 SetCookie.build(cookie_name="SID", cookie_value="abc", path="/", secure=True)
@@ -88,8 +88,8 @@ uses the more lenient RFC 6265 §5 algorithm for interoperability.
 `If-Match` / `If-None-Match` use `wildcard=True` for `*`; `AltSvc` uses `clear=True` for `clear`:
 
 ```python
-from http_headers import IfMatch, AltSvc
-from http_headers.visitors.rfc9110 import EntityTag
+from http_fields import IfMatch, AltSvc
+from http_fields.visitors.rfc9110 import EntityTag
 
 IfMatch(wildcard=True)                 # "*"
 IfMatch(EntityTag("deadbeef"))         # a specific tag

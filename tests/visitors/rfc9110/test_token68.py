@@ -1,7 +1,7 @@
 import pytest
 from abnf.grammars import rfc9110
 
-from http_headers.visitors.rfc9110.token68 import Token68, Token68Visitor
+from http_fields.visitors.rfc9110.token68 import Token68, Token68Visitor
 
 
 def test_token68():

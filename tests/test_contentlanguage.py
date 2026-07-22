@@ -1,4 +1,4 @@
-from http_headers import ContentLanguage, Header, LanguageTag
+from http_fields import ContentLanguage, Header, LanguageTag
 
 
 def test_contentlanguage_parse():

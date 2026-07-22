@@ -1,6 +1,6 @@
 """The serialized value is computed once and cached (headers are immutable)."""
 
-from http_headers import Age, ContentType, UserAgent
+from http_fields import Age, ContentType, UserAgent
 
 
 def test_value_is_cached_and_stable():

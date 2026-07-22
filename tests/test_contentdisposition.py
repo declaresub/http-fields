@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import ContentDisposition, ExtValue
+from http_fields import ContentDisposition, ExtValue
 
 
 @pytest.mark.parametrize(

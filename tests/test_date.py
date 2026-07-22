@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from http_headers import Date
+from http_fields import Date
 
 
 def test_date_serializes_in_utc():

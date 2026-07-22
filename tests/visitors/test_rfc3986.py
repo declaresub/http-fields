@@ -1,7 +1,7 @@
 import pytest
 from abnf.grammars import rfc3986
 
-from http_headers.visitors.rfc3986 import Scheme, SchemeVisitor
+from http_fields.visitors.rfc3986 import Scheme, SchemeVisitor
 
 
 def test_scheme():

@@ -1,6 +1,6 @@
 import pytest
 
-from http_headers import Location
+from http_fields import Location
 
 
 def test_location_from_value():

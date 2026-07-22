@@ -13,7 +13,7 @@ from abnf import ParseError
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from http_headers.structuredfields import (
+from http_fields.structuredfields import (
     DisplayString,
     InnerList,
     Item,

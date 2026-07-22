@@ -1,5 +1,5 @@
-from http_headers import Header, Trailer
-from http_headers.visitors.rfc9110 import FieldName
+from http_fields import Header, Trailer
+from http_fields.visitors.rfc9110 import FieldName
 
 
 def test_trailer_parse():
