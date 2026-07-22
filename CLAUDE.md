@@ -26,7 +26,8 @@ uv run basedpyright           # types (strict; reportUnknown* off — abnf visit
 - **Pre-release.** No git tags yet (hatch-vcs → dev version), so **API breaks are free** —
   don't preserve backward compatibility for its own sake; do update tests + docs.
 - **Commits.** Concise subject; body explains the *why*. Keep the gate green per commit.
-- **Docs live in `docs/`** (Sphinx + MyST). Design rationale: `docs/explanation/design.md`.
+- **Docs live in `docs/`** (Sphinx + MyST), published at <https://http-fields.readthedocs.io/>.
+  Design rationale: `docs/explanation/design.md`.
 
 ## The header model — invariants that bite if you don't know them
 
