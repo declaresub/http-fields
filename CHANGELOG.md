@@ -4,9 +4,13 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project is in its 0.x series;
 the API may still change between minor versions.
 
-## [0.1.0] - 2026-07-22
+## [0.1.1] - 2026-07-22
 
-Initial release, published to PyPI as **http-fields** (`import http_fields`).
+Initial release published to PyPI as **http-fields** (`import http_fields`).
+
+(`0.1.0` was tagged but never published to PyPI: its package metadata was missing a summary
+and carried a `Development Status :: 5 - Production/Stable` classifier that overstated the
+stability of a 0.x release. Caught on TestPyPI before the PyPI upload.)
 
 ### Added
 
@@ -43,4 +47,4 @@ Initial release, published to PyPI as **http-fields** (`import http_fields`).
 - Each header's serialized `value` (and `str()`/`bytes()`/`asgi_value`) is computed once and cached
   per instance.
 
-[0.1.0]: https://github.com/declaresub/http-fields/releases/tag/v0.1.0
+[0.1.1]: https://github.com/declaresub/http-fields/releases/tag/v0.1.1

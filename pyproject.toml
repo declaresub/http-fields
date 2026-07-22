@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "http-fields"
-description = ""
+description = "Typed, immutable HTTP header fields for Python, parsed and validated against RFC ABNF grammars"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["http", "headers", "abnf", "parser", "generator"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Internet :: WWW/HTTP",
     "Programming Language :: Python",
