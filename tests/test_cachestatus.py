@@ -1,3 +1,5 @@
+import pytest
+
 from http_headers import CacheStatus, Header, ProxyStatus
 from http_headers.structuredfields import Item, Token
 
@@ -28,3 +30,10 @@ def test_proxystatus_parse():
 def test_cachestatus_create():
     assert isinstance(Header.create("cache-status", "x; hit"), CacheStatus)
     assert isinstance(Header.create("proxy-status", "x"), ProxyStatus)
+
+
+def test_cachestatus_wrong_member_type_raises_typeerror():
+    # A non-Item/InnerList member is a construction-contract error: TypeError
+    # (pointing at parse()), not a serializer AssertionError/AttributeError.
+    with pytest.raises(TypeError):
+        CacheStatus("ExampleCache")  # type: ignore[arg-type]

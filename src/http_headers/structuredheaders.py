@@ -28,6 +28,9 @@ class StructuredListHeader(Header):
 
     def __init__(self, *members: Item | InnerList) -> None:
         object.__setattr__(self, "members", tuple(members))
+        # Check field types first, so a wrong-typed member gets the contract's TypeError
+        # (pointing at parse()) rather than tripping the serializer's Item assertions below.
+        self._check_field_types()
         # Serializing validates every member (rejecting injection / out-of-range values
         # via serialize_bare) and caches the result; a valid serialization is grammar-valid
         # by construction, so no re-parse is needed.
@@ -57,6 +60,9 @@ class DigestHeader(Header):
 
     def __init__(self, *digests: tuple[str, bytes]) -> None:
         object.__setattr__(self, "digests", tuple(digests))
+        # Check field types first, so a wrong-typed member gets the contract's TypeError
+        # (pointing at parse()) rather than an unpack/serializer error below.
+        self._check_field_types()
         # Serializing validates every dictionary key (via _validate_key) and caches the
         # result; a valid serialization is grammar-valid by construction, so no re-parse.
         _ = self.value

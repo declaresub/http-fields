@@ -60,3 +60,12 @@ def test_cachecontrol_value():
 def test_cachecontrol_extension_roundtrip():
     # s-maxage=0 must survive (falsy-0), and extension directives serialize.
     assert CacheControl.parse("s-maxage=0, foo=bar").value == "s-maxage=0,foo=bar"
+
+
+def test_cachecontrol_rejects_non_string_no_cache():
+    # no_cache/private are `bool | str`; a non-bool/str must be rejected, not
+    # silently coerced to a valueless directive (which would drop the field list).
+    with pytest.raises(TypeError):
+        CacheControl(no_cache=123)  # type: ignore[arg-type]
+    with pytest.raises(TypeError):
+        CacheControl(private=["Set-Cookie"])  # type: ignore[arg-type]

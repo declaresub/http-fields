@@ -68,6 +68,9 @@ class CacheControl(Header):
         # max-stale may be valueless (True); only coerce a delta-seconds bound.
         if self.max_stale is not None and self.max_stale is not True:
             object.__setattr__(self, "max_stale", NonNegativeInt(self.max_stale))
+        # Enforce the declared field types (e.g. no-cache/private must be bool | str, not a
+        # list that CacheDirective would silently swallow as a valueless directive).
+        super().__post_init__()
         # Serializing builds a self-validating CacheDirective for each field (name -> Token,
         # no-cache/private string -> QuotedString, ints -> NonNegativeInt), rejecting invalid
         # content, and caches the result; a valid serialization is grammar-valid by

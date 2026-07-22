@@ -38,3 +38,8 @@ def test_reprdigest():
 def test_digest_create():
     assert isinstance(Header.create("content-digest", "sha-256=:AA==:"), ContentDigest)
     assert isinstance(Header.create("repr-digest", "sha-256=:AA==:"), ReprDigest)
+
+
+def test_contentdigest_wrong_member_type_raises_typeerror():
+    with pytest.raises(TypeError):
+        ContentDigest("sha-256=:abc:")  # type: ignore[arg-type]
