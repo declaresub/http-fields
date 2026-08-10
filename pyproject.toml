@@ -77,6 +77,12 @@ testpaths = ["tests"]
 [tool.ruff]
 src = ["src", "tests"]
 
+[tool.ruff.format]
+# Ruff >= 0.16 formats Python code blocks in Markdown by default. Prose snippets are
+# written for reading (aligned trailing comments, elided bodies), not for the formatter,
+# so keep Markdown out of the formatter's scope.
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 # The formatter owns code line length (88 cols); E501 only fires on strings,
