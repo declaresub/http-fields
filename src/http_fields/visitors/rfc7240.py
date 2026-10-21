@@ -70,8 +70,9 @@ class PreferVisitor(NodeVisitor):
 
 
 class PreferenceAppliedVisitor(PreferVisitor):
-    # RFC 7240's abnf uses the same `preference` production for Preference-Applied.
+    # Preference-Applied items are `applied-pref`: token [ BWS "=" BWS word ], no
+    # parameters -- a subset of `preference`, so visit_preference handles them.
     def visit_preference_applied(self, node: Node) -> list[Preference]:
         return [
-            self.visit_preference(c) for c in node.children if c.name == "preference"
+            self.visit_preference(c) for c in node.children if c.name == "applied-pref"
         ]
