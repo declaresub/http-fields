@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project is in its 0.x series;
 the API may still change between minor versions.
 
+## [0.1.2] - 2026-10-21
+
+### Fixed
+
+- `PreferenceApplied.parse()` returned no preferences, without raising, when abnf 2.9.0 or later
+  was installed, which is what a fresh install of 0.1.1 resolves to. abnf 2.9.0 corrected its
+  RFC 7240 grammar so that `Preference-Applied` items are `applied-pref` rather than Prefer's
+  `preference`, and the visitor was still looking for the old name.
+  ([#53](https://github.com/declaresub/http-fields/issues/53))
+
+### Changed
+
+- Requires `abnf>=2.9.0` (was `>=2.6.0`).
+- `PreferenceApplied.parse()` now rejects parameters (e.g. `respond-async; wait=10`), which
+  RFC 7240 §3 does not allow in `Preference-Applied`.
+- `SetCookie.build()` raises `ValueError` for an empty string in `extension`, which would
+  otherwise serialize as a stray `"; "`.
+
+### Documentation
+
+- The design page gains an "On performance" section.
+
 ## [0.1.1] - 2026-07-22
 
 Initial release published to PyPI as **http-fields** (`import http_fields`).
@@ -47,4 +69,5 @@ stability of a 0.x release. Caught on TestPyPI before the PyPI upload.)
 - Each header's serialized `value` (and `str()`/`bytes()`/`asgi_value`) is computed once and cached
   per instance.
 
+[0.1.2]: https://github.com/declaresub/http-fields/releases/tag/v0.1.2
 [0.1.1]: https://github.com/declaresub/http-fields/releases/tag/v0.1.1

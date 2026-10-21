@@ -363,7 +363,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "abnf", specifier = ">=2.6.0" },
+    { name = "abnf", specifier = ">=2.9.0" },
     { name = "typing-extensions", specifier = ">=4.0" },
 ]
 
