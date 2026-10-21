@@ -256,6 +256,10 @@ class SetCookie(Header):
         # the RFC 6265 grammar requires max-age to be positive; this is almost universally
         # ignored, so we go with the crowd and clamp negatives to 0.
         normalized_max_age = 0 if max_age and max_age < 0 else max_age
+        # extension-av's prose rule admits the empty string, but an empty attribute
+        # would serialize as a stray "; ".
+        if extension and not all(extension):
+            raise ValueError("Invalid extension value.")
         try:
             ext = (
                 tuple(
